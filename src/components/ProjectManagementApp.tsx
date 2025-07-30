@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -329,42 +331,80 @@ export const ProjectManagementApp = () => {
     }
   };
 
-  const openFolder = (folderPath?: string, icloudLink?: string) => {
-    if (folderPath) {
+  // Improved folder opening with file picker for macOS
+  const openFolder = async (folderPath?: string, icloudLink?: string) => {
+    // If running as a Capacitor app (native)
+    if (Capacitor.isNativePlatform()) {
       try {
-        // For macOS desktop app - use reveal in Finder
-        if (window.navigator.userAgent.includes('Mac')) {
-          // Try to use shell command for macOS
-          window.open(`file://${folderPath}`, '_blank');
-        } else {
-          window.open(`file://${folderPath}`, '_blank');
-        }
-        toast({
-          title: "תיקייה נפתחת",
-          description: "התיקייה נפתחת ב-Finder",
-        });
-      } catch (error) {
-        console.error('Error opening folder:', error);
-        if (icloudLink) {
-          window.open(icloudLink, '_blank');
+        if (folderPath) {
+          // For native macOS app - reveal in Finder
+          await window.open(`file://${folderPath}`, '_blank');
+          toast({
+            title: "תיקייה נפתחת ב-Finder",
+            description: folderPath,
+          });
+        } else if (icloudLink) {
+          await window.open(icloudLink, '_blank');
           toast({
             title: "קישור iCloud נפתח",
             description: "הקישור נפתח בדפדפן",
           });
         } else {
-          toast({
-            title: "שגיאה",
-            description: "לא ניתן לפתוח את התיקייה",
-            variant: "destructive"
+          // Open file picker for selecting a folder
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.webkitdirectory = true;
+          input.addEventListener('change', (e) => {
+            const files = (e.target as HTMLInputElement).files;
+            if (files && files.length > 0) {
+              const folderPath = files[0].webkitRelativePath.split('/')[0];
+              toast({
+                title: "תיקייה נבחרה",
+                description: `נבחרה תיקייה: ${folderPath}`,
+              });
+            }
           });
+          input.click();
         }
+      } catch (error) {
+        console.error('Error with Capacitor folder operation:', error);
+        toast({
+          title: "שגיאה",
+          description: "לא ניתן לפתוח את התיקייה",
+          variant: "destructive"
+        });
       }
-    } else if (icloudLink) {
-      window.open(icloudLink, '_blank');
-      toast({
-        title: "קישור iCloud נפתח",
-        description: "הקישור נפתח בדפדפן",
-      });
+    } else {
+      // Web fallback
+      if (folderPath) {
+        try {
+          window.open(`file://${folderPath}`, '_blank');
+          toast({
+            title: "תיקייה נפתחת",
+            description: "התיקייה נפתחת ב-Finder",
+          });
+        } catch (error) {
+          if (icloudLink) {
+            window.open(icloudLink, '_blank');
+            toast({
+              title: "קישור iCloud נפתח",
+              description: "הקישור נפתח בדפדפן",
+            });
+          } else {
+            toast({
+              title: "שגיאה",
+              description: "לא ניתן לפתוח את התיקייה. נסה לבחור תיקייה חדשה.",
+              variant: "destructive"
+            });
+          }
+        }
+      } else if (icloudLink) {
+        window.open(icloudLink, '_blank');
+        toast({
+          title: "קישור iCloud נפתח",
+          description: "הקישור נפתח בדפדפן",
+        });
+      }
     }
   };
 
