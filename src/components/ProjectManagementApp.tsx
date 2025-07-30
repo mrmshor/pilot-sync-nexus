@@ -727,9 +727,9 @@ export const ProjectManagementApp = () => {
             </div>
 
             {/* Content */}
-            <main>
+            <main className="w-full">
               {activeTab === 'dashboard' && (
-                <div>
+                <div className="w-full">
                   <EnhancedDashboard 
                     projects={projects} 
                     stats={{
