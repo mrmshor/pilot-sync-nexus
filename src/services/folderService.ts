@@ -1,11 +1,19 @@
 export const FolderService = {
   selectFolder: async () => {
     try {
+      // First priority: Check for desktop app with Electron API
+      if (window.electronAPI && window.electronAPI.selectFolder) {
+        const folderPath = await window.electronAPI.selectFolder();
+        return folderPath;
+      }
+
+      // Second priority: Modern browser with File System Access API
       if ('showDirectoryPicker' in window) {
         const dirHandle = await (window as any).showDirectoryPicker();
         return dirHandle.name;
       }
 
+      // Fallback for older browsers
       return new Promise<string | null>((resolve) => {
         const input = document.createElement('input');
         input.type = 'file';
@@ -29,7 +37,8 @@ export const FolderService = {
       });
     } catch (error) {
       console.error('Error selecting folder:', error);
-      const path = prompt('הכנס נתיב תיקיה מלא:');
+      // Only show manual input as last resort
+      const path = prompt('בחירת תיקיה נכשלה. הכנס נתיב מלא:');
       return path;
     }
   },
