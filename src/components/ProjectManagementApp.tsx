@@ -312,10 +312,18 @@ export const ProjectManagementApp = () => {
   };
 
   const handleUpdateProject = (updatedProject: Project) => {
+    // שמירת מיקום הגלילה הנוכחי
+    const scrollPosition = window.scrollY;
+    
     setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
     toast({
       title: "פרויקט עודכן בהצלחה",
       description: `הפרויקט "${updatedProject.name}" עודכן במערכת`,
+    });
+    
+    // חזרה למיקום הגלילה הקודם
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollPosition);
     });
   };
 
@@ -374,6 +382,9 @@ export const ProjectManagementApp = () => {
   };
 
   const handleToggleProjectTask = (projectId: string, taskId: string) => {
+    // שמירת מיקום הגלילה הנוכחי
+    const scrollPosition = window.scrollY;
+    
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? {
@@ -391,6 +402,11 @@ export const ProjectManagementApp = () => {
           }
         : project
     ));
+    
+    // חזרה למיקום הגלילה הקודם
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollPosition);
+    });
   };
 
   const handleDeleteProjectTask = (projectId: string, taskId: string) => {
