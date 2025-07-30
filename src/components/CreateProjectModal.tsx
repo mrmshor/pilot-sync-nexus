@@ -32,7 +32,8 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
     price: 0,
     currency: 'ILS' as const,
     paid: false,
-    completed: false
+    completed: false,
+    deadline: undefined as Date | undefined
   });
 
   const handleSelectFolder = async () => {
@@ -91,7 +92,8 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
       price: 0,
       currency: 'ILS',
       paid: false,
-      completed: false
+      completed: false,
+      deadline: undefined
     });
   };
 
@@ -202,6 +204,20 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
                       <option value="CAD">דולר קנדי (CA$)</option>
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="deadline" className="text-blue-700 dark:text-blue-300 font-medium">מועד יעד</Label>
+                  <Input
+                    id="deadline"
+                    type="date"
+                    value={formData.deadline ? formData.deadline.toISOString().split('T')[0] : ''}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      deadline: e.target.value ? new Date(e.target.value) : undefined 
+                    }))}
+                    className="border-blue-200 dark:border-blue-800 focus:border-blue-500"
+                  />
                 </div>
 
                 <div className="flex gap-6 bg-blue-50/50 dark:bg-blue-950/30 p-3 rounded-lg">

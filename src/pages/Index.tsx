@@ -37,6 +37,7 @@ const App: React.FC = () => {
         currency: 'ILS',
         paid: false,
         completed: false,
+        deadline: new Date('2024-02-28'),
         createdAt: new Date('2024-01-15'),
         updatedAt: new Date(),
         tasks: [
@@ -65,6 +66,7 @@ const App: React.FC = () => {
         currency: 'ILS',
         paid: false,
         completed: false,
+        deadline: new Date('2024-02-10'),
         createdAt: new Date('2024-02-01'),
         updatedAt: new Date('2024-02-15'),
         tasks: []
@@ -87,6 +89,7 @@ const App: React.FC = () => {
         currency: 'ILS',
         paid: false,
         completed: false,
+        deadline: new Date('2024-02-05'),
         createdAt: new Date('2024-01-20'),
         updatedAt: new Date('2024-02-10'),
         tasks: [

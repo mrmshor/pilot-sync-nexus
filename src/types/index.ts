@@ -34,6 +34,7 @@ export interface Project {
   currency: 'USD' | 'EUR' | 'ILS' | 'GBP' | 'CAD';
   paid: boolean;
   completed: boolean;
+  deadline?: Date;
   createdAt: Date;
   updatedAt: Date;
   tasks: ProjectTask[];

@@ -121,9 +121,8 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
     const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
     
     return projects.filter(p => {
-      if (p.completed) return false;
-      const projectDate = new Date(p.createdAt.getTime() + 14 * 24 * 60 * 60 * 1000); // Assume 2 week deadline
-      return projectDate <= nextWeek && projectDate >= today;
+      if (p.completed || !p.deadline) return false;
+      return p.deadline <= nextWeek && p.deadline >= today;
     }).slice(0, 3);
   }, [projects]);
 
@@ -219,7 +218,7 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
                     <div className="font-medium text-sm">{project.name}</div>
                     <div className="text-xs text-muted-foreground">{project.clientName}</div>
                     <div className="text-xs text-warning font-medium mt-1">
-                      יעד השלמה השבוע
+                      יעד: {project.deadline?.toLocaleDateString('he-IL')}
                     </div>
                   </div>
                 ))
