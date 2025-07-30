@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Project, ProjectTask, QuickTask } from '@/types';
 import {
   Plus, X, Clock, CheckCircle2, Circle, Download, FileText, Phone, Mail,
   MessageCircle, FolderOpen, Star, TrendingUp, TrendingDown, DollarSign,
@@ -21,46 +22,6 @@ import {
   Sparkles, Rocket, Apple, Settings, Search, Filter, Save, Upload,
   Eye, EyeOff, Calendar, MapPin, Globe, Smartphone, Tablet, Monitor
 } from 'lucide-react';
-
-// Interfaces
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  clientName: string;
-  phone1: string;
-  phone2?: string;
-  whatsapp1: string;
-  whatsapp2?: string;
-  email: string;
-  folderPath?: string;
-  status: 'not-started' | 'in-progress' | 'in-review' | 'completed' | 'on-hold';
-  priority: 'low' | 'medium' | 'high';
-  price: number;
-  currency: 'USD' | 'EUR' | 'ILS' | 'GBP' | 'CAD';
-  paid: boolean;
-  completed: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  tasks: ProjectTask[];
-}
-
-interface ProjectTask {
-  id: string;
-  title: string;
-  completed: boolean;
-  createdAt: Date;
-  completedAt?: Date;
-}
-
-interface QuickTask {
-  id: string;
-  title: string;
-  completed: boolean;
-  createdAt: Date;
-  completedAt?: Date;
-  priority: 'low' | 'medium' | 'high';
-}
 
 // Apple Notes Integration Service
 class AppleNotesService {
@@ -142,7 +103,7 @@ ${completedTasks.map((task, index) =>
 
 ⏳ משימות בהמתנה (${pendingTasks.length}):
 ${pendingTasks.map((task, index) => 
-  `${index + 1}. ○ ${task.title}\n   🕐 נוצר: ${task.createdAt.toLocaleDateString('he-IL')}\n   🎯 עדיפות: ${this.getPriorityInHebrew(task.priority)}`
+  `${index + 1}. ○ ${task.title}\n   🕐 נוצר: ${task.createdAt.toLocaleDateString('he-IL')}`
 ).join('\n\n')}
 
 ---
@@ -174,7 +135,8 @@ ${pendingTasks.map((task, index) =>
       'in-progress': 'בתהליך',
       'in-review': 'בסקירה',
       'completed': 'הושלם',
-      'on-hold': 'ממתין'
+      'on-hold': 'ממתין',
+      'waiting': 'ממתין'
     };
     return statusMap[status] || status;
   }
@@ -575,8 +537,7 @@ const SuperQuickTasks: React.FC<{
       id: Date.now().toString(),
       title: newTask.trim(),
       completed: false,
-      createdAt: new Date(),
-      priority: 'medium'
+      createdAt: new Date()
     };
     
     const updatedTasks = [task, ...tasks];
