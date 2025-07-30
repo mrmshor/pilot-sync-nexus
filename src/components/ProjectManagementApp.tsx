@@ -584,8 +584,9 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen mr-80">
-          <div className="flex items-center justify-center min-h-screen">
+        <div className="flex-1 min-h-screen mr-80 flex flex-col">
+          {/* Fixed Header and Navigation */}
+          <div className="sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             <div className="container mx-auto px-4 py-8">
               {/* Header */}
               <header className="text-center mb-8">
@@ -671,6 +672,13 @@ export const ProjectManagementApp = () => {
                 <div className="w-24"></div>
               </div>
 
+              </div>
+            </div>
+          </div>
+
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="container mx-auto px-4 py-6">
               {/* Content */}
               <main>
                 {activeTab === 'dashboard' && (
@@ -775,6 +783,7 @@ export const ProjectManagementApp = () => {
 
                         return (
                           <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group">
+                            {/* ... keep existing code (project card content) */}
                             <CardHeader className="pb-4">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
@@ -789,7 +798,6 @@ export const ProjectManagementApp = () => {
                                   </div>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                  {/* Interactive Status and Priority Dropdowns - Fixed Size */}
                                   <StatusDropdown
                                     value={project.status}
                                     onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
@@ -809,7 +817,6 @@ export const ProjectManagementApp = () => {
                                 </p>
                               )}
 
-                              {/* Price and Payment Status */}
                               <div className="flex items-center justify-between mb-3">
                                 <div className="text-sm font-semibold text-green-600">
                                   {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
@@ -829,9 +836,7 @@ export const ProjectManagementApp = () => {
                                 </Button>
                               </div>
 
-                              {/* Tasks Section - Enhanced with External Controls */}
                               <div className="space-y-3">
-                                {/* Tasks Header with Title and Button */}
                                 <div className="bg-gradient-to-br from-blue-50/30 to-indigo-50/30 dark:from-blue-950/20 dark:to-indigo-950/20 p-3 rounded-lg border border-blue-100/50 dark:border-blue-800/30">
                                   <div className="flex items-center justify-between mb-3">
                                     <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400">משימות</h3>
@@ -849,7 +854,6 @@ export const ProjectManagementApp = () => {
                                     </Button>
                                   </div>
                                   
-                                  {/* Tasks Preview with Sorting */}
                                   {totalTasks > 0 && (
                                     <div className="space-y-3">
                                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
@@ -861,7 +865,6 @@ export const ProjectManagementApp = () => {
                                       <div className="space-y-2">
                                         {[...project.tasks]
                                           .sort((a, b) => {
-                                            // משימות לא מושלמות ראשונות, אחר כך מושלמות
                                             if (a.completed !== b.completed) {
                                               return a.completed ? 1 : -1;
                                             }
@@ -901,7 +904,6 @@ export const ProjectManagementApp = () => {
                                     </div>
                                   )}
                                   
-                                  {/* Empty State */}
                                   {totalTasks === 0 && (
                                     <div className="text-center py-4">
                                       <CheckSquare className="w-8 h-8 text-gray-400 mx-auto mb-2" />
@@ -915,7 +917,6 @@ export const ProjectManagementApp = () => {
                             </CardHeader>
 
                             <CardContent className="space-y-4">
-                              {/* Contact Actions */}
                               <div className="grid grid-cols-3 gap-2">
                                 {project.phone1 && (
                                   <Button
@@ -952,7 +953,6 @@ export const ProjectManagementApp = () => {
                                 )}
                               </div>
 
-                              {/* File Actions */}
                               <div className="flex gap-2">
                                 {(project.folderPath || project.icloudLink) && (
                                   <Button
@@ -967,7 +967,6 @@ export const ProjectManagementApp = () => {
                                 )}
                               </div>
 
-                              {/* Action Buttons */}
                               <div className="flex gap-2 pt-2 border-t">
                                 <Button
                                   size="sm"
@@ -997,7 +996,6 @@ export const ProjectManagementApp = () => {
                       })}
                     </div>
 
-                    {/* Empty State */}
                     {filteredAndSortedProjects.length === 0 && (
                       <Card className="card-macos">
                         <CardContent className="p-12 text-center">
