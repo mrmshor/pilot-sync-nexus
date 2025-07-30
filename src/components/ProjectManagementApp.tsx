@@ -555,19 +555,61 @@ export const ProjectManagementApp = () => {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
-        {/* Projects Sidebar - Left Side (Compact) */}
-        <AppSidebar 
-          projects={projects} 
-          onProjectSelect={handleSidebarProjectSelect}
-          selectedProjectId={selectedProject?.id}
-        />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
+      {/* Projects Sidebar - Left Side (Compact) */}
+      <div className="w-64 h-screen bg-white/95 backdrop-blur border-r border-gray-200 shadow-lg overflow-y-auto">
+        <div className="p-4">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">
+            פרויקטים ({projects.length})
+          </h3>
+          <div className="space-y-2">
+            {projects.map((project) => (
+              <button
+                key={project.id}
+                onClick={() => handleSidebarProjectSelect(project)}
+                className={`
+                  w-full text-right p-3 rounded-lg transition-all duration-200
+                  ${selectedProject?.id === project.id 
+                    ? 'bg-blue-100 border border-blue-500' 
+                    : 'hover:bg-gray-100'
+                  }
+                  ${project.priority === 'high' ? 'border-r-2 border-red-500' : ''}
+                  ${project.priority === 'medium' ? 'border-r-2 border-yellow-500' : ''}
+                  ${project.priority === 'low' ? 'border-r-2 border-green-500' : ''}
+                `}
+              >
+                <div className="text-sm font-medium text-gray-900 truncate">
+                  {project.name}
+                </div>
+                <div className="text-xs text-gray-500 truncate">
+                  {project.clientName}
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  {project.completed && (
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  )}
+                  {project.paid && (
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  )}
+                  <span className="text-xs text-gray-400">
+                    {project.tasks?.length || 0} משימות
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+          {projects.length === 0 && (
+            <div className="text-center text-gray-500 text-sm mt-8">
+              אין פרויקטים במערכת
+            </div>
+          )}
+        </div>
+      </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex">
-          {/* Main Center Content */}
-          <div className="flex-1 flex items-center justify-center min-h-screen">
+      {/* Main Content */}
+      <div className="flex-1 flex">
+        {/* Main Center Content */}
+        <div className="flex-1 flex items-center justify-center min-h-screen">
             <div className="container mx-auto px-4 py-8">
               {/* Header */}
               <header className="text-center mb-12">
@@ -1095,6 +1137,6 @@ export const ProjectManagementApp = () => {
           </div>
         </div>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
