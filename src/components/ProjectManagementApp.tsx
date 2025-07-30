@@ -565,8 +565,8 @@ export const ProjectManagementApp = () => {
         />
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen" dir="rtl">
-          <div className="flex items-center justify-center min-h-screen">
+        <div className="flex-1 min-h-screen">
+          <div className="flex items-center justify-center min-h-screen" dir="rtl">
             <div className="container mx-auto px-4 py-8">
               {/* Header */}
               <header className="text-center mb-12">
