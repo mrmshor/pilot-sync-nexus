@@ -8,12 +8,14 @@ import { Button } from '../components/ui/button';
 import { CreateProjectModal } from '../components/CreateProjectModal';
 import { ProjectsList } from '../components/ProjectsList';
 import { EnhancedDashboard } from '../components/EnhancedDashboard';
+import { ProjectTasksModal } from '../components/ProjectTasksModal';
 
 const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeTab, setActiveTab] = useState('projects');
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showTasksModal, setShowTasksModal] = useState(false);
   const [customLogo, setCustomLogo] = useState<string | null>(
     localStorage.getItem('customLogo')
   );
@@ -141,6 +143,62 @@ const App: React.FC = () => {
     
     setProjects(prev => [newProject, ...prev]);
     setShowCreateModal(false);
+  };
+
+  const handleAddProjectTask = (projectId: string, title: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
+    const newTask = {
+      id: Date.now().toString(),
+      title,
+      completed: false,
+      createdAt: new Date()
+    };
+
+    const updatedProject = {
+      ...project,
+      tasks: [...project.tasks, newTask],
+      updatedAt: new Date()
+    };
+
+    handleUpdateProject(updatedProject);
+  };
+
+  const handleToggleProjectTask = (projectId: string, taskId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
+    const updatedTasks = project.tasks.map(task => 
+      task.id === taskId 
+        ? { 
+            ...task, 
+            completed: !task.completed,
+            completedAt: !task.completed ? new Date() : undefined
+          }
+        : task
+    );
+
+    const updatedProject = {
+      ...project,
+      tasks: updatedTasks,
+      updatedAt: new Date()
+    };
+
+    handleUpdateProject(updatedProject);
+  };
+
+  const handleDeleteProjectTask = (projectId: string, taskId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
+    const updatedProject = {
+      ...project,
+      tasks: project.tasks.filter(task => task.id !== taskId),
+      updatedAt: new Date()
+    };
+
+    handleUpdateProject(updatedProject);
   };
 
   const handleUpdateProject = (updatedProject: Project) => {
@@ -301,7 +359,10 @@ const App: React.FC = () => {
               onUpdateProject={handleUpdateProject}
               onDeleteProject={handleDeleteProject}
               selectedProjectId={selectedProjectId}
-              onProjectSelect={setSelectedProjectId}
+              onProjectSelect={(projectId) => {
+                setSelectedProjectId(projectId);
+                setShowTasksModal(true);
+              }}
             />
           )}
         </div>
@@ -312,6 +373,16 @@ const App: React.FC = () => {
         open={showCreateModal}
         onOpenChange={setShowCreateModal}
         onCreateProject={handleCreateProject}
+      />
+
+      {/* Project Tasks Modal */}
+      <ProjectTasksModal
+        open={showTasksModal}
+        onOpenChange={setShowTasksModal}
+        project={selectedProjectId ? projects.find(p => p.id === selectedProjectId) || null : null}
+        onAddTask={handleAddProjectTask}
+        onToggleTask={handleToggleProjectTask}
+        onDeleteTask={handleDeleteProjectTask}
       />
     </div>
   );
