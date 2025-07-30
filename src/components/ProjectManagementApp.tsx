@@ -428,6 +428,7 @@ export const ProjectManagementApp = () => {
 
   // Status and Priority handlers for external buttons
   const updateProjectStatus = (projectId: string, newStatus: Project['status']) => {
+    saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? { ...project, status: newStatus, updatedAt: new Date() }
@@ -440,6 +441,7 @@ export const ProjectManagementApp = () => {
   };
 
   const updateProjectPriority = (projectId: string, newPriority: Project['priority']) => {
+    saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? { ...project, priority: newPriority, updatedAt: new Date() }
@@ -452,6 +454,7 @@ export const ProjectManagementApp = () => {
   };
 
   const toggleProjectPaid = (projectId: string) => {
+    saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? { ...project, paid: !project.paid, updatedAt: new Date() }
