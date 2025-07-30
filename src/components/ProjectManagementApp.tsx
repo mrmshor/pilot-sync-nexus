@@ -574,7 +574,7 @@ export const ProjectManagementApp = () => {
     <SidebarProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
         {/* Quick Tasks Sidebar - Right Side (appears first due to RTL) */}
-        <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto">
+        <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg fixed top-0 right-0 z-30">
           <QuickTasksSidebar
             quickTasks={quickTasks}
             onAddTask={handleAddQuickTask}
@@ -584,7 +584,7 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen">
+        <div className="flex-1 min-h-screen mr-80">
           <div className="flex items-center justify-center min-h-screen">
             <div className="container mx-auto px-4 py-8">
               {/* Header */}
