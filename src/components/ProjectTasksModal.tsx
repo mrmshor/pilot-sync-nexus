@@ -86,7 +86,7 @@ export const ProjectTasksModal = ({
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               placeholder="משימה חדשה..."
-              onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
               className="flex-1 text-sm h-8"
             />
             <Button 
