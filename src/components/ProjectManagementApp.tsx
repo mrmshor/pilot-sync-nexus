@@ -35,6 +35,9 @@ export const ProjectManagementApp = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [preserveScroll, setPreserveScroll] = useState<number | null>(null);
+  const [customLogo, setCustomLogo] = useState<string | null>(
+    localStorage.getItem('customLogo')
+  );
   const { toast } = useToast();
 
   // שמירת מיקום גלילה
@@ -152,6 +155,41 @@ export const ProjectManagementApp = () => {
       description: `נטענו ${sampleProjects.length} פרויקטים`,
     });
   }, [toast]);
+
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        toast({
+          title: "שגיאה",
+          description: "גודל הקובץ גדול מדי. אנא בחר קובץ קטן מ-2MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setCustomLogo(result);
+        localStorage.setItem('customLogo', result);
+        toast({
+          title: "הלוגו הועלה בהצלחה",
+          description: "הלוגו החדש נשמר במערכת",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeLogo = () => {
+    setCustomLogo(null);
+    localStorage.removeItem('customLogo');
+    toast({
+      title: "הלוגו הוסר",
+      description: "חזרנו ללוגו הברירת מחדל",
+    });
+  };
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -521,8 +559,42 @@ export const ProjectManagementApp = () => {
             {/* Header */}
             <header className="text-center mb-12">
               <div className="flex items-center justify-center gap-4 mb-4">
-                <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-macos">
-                  <span className="text-2xl">🚀</span>
+                <div className="relative group">
+                  <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-macos overflow-hidden">
+                    {customLogo ? (
+                      <img 
+                        src={customLogo} 
+                        alt="לוגו מותאם אישית" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-2xl">🚀</span>
+                    )}
+                  </div>
+                  
+                  {/* Logo upload overlay */}
+                  <div className="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center cursor-pointer">
+                    <label htmlFor="logo-upload" className="cursor-pointer">
+                      <Plus className="h-5 w-5 text-white" />
+                      <input
+                        id="logo-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  
+                  {/* Remove logo button */}
+                  {customLogo && (
+                    <button
+                      onClick={removeLogo}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
