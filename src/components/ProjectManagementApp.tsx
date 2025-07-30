@@ -565,7 +565,7 @@ export const ProjectManagementApp = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 w-full flex" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir="rtl">
         {/* Quick Tasks Sidebar - Fixed positioning */}
         <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto fixed left-0 top-0 z-30">
           <QuickTasksSidebar
@@ -576,8 +576,8 @@ export const ProjectManagementApp = () => {
           />
         </div>
 
-        {/* Main Content - using flex-1 to take remaining space */}
-        <div className="flex-1 ml-80 mr-48">
+        {/* Main Content - with proper margins for fixed sidebars */}
+        <div className="ml-80 mr-48 min-h-screen">
           <div className="w-full py-8">
             {/* Header */}
             <header className="text-center mb-12">
