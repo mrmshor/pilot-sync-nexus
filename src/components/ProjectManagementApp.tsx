@@ -506,7 +506,7 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 flex items-center justify-center min-h-screen">
           <div className="container mx-auto px-4 py-8">
             {/* Header */}
             <header className="text-center mb-12">
@@ -518,20 +518,10 @@ export const ProjectManagementApp = () => {
                   <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                     מערכת ניהול פרויקטים Pro
                   </h1>
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                    <span>🍎</span>
-                    <span>מותאם macOS</span>
-                    <span>•</span>
-                    <span>⚡</span>
-                    <span>ביצועים מהירים</span>
-                    <span>•</span>
-                    <span>💾</span>
-                    <span>נתונים גדולים</span>
-                  </div>
                 </div>
               </div>
               
-              {/* Action Buttons - Centered */}
+              {/* Action Button - Only Export */}
               <div className="flex items-center justify-center gap-3 mb-6">
                 <Button
                   variant="outline"
@@ -540,13 +530,6 @@ export const ProjectManagementApp = () => {
                 >
                   <Download className="w-4 h-4" />
                   ייצוא CSV
-                </Button>
-                <Button
-                  onClick={() => setShowCreateModal(true)}
-                  className="gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                >
-                  <Plus className="w-4 h-4" />
-                  פרויקט חדש
                 </Button>
               </div>
             </header>
