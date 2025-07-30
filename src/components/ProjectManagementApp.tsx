@@ -551,7 +551,16 @@ export const ProjectManagementApp = () => {
 
   const handleSidebarProjectSelect = (project: Project) => {
     setSelectedProject(project);
-    setShowTasksModal(true);
+    // Scroll to the project card in the main view
+    const projectElement = document.getElementById(`project-${project.id}`);
+    if (projectElement) {
+      projectElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Add temporary highlight effect
+      projectElement.classList.add('ring-4', 'ring-blue-500/50');
+      setTimeout(() => {
+        projectElement.classList.remove('ring-4', 'ring-blue-500/50');
+      }, 2000);
+    }
   };
 
   return (
@@ -821,7 +830,8 @@ export const ProjectManagementApp = () => {
                       const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
                       return (
-                        <Card key={project.id} className="card-macos relative group">
+                        <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group transition-all duration-300"
+                        >
                           <CardHeader className="pb-4">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
