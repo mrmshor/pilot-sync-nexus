@@ -9,7 +9,7 @@ import {
   FolderOpen, CheckCircle2, CreditCard, Plus, X, Clock, Filter,
   BarChart3, TrendingUp, Users, DollarSign, Calendar, Settings,
   Download, Bug, Zap, Database, Activity, CheckSquare, Target,
-  FileText, ArrowUpDown, ListTodo
+  FileText, ArrowUpDown, ListTodo, ChevronDown, List
 } from 'lucide-react';
 import { Project, ProjectTask, QuickTask } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -38,6 +38,7 @@ export const ProjectManagementApp = () => {
   const [customLogo, setCustomLogo] = useState<string | null>(
     localStorage.getItem('customLogo')
   );
+  const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const { toast } = useToast();
 
   // שמירת מיקום גלילה
@@ -540,6 +541,12 @@ export const ProjectManagementApp = () => {
     }
   };
 
+  const handleProjectSelect = (project: Project) => {
+    setSelectedProject(project);
+    setShowTasksModal(true);
+    setShowProjectsDropdown(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir="rtl">
       <div className="flex w-full">
@@ -603,7 +610,7 @@ export const ProjectManagementApp = () => {
                 </div>
               </div>
               
-              {/* Action Button - Only Export */}
+              {/* Action Button - Export + Projects List */}
               <div className="flex items-center justify-center gap-3 mb-6">
                 <Button
                   variant="outline"
@@ -613,6 +620,65 @@ export const ProjectManagementApp = () => {
                   <Download className="w-4 h-4" />
                   ייצוא CSV
                 </Button>
+                
+                {/* Projects Dropdown */}
+                <div className="relative">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowProjectsDropdown(!showProjectsDropdown)}
+                    className="gap-2 min-w-[200px] justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <List className="w-4 h-4" />
+                      <span>רשימת פרויקטים ({projects.length})</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showProjectsDropdown ? 'rotate-180' : ''}`} />
+                  </Button>
+                  
+                  {showProjectsDropdown && (
+                    <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                      <div className="p-2">
+                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400 px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                          בחר פרויקט לפתיחה
+                        </div>
+                        {projects.length > 0 ? (
+                          <div className="space-y-1 mt-2">
+                            {projects.map((project) => (
+                              <button
+                                key={project.id}
+                                onClick={() => handleProjectSelect(project)}
+                                className="w-full text-right px-3 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between group"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
+                                    {project.name}
+                                  </div>
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                    {project.clientName}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 ml-2">
+                                  {project.completed && (
+                                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                  )}
+                                  {project.paid && (
+                                    <CreditCard className="w-4 h-4 text-blue-500" />
+                                  )}
+                                  <ChevronDown className="w-3 h-3 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 rotate-[-90deg]" />
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                            <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">אין פרויקטים במערכת</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </header>
 
