@@ -406,8 +406,7 @@ export const ProjectManagementApp = () => {
                     completedAt: !task.completed ? new Date() : undefined
                   }
                 : task
-            ),
-            updatedAt: new Date()
+            )
           }
         : project
     ));
@@ -431,7 +430,7 @@ export const ProjectManagementApp = () => {
     saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
-        ? { ...project, status: newStatus, updatedAt: new Date() }
+        ? { ...project, status: newStatus }
         : project
     ));
     toast({
@@ -444,7 +443,7 @@ export const ProjectManagementApp = () => {
     saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
-        ? { ...project, priority: newPriority, updatedAt: new Date() }
+        ? { ...project, priority: newPriority }
         : project
     ));
     toast({
@@ -457,7 +456,7 @@ export const ProjectManagementApp = () => {
     saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
-        ? { ...project, paid: !project.paid, updatedAt: new Date() }
+        ? { ...project, paid: !project.paid }
         : project
     ));
   };
