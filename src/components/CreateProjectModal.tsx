@@ -1,20 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Plus, X, Apple, FolderOpen, Zap, CheckCircle2, AlertTriangle,
-  FileText, User, Settings, Eye, CheckSquare
-} from 'lucide-react';
-import { Project } from '../types';
-import { FolderService } from '../services';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Project } from '@/types';
+import { Plus, X } from 'lucide-react';
 
 interface CreateProjectModalProps {
-  onCreateProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks'>) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreateProject: (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks'>) => void;
 }
 
-export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onCreateProject }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: CreateProjectModalProps) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -34,56 +32,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onCreate
     completed: false
   });
 
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
-  const [folderPathStatus, setFolderPathStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
-
-  const validateFolderPath = (path: string) => {
-    if (!path) {
-      setFolderPathStatus('idle');
-      return;
-    }
-    
-    const macPathPattern = /^\/Users\/[^\/]+/;
-    const isValidMacPath = macPathPattern.test(path);
-    const windowsPathPattern = /^[A-Za-z]:\\/;
-    const isValidWindowsPath = windowsPathPattern.test(path);
-    
-    if (isValidMacPath || isValidWindowsPath || path.startsWith('/') || path.includes('Projects')) {
-      setFolderPathStatus('valid');
-    } else {
-      setFolderPathStatus('invalid');
-    }
-  };
-
-  useEffect(() => {
-    validateFolderPath(formData.folderPath);
-  }, [formData.folderPath]);
-
-  const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'שם הפרויקט הוא שדה חובה';
-    }
-    
-    if (!formData.clientName.trim()) {
-      newErrors.clientName = 'שם הלקוח הוא שדה חובה';
-    }
-
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'כתובת אימייל לא תקינה';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
-
     onCreateProject(formData);
+    
+    // Reset form
     setFormData({
       name: '',
       description: '',
@@ -102,357 +55,245 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onCreate
       paid: false,
       completed: false
     });
-    setErrors({});
-    setIsOpen(false);
-    
-    const folderInfo = formData.folderPath ? `\n📁 תיקיה: ${formData.folderPath}` : '';
-    const cloudInfo = formData.icloudLink ? `\n☁️ קישור: ${formData.icloudLink}` : '';
-    alert(`הפרויקט "${formData.name}" נוצר בהצלחה במערכת macOS!${folderInfo}${cloudInfo}`);
   };
 
   return (
-    <>
-      <Button 
-        onClick={() => setIsOpen(true)}
-        className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg"
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        צור פרויקט חדש
-      </Button>
-      
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="relative bg-white/95 backdrop-blur rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-white/90 backdrop-blur sticky top-0 z-10">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Apple className="h-5 w-5 text-gray-500" />
-                צור פרויקט חדש - מותאם macOS
-              </h2>
-              <Button variant="ghost" onClick={() => setIsOpen(false)} size="sm">
-                <X className="h-5 w-5" />
-              </Button>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            פרויקט חדש
+          </DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Project Details */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">פרטי הפרויקט</h3>
+              
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="name">שם הפרויקט *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="הכנס שם פרויקט"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="description">תיאור</Label>
+                  <textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="תיאור הפרויקט"
+                    className="w-full px-3 py-2 border rounded-lg text-sm min-h-[80px] resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="status">סטטוס</Label>
+                    <select
+                      id="status"
+                      value={formData.status}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                      className="w-full px-3 py-2 border rounded-lg text-sm"
+                    >
+                      <option value="not-started">לא התחיל</option>
+                      <option value="in-progress">בתהליך</option>
+                      <option value="in-review">בבדיקה</option>
+                      <option value="completed">הושלם</option>
+                      <option value="on-hold">מושהה</option>
+                      <option value="waiting">ממתין</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="priority">עדיפות</Label>
+                    <select
+                      id="priority"
+                      value={formData.priority}
+                      onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value as any }))}
+                      className="w-full px-3 py-2 border rounded-lg text-sm"
+                    >
+                      <option value="low">נמוכה</option>
+                      <option value="medium">בינונית</option>
+                      <option value="high">גבוהה</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="price">מחיר</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
+                      placeholder="0"
+                      min="0"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="currency">מטבע</Label>
+                    <select
+                      id="currency"
+                      value={formData.currency}
+                      onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value as any }))}
+                      className="w-full px-3 py-2 border rounded-lg text-sm"
+                    >
+                      <option value="ILS">שקל (₪)</option>
+                      <option value="USD">דולר ($)</option>
+                      <option value="EUR">יורו (€)</option>
+                      <option value="GBP">לירה (£)</option>
+                      <option value="CAD">דולר קנדי (CA$)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.paid}
+                      onChange={(e) => setFormData(prev => ({ ...prev, paid: e.target.checked }))}
+                      className="rounded"
+                    />
+                    <span className="text-sm">שולם</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.completed}
+                      onChange={(e) => setFormData(prev => ({ ...prev, completed: e.target.checked }))}
+                      className="rounded"
+                    />
+                    <span className="text-sm">הושלם</span>
+                  </label>
+                </div>
+              </div>
             </div>
-            
-            {/* Content */}
-            <div className="overflow-y-auto max-h-[calc(95vh-120px)]">
-              <form onSubmit={handleSubmit} className="p-6 space-y-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Left Column */}
-                  <div className="space-y-6">
-                    {/* Project Details */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200/50">
-                      <h3 className="text-lg font-semibold text-blue-700 mb-4 flex items-center gap-2">
-                        <FileText className="h-5 w-5" />
-                        📋 פרטי הפרויקט
-                      </h3>
-                      
-                      <div className="space-y-4">
-                        <Input
-                          label="שם הפרויקט"
-                          value={formData.name}
-                          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                          placeholder="הכנס שם פרויקט מפורט ובהיר"
-                          required
-                          error={errors.name}
-                        />
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">תיאור מפורט</label>
-                          <textarea
-                            value={formData.description}
-                            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                            placeholder="מטרות, דרישות, תוכן העבודה וכל פרט רלוונטי"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur bg-white/80 min-h-[120px] resize-none transition-all duration-200"
-                          />
-                        </div>
-                      </div>
-                    </div>
+            {/* Client Details */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">פרטי לקוח</h3>
+              
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="clientName">שם הלקוח *</Label>
+                  <Input
+                    id="clientName"
+                    value={formData.clientName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, clientName: e.target.value }))}
+                    placeholder="הכנס שם לקוח"
+                    required
+                  />
+                </div>
 
-                    {/* Folder Management - ENHANCED */}
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200/50">
-                      <h3 className="text-lg font-semibold text-green-700 mb-4 flex items-center gap-2">
-                        <FolderOpen className="h-5 w-5" />
-                        📁 ניהול תיקיות macOS
-                      </h3>
-                      
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            נתיב תיקיה במחשב (אופציונלי)
-                          </label>
-                          <div className="flex gap-2">
-                            <Input
-                              value={formData.folderPath}
-                              onChange={(e) => setFormData(prev => ({ ...prev, folderPath: e.target.value }))}
-                              placeholder="/Users/YourName/Projects/ClientName/ProjectName"
-                              className={`flex-1 ${
-                                folderPathStatus === 'valid' ? 'border-green-500 bg-green-50/50' :
-                                folderPathStatus === 'invalid' ? 'border-red-500 bg-red-50/50' : ''
-                              }`}
-                            />
-                            <Button 
-                              type="button" 
-                              variant="outline" 
-                              onClick={async () => {
-                                const selectedPath = await FolderService.selectFolder();
-                                if (selectedPath) {
-                                  setFormData(prev => ({ ...prev, folderPath: selectedPath }));
-                                }
-                              }} 
-                              size="sm"
-                              title="פתח Finder לבחירת תיקיה"
-                            >
-                              <FolderOpen className="h-4 w-4 mr-1" />
-                              Finder
-                            </Button>
-                            <Button 
-                              type="button" 
-                              variant="ghost" 
-                              onClick={() => {
-                                if (formData.name && formData.clientName) {
-                                  const suggestedPath = FolderService.generateFolderPath(formData.name, formData.clientName);
-                                  setFormData(prev => ({ ...prev, folderPath: suggestedPath }));
-                                } else {
-                                  alert('אנא הכנס תחילה שם פרויקט ושם לקוח');
-                                }
-                              }} 
-                              size="sm"
-                              title="צור נתיב מומלץ"
-                            >
-                              <Zap className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          
-                          {formData.folderPath && (
-                            <div className="mt-2">
-                              {folderPathStatus === 'valid' && (
-                                <p className="text-xs text-green-600 flex items-center gap-1">
-                                  <CheckCircle2 className="h-3 w-3" />
-                                  נתיב תקין ומותאם macOS
-                                </p>
-                              )}
-                              {folderPathStatus === 'invalid' && (
-                                <p className="text-xs text-red-600 flex items-center gap-1">
-                                  <AlertTriangle className="h-3 w-3" />
-                                  נתיב לא תקין - נסה שוב או השתמש בכפתור Finder
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                <div>
+                  <Label htmlFor="email">אימייל</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="email@example.com"
+                  />
+                </div>
 
-                        <Input
-                          label="קישור תיקייה (iCloud/URL)"
-                          value={formData.icloudLink}
-                          onChange={(e) => setFormData(prev => ({ ...prev, icloudLink: e.target.value }))}
-                          placeholder="https://icloud.com/... או קישור אחר לתיקייה"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Project Settings */}
-                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-xl border border-orange-200/50">
-                      <h3 className="text-lg font-semibold text-orange-700 mb-4 flex items-center gap-2">
-                        <Settings className="h-5 w-5" />
-                        ⚙️ הגדרות הפרויקט
-                      </h3>
-                      
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">סטטוס עבודה</label>
-                            <select
-                              value={formData.status} 
-                              onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent bg-white/80 backdrop-blur"
-                            >
-                              <option value="not-started">לא התחיל</option>
-                              <option value="in-progress">בתהליך</option>
-                              <option value="completed">הושלם</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">רמת עדיפות</label>
-                            <select
-                              value={formData.priority} 
-                              onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value as any }))}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent bg-white/80 backdrop-blur"
-                            >
-                              <option value="low">🟢 נמוכה</option>
-                              <option value="medium">🟡 בינונית</option>
-                              <option value="high">🔴 גבוהה</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <Input
-                          label="מחיר הפרויקט"
-                          type="number"
-                          value={formData.price}
-                          onChange={(e) => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
-                          placeholder="0"
-                          min="0"
-                          step="0.01"
-                        />
-
-                        <div className="flex gap-6">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={formData.paid}
-                              onChange={(e) => setFormData(prev => ({ ...prev, paid: e.target.checked }))}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500/50"
-                            />
-                            <span className="text-sm text-gray-700">שולם</span>
-                          </label>
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={formData.completed}
-                              onChange={(e) => setFormData(prev => ({ ...prev, completed: e.target.checked }))}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500/50"
-                            />
-                            <span className="text-sm text-gray-700">הושלם</span>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="phone1">טלפון ראשי</Label>
+                    <Input
+                      id="phone1"
+                      type="tel"
+                      value={formData.phone1}
+                      onChange={(e) => setFormData(prev => ({ ...prev, phone1: e.target.value }))}
+                      placeholder="+972-50-123-4567"
+                    />
                   </div>
 
-                  {/* Right Column - Client Details & Preview */}
-                  <div className="space-y-6">
-                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200/50">
-                      <h3 className="text-lg font-semibold text-purple-700 mb-4 flex items-center gap-2">
-                        <User className="h-5 w-5" />
-                        👤 פרטי לקוח מפורטים
-                      </h3>
-                      
-                      <div className="space-y-4">
-                        <Input
-                          label="שם הלקוח"
-                          value={formData.clientName}
-                          onChange={(e) => setFormData(prev => ({ ...prev, clientName: e.target.value }))}
-                          placeholder="הכנס שם לקוח מלא"
-                          required
-                          error={errors.clientName}
-                        />
-
-                        <div className="grid grid-cols-1 gap-4">
-                          <Input
-                            label="טלפון ראשי"
-                            value={formData.phone1}
-                            onChange={(e) => setFormData(prev => ({ ...prev, phone1: e.target.value }))}
-                            placeholder="+972-50-123-4567"
-                            type="tel"
-                          />
-
-                          <Input
-                            label="טלפון נוסף"
-                            value={formData.phone2}
-                            onChange={(e) => setFormData(prev => ({ ...prev, phone2: e.target.value }))}
-                            placeholder="+972-50-123-4567"
-                            type="tel"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-4">
-                          <Input
-                            label="וואטסאפ ראשי"
-                            value={formData.whatsapp1}
-                            onChange={(e) => setFormData(prev => ({ ...prev, whatsapp1: e.target.value }))}
-                            placeholder="+972-50-123-4567"
-                            type="tel"
-                          />
-
-                          <Input
-                            label="וואטסאפ נוסף"
-                            value={formData.whatsapp2}
-                            onChange={(e) => setFormData(prev => ({ ...prev, whatsapp2: e.target.value }))}
-                            placeholder="+972-50-123-4567"
-                            type="tel"
-                          />
-                        </div>
-
-                        <Input
-                          label="כתובת אימייל"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                          placeholder="client@example.com"
-                          error={errors.email}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Preview */}
-                    <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-200/50">
-                      <h3 className="text-lg font-semibold text-indigo-700 mb-4 flex items-center gap-2">
-                        <Eye className="h-5 w-5" />
-                        👀 תצוגה מקדימה
-                      </h3>
-                      
-                      <div className="p-6 bg-white/90 backdrop-blur rounded-xl border-2 border-dashed border-indigo-200 space-y-4">
-                        <div className="font-bold text-xl text-gray-800">
-                          {formData.name || 'שם הפרויקט'}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          👤 {formData.clientName || 'שם הלקוח'}
-                        </div>
-                        
-                        {formData.price > 0 && (
-                          <div className="font-bold text-xl text-green-600">
-                            ₪{formData.price.toLocaleString()}
-                          </div>
-                        )}
-
-                        {(formData.folderPath || formData.icloudLink) && (
-                          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                            <div className="flex items-center gap-2 text-sm">
-                              <FolderOpen className="h-4 w-4 text-blue-600" />
-                              <span className="font-medium text-blue-800">תיקיה מקושרת:</span>
-                            </div>
-                            {formData.folderPath && (
-                              <div className="text-xs text-blue-600 mt-1 bg-white p-2 rounded border font-mono">
-                                📁 {formData.folderPath}
-                              </div>
-                            )}
-                            {formData.icloudLink && (
-                              <div className="text-xs text-blue-600 mt-1 bg-white p-2 rounded border">
-                                ☁️ {formData.icloudLink.substring(0, 50)}...
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        
-                        <div className="text-xs text-gray-500 border-t pt-2">
-                          💻 מותאם במיוחד למחשבי Mac
-                        </div>
-                      </div>
-                    </div>
+                  <div>
+                    <Label htmlFor="phone2">טלפון נוסף</Label>
+                    <Input
+                      id="phone2"
+                      type="tel"
+                      value={formData.phone2}
+                      onChange={(e) => setFormData(prev => ({ ...prev, phone2: e.target.value }))}
+                      placeholder="+972-50-123-4567"
+                    />
                   </div>
                 </div>
 
-                {/* Footer */}
-                <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 bg-white/90 backdrop-blur sticky bottom-0">
-                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-                    ביטול
-                  </Button>
-                  <Button type="submit" className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                    <CheckSquare className="h-4 w-4 mr-2" />
-                    צור פרויקט במערכת macOS
-                  </Button>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="whatsapp1">וואטסאפ ראשי</Label>
+                    <Input
+                      id="whatsapp1"
+                      type="tel"
+                      value={formData.whatsapp1}
+                      onChange={(e) => setFormData(prev => ({ ...prev, whatsapp1: e.target.value }))}
+                      placeholder="+972-50-123-4567"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="whatsapp2">וואטסאפ נוסף</Label>
+                    <Input
+                      id="whatsapp2"
+                      type="tel"
+                      value={formData.whatsapp2}
+                      onChange={(e) => setFormData(prev => ({ ...prev, whatsapp2: e.target.value }))}
+                      placeholder="+972-50-123-4567"
+                    />
+                  </div>
                 </div>
-              </form>
+
+                <div>
+                  <Label htmlFor="folderPath">נתיב תיקייה</Label>
+                  <Input
+                    id="folderPath"
+                    value={formData.folderPath}
+                    onChange={(e) => setFormData(prev => ({ ...prev, folderPath: e.target.value }))}
+                    placeholder="/Users/YourName/Projects/..."
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="icloudLink">קישור iCloud</Label>
+                  <Input
+                    id="icloudLink"
+                    value={formData.icloudLink}
+                    onChange={(e) => setFormData(prev => ({ ...prev, icloudLink: e.target.value }))}
+                    placeholder="https://icloud.com/..."
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </>
+
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+            >
+              ביטול
+            </Button>
+            <Button type="submit">
+              צור פרויקט
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };

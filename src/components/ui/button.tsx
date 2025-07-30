@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'outline' | 'ghost' | 'destructive' | 'success' | 'warning' | 'gradient';
+  variant?: 'default' | 'outline' | 'ghost' | 'destructive' | 'success' | 'warning' | 'gradient' | 'glass';
   size?: 'sm' | 'default' | 'lg' | 'icon';
   mac?: boolean;
 }
@@ -25,7 +25,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
     destructive: 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-lg',
     success: 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg',
     warning: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg',
-    gradient: 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
+    gradient: 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl',
+    glass: 'bg-white/20 backdrop-blur-sm border border-gray-200/50 text-gray-700 hover:bg-white/30'
   };
   
   const sizes = {
