@@ -41,25 +41,25 @@ export const QuickTasksSidebar = ({
     });
   };
 
-  const handleCopyCompletedTasks = async () => {
-    if (completedTasks.length === 0) {
+  const handleCopyPendingTasks = async () => {
+    if (pendingTasks.length === 0) {
       toast({
         title: "אין משימות להעתקה",
-        description: "אין משימות מושלמות להעתקה",
+        description: "אין משימות ממתינות להעתקה",
         variant: "destructive"
       });
       return;
     }
 
-    const tasksList = completedTasks
-      .map(task => `✓ ${task.title}`)
+    const tasksList = pendingTasks
+      .map(task => `• ${task.title}`)
       .join('\n');
 
     try {
       await navigator.clipboard.writeText(tasksList);
       toast({
         title: "הועתק בהצלחה!",
-        description: `${completedTasks.length} משימות מושלמות הועתקו ללוח`,
+        description: `${pendingTasks.length} משימות ממתינות הועתקו ללוח`,
       });
     } catch (error) {
       // Fallback for browsers that don't support clipboard API
@@ -72,7 +72,7 @@ export const QuickTasksSidebar = ({
       
       toast({
         title: "הועתק בהצלחה!",
-        description: `${completedTasks.length} משימות מושלמות הועתקו ללוח`,
+        description: `${pendingTasks.length} משימות ממתינות הועתקו ללוח`,
       });
     }
   };
@@ -119,9 +119,20 @@ export const QuickTasksSidebar = ({
       {pendingTasks.length > 0 && (
         <Card className="card-macos">
           <CardHeader className="pb-3">
-            <CardTitle className="text-md flex items-center gap-2">
-              <Clock className="w-4 h-4 text-warning" />
-              משימות ממתינות ({pendingTasks.length})
+            <CardTitle className="text-md flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-warning" />
+                משימות ממתינות ({pendingTasks.length})
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCopyPendingTasks}
+                className="h-8 flex items-center gap-1 text-xs"
+              >
+                <Copy className="w-3 h-3" />
+                העתק הכל
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -157,20 +168,9 @@ export const QuickTasksSidebar = ({
       {completedTasks.length > 0 && (
         <Card className="card-macos">
           <CardHeader className="pb-3">
-            <CardTitle className="text-md flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-success" />
-                משימות שהושלמו ({completedTasks.length})
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleCopyCompletedTasks}
-                className="h-8 flex items-center gap-1 text-xs"
-              >
-                <Copy className="w-3 h-3" />
-                העתק הכל
-              </Button>
+            <CardTitle className="text-md flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-success" />
+              משימות שהושלמו ({completedTasks.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
