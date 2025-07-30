@@ -51,13 +51,13 @@ export function AppSidebar({ projects, onProjectSelect, selectedProjectId }: App
 
   return (
     <Sidebar
-      className="w-16 border-l border-gray-200 bg-white/95 backdrop-blur fixed right-0 top-0 h-screen z-40"
+      className="w-48 border-l border-gray-200 bg-white/95 backdrop-blur fixed right-0 top-0 h-screen z-40"
       collapsible="none"
     >
       <SidebarContent className="p-2">
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-bold text-gray-600 text-center mb-2">
-            פרויקטים
+            פרויקטים ({projects.length})
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
@@ -69,28 +69,31 @@ export function AppSidebar({ projects, onProjectSelect, selectedProjectId }: App
                     className={`
                       ${getPriorityColor(project.priority)}
                       ${selectedProjectId === project.id ? 'bg-blue-100 border-blue-500' : ''}
-                      hover:bg-blue-50 transition-all duration-200 p-1 h-12 w-12 rounded-lg flex items-center justify-center relative group
+                      hover:bg-blue-50 transition-all duration-200 p-2 h-auto rounded-lg w-full text-right
                     `}
-                    title={`${project.name} - ${project.clientName}`}
                   >
-                    <div className="flex flex-col items-center justify-center gap-1">
+                    <div className="flex items-center gap-2 w-full">
                       {getPriorityIcon(project.priority)}
                       
-                      <div className="flex items-center gap-1">
-                        {project.completed && (
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                        )}
-                        {project.paid && (
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                        )}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-xs text-gray-900 truncate leading-tight">
+                          {project.name}
+                        </div>
+                        <div className="text-xs text-gray-500 truncate">
+                          {project.clientName}
+                        </div>
+                        <div className="flex items-center gap-1 mt-1">
+                          {project.completed && (
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                          )}
+                          {project.paid && (
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                          )}
+                          <span className="text-xs text-gray-400">
+                            {project.tasks?.length || 0} משימות
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    
-                    {/* Tooltip on hover */}
-                    <div className="absolute right-full mr-2 bg-gray-800 text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                      <div className="font-medium">{project.name}</div>
-                      <div className="text-gray-300">{project.clientName}</div>
-                      <div className="text-gray-400">{project.tasks?.length || 0} משימות</div>
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
