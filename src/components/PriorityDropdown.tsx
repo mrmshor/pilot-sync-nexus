@@ -20,10 +20,10 @@ export const PriorityDropdown: React.FC<{
     <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${currentPriority.color} border-2 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
+        className={`w-full px-3 py-1.5 h-8 rounded-lg text-xs font-medium transition-all duration-200 ${currentPriority.color} border-2 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex items-center justify-between`}
       >
-        {currentPriority.icon} {currentPriority.label}
-        <ChevronDown className={`h-3 w-3 mr-1 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <span>{currentPriority.icon} {currentPriority.label}</span>
+        <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       
       {isOpen && (

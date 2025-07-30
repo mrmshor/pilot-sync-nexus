@@ -19,6 +19,7 @@ import { PriorityDropdown } from './PriorityDropdown';
 import { QuickTasksSidebar } from './QuickTasksSidebar';
 import { ProjectTasksModal } from './ProjectTasksModal';
 import { ProjectEditModal } from './ProjectEditModal';
+import { EnhancedDashboard } from './EnhancedDashboard';
 
 export const ProjectManagementApp = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -506,6 +507,25 @@ export const ProjectManagementApp = () => {
                   </div>
                 </div>
               </div>
+              
+              {/* Action Buttons */}
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <Button
+                  variant="outline"
+                  onClick={handleExportCSV}
+                  className="gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  ייצוא CSV
+                </Button>
+                <Button
+                  onClick={() => setShowCreateModal(true)}
+                  className="gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                >
+                  <Plus className="w-4 h-4" />
+                  פרויקט חדש
+                </Button>
+              </div>
             </header>
 
             {/* Navigation */}
@@ -533,107 +553,20 @@ export const ProjectManagementApp = () => {
             {/* Content */}
             <main>
               {activeTab === 'dashboard' && (
-                <div className="space-y-8">
-                  {/* System Status */}
-                  <Card className="card-macos bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 text-white border-0">
-                    <CardContent className="p-8">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <span className="text-4xl">🍎</span>
-                          <div>
-                            <h2 className="text-2xl font-bold">מערכת ניהול פרויקטים Pro</h2>
-                            <p className="text-white/80">מותאם במיוחד למחשבי Mac • ביצועים מהירים • נתונים גדולים</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-3">
-                          <Button variant="outline" onClick={handleExportCSV}>
-                            <Download className="w-4 h-4 ml-2" />
-                            ייצוא מתקדם
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* Total Projects */}
-                    <Card className="card-macos gradient-primary text-white border-0">
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-white/80 mb-1">סה"כ פרויקטים</p>
-                            <p className="text-3xl font-bold mb-2">{stats.totalProjects}</p>
-                            <div className="flex items-center gap-1 text-sm text-white/70">
-                              <Users className="w-4 h-4" />
-                              <span>{stats.inProgressProjects} בתהליך</span>
-                            </div>
-                          </div>
-                          <div className="p-4 rounded-full bg-white/20 backdrop-blur">
-                            <BarChart3 className="w-8 h-8" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Completed Projects */}
-                    <Card className="card-macos gradient-success text-white border-0">
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-white/80 mb-1">פרויקטים הושלמו</p>
-                            <p className="text-3xl font-bold mb-2">{stats.completedProjects}</p>
-                            <div className="flex items-center gap-1 text-sm text-white/70">
-                              <TrendingUp className="w-4 h-4" />
-                              <span>{stats.completionRate.toFixed(1)}% השלמה</span>
-                            </div>
-                          </div>
-                          <div className="p-4 rounded-full bg-white/20 backdrop-blur">
-                            <CheckCircle2 className="w-8 h-8" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Revenue */}
-                    <Card className="card-macos gradient-warning text-white border-0">
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-white/80 mb-1">הכנסות שהתקבלו</p>
-                            <p className="text-3xl font-bold mb-2">₪{stats.totalRevenue.toLocaleString()}</p>
-                            <div className="flex items-center gap-1 text-sm text-white/70">
-                              <DollarSign className="w-4 h-4" />
-                              <span>{stats.paymentRate.toFixed(1)}% נתקבל</span>
-                            </div>
-                          </div>
-                          <div className="p-4 rounded-full bg-white/20 backdrop-blur">
-                            <CreditCard className="w-8 h-8" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Pending Revenue */}
-                    <Card className="card-macos gradient-danger text-white border-0">
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-white/80 mb-1">הכנסות ממתינות</p>
-                            <p className="text-3xl font-bold mb-2">₪{stats.pendingRevenue.toLocaleString()}</p>
-                            <div className="flex items-center gap-1 text-sm text-white/70">
-                              <Clock className="w-4 h-4" />
-                              <span>{stats.unpaidProjects} פרויקטים</span>
-                            </div>
-                          </div>
-                          <div className="p-4 rounded-full bg-white/20 backdrop-blur">
-                            <Calendar className="w-8 h-8" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
+                <EnhancedDashboard 
+                  projects={projects} 
+                  stats={{
+                    total: stats.totalProjects,
+                    completed: stats.completedProjects,
+                    inProgress: stats.inProgressProjects,
+                    paid: projects.filter(p => p.paid).length,
+                    unpaid: stats.unpaidProjects,
+                    totalRevenue: stats.totalRevenue,
+                    pendingRevenue: stats.pendingRevenue,
+                    completionRate: stats.completionRate,
+                    paymentRate: stats.paymentRate
+                  }}
+                />
               )}
 
               {activeTab === 'projects' && (

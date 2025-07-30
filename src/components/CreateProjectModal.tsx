@@ -37,6 +37,20 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
 
   const handleSelectFolder = async () => {
     try {
+      // For desktop applications - use native directory picker
+      if (window.electronAPI && window.electronAPI.selectFolder) {
+        const folderPath = await window.electronAPI.selectFolder();
+        if (folderPath) {
+          setFormData(prev => ({ ...prev, folderPath }));
+          toast({
+            title: "תיקיה נבחרה",
+            description: `נבחרה התיקיה: ${folderPath}`,
+          });
+        }
+        return;
+      }
+
+      // Fallback for web browsers - use File System Access API
       const folderName = await FolderService.selectFolder();
       if (folderName) {
         const generatedPath = FolderService.generateFolderPath(formData.name || 'New Project', formData.clientName || 'Client');
@@ -296,7 +310,7 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
                       variant="outline"
                       size="sm"
                       onClick={handleSelectFolder}
-                      className="px-3"
+                      className="px-3 h-8"
                     >
                       <FolderOpen className="w-4 h-4" />
                     </Button>
