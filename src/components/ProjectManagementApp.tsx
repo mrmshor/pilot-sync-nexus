@@ -34,7 +34,24 @@ export const ProjectManagementApp = () => {
   const [showTasksModal, setShowTasksModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [preserveScroll, setPreserveScroll] = useState<number | null>(null);
   const { toast } = useToast();
+
+  // שמירת מיקום גלילה
+  const saveScrollPosition = () => {
+    setPreserveScroll(window.scrollY);
+  };
+
+  // שחזור מיקום גלילה
+  useEffect(() => {
+    if (preserveScroll !== null) {
+      const timeoutId = setTimeout(() => {
+        window.scrollTo(0, preserveScroll);
+        setPreserveScroll(null);
+      }, 0);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [preserveScroll, projects]);
 
   // Load sample data
   useEffect(() => {
@@ -312,18 +329,11 @@ export const ProjectManagementApp = () => {
   };
 
   const handleUpdateProject = (updatedProject: Project) => {
-    // שמירת מיקום הגלילה הנוכחי
-    const scrollPosition = window.scrollY;
-    
+    saveScrollPosition();
     setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
     toast({
       title: "פרויקט עודכן בהצלחה",
       description: `הפרויקט "${updatedProject.name}" עודכן במערכת`,
-    });
-    
-    // חזרה למיקום הגלילה הקודם
-    requestAnimationFrame(() => {
-      window.scrollTo(0, scrollPosition);
     });
   };
 
@@ -367,9 +377,7 @@ export const ProjectManagementApp = () => {
 
   // Project Tasks handlers
   const handleAddProjectTask = (projectId: string, title: string) => {
-    // שמירת מיקום הגלילה הנוכחי
-    const scrollPosition = window.scrollY;
-    
+    saveScrollPosition();
     const newTask: ProjectTask = {
       id: Date.now().toString(),
       title,
@@ -382,17 +390,10 @@ export const ProjectManagementApp = () => {
         ? { ...project, tasks: [newTask, ...project.tasks], updatedAt: new Date() }
         : project
     ));
-    
-    // חזרה למיקום הגלילה הקודם
-    requestAnimationFrame(() => {
-      window.scrollTo(0, scrollPosition);
-    });
   };
 
   const handleToggleProjectTask = (projectId: string, taskId: string) => {
-    // שמירת מיקום הגלילה הנוכחי
-    const scrollPosition = window.scrollY;
-    
+    saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? {
@@ -410,17 +411,10 @@ export const ProjectManagementApp = () => {
           }
         : project
     ));
-    
-    // חזרה למיקום הגלילה הקודם
-    requestAnimationFrame(() => {
-      window.scrollTo(0, scrollPosition);
-    });
   };
 
   const handleDeleteProjectTask = (projectId: string, taskId: string) => {
-    // שמירת מיקום הגלילה הנוכחי
-    const scrollPosition = window.scrollY;
-    
+    saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? {
@@ -430,11 +424,6 @@ export const ProjectManagementApp = () => {
           }
         : project
     ));
-    
-    // חזרה למיקום הגלילה הקודם
-    requestAnimationFrame(() => {
-      window.scrollTo(0, scrollPosition);
-    });
   };
 
   // Status and Priority handlers for external buttons
