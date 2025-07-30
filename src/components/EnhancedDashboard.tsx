@@ -140,7 +140,7 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
   return (
     <div className="w-full max-w-none space-y-6">
       {/* Statistics Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 w-full">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 w-full">
         {statCards.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
