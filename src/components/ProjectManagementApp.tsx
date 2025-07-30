@@ -565,7 +565,7 @@ export const ProjectManagementApp = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 pr-16" dir="rtl">
         <AppSidebar 
           projects={projects}
           onProjectSelect={handleSidebarProjectSelect}

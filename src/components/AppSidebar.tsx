@@ -51,19 +51,17 @@ export function AppSidebar({ projects, onProjectSelect, selectedProjectId }: App
 
   return (
     <Sidebar
-      className={open ? "w-80" : "w-14"}
-      collapsible="icon"
+      className="w-16 border-l border-gray-200 bg-white/95 backdrop-blur fixed right-0 top-0 h-screen z-40"
+      collapsible="none"
     >
-      <SidebarTrigger className="m-2 self-end" />
-
-      <SidebarContent>
+      <SidebarContent className="p-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-base font-bold text-gray-800">
-            {open && `פרויקטים (${projects.length})`}
+          <SidebarGroupLabel className="text-xs font-bold text-gray-600 text-center mb-2">
+            פרויקטים
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {projects.map((project) => (
                 <SidebarMenuItem key={project.id}>
                   <SidebarMenuButton
@@ -71,33 +69,28 @@ export function AppSidebar({ projects, onProjectSelect, selectedProjectId }: App
                     className={`
                       ${getPriorityColor(project.priority)}
                       ${selectedProjectId === project.id ? 'bg-blue-100 border-blue-500' : ''}
-                      hover:bg-blue-50 transition-all duration-200 p-3 h-auto
+                      hover:bg-blue-50 transition-all duration-200 p-1 h-12 w-12 rounded-lg flex items-center justify-center relative group
                     `}
+                    title={`${project.name} - ${project.clientName}`}
                   >
-                    <div className="flex items-center gap-3 w-full">
+                    <div className="flex flex-col items-center justify-center gap-1">
                       {getPriorityIcon(project.priority)}
                       
-                      {open && (
-                        <div className="flex-1 min-w-0 text-right">
-                          <div className="font-medium text-sm text-gray-900 truncate leading-tight">
-                            {project.name}
-                          </div>
-                          <div className="text-xs text-gray-500 truncate">
-                            {project.clientName}
-                          </div>
-                          <div className="flex items-center gap-2 mt-1">
-                            {project.completed && (
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            )}
-                            {project.paid && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            )}
-                            <span className="text-xs text-gray-400">
-                              {project.tasks?.length || 0} משימות
-                            </span>
-                          </div>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {project.completed && (
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        )}
+                        {project.paid && (
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Tooltip on hover */}
+                    <div className="absolute right-full mr-2 bg-gray-800 text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                      <div className="font-medium">{project.name}</div>
+                      <div className="text-gray-300">{project.clientName}</div>
+                      <div className="text-gray-400">{project.tasks?.length || 0} משימות</div>
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -106,9 +99,9 @@ export function AppSidebar({ projects, onProjectSelect, selectedProjectId }: App
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {projects.length === 0 && open && (
-          <div className="p-4 text-center text-gray-500">
-            <div className="text-sm">אין פרויקטים במערכת</div>
+        {projects.length === 0 && (
+          <div className="p-2 text-center text-gray-500">
+            <div className="text-xs">אין פרויקטים</div>
           </div>
         )}
       </SidebarContent>
