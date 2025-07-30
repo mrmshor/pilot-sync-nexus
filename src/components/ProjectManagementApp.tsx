@@ -827,29 +827,6 @@ export const ProjectManagementApp = () => {
                 </div>
               )}
             </main>
-
-            {/* Modals */}
-            <CreateProjectModal
-              open={showCreateModal}
-              onOpenChange={setShowCreateModal}
-              onCreateProject={handleCreateProject}
-            />
-
-            <ProjectTasksModal
-              open={showTasksModal}
-              onOpenChange={setShowTasksModal}
-              project={selectedProject ? projects.find(p => p.id === selectedProject.id) || selectedProject : null}
-              onAddTask={handleAddProjectTask}
-              onToggleTask={handleToggleProjectTask}
-              onDeleteTask={handleDeleteProjectTask}
-            />
-
-            <ProjectEditModal
-              open={showEditModal}
-              onOpenChange={setShowEditModal}
-              project={selectedProject}
-              onUpdateProject={handleUpdateProject}
-            />
           </div>
         </div>
 
@@ -863,6 +840,29 @@ export const ProjectManagementApp = () => {
           />
         </div>
       </div>
+
+      {/* Modals - Outside the main layout so they can appear on top */}
+      <CreateProjectModal
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        onCreateProject={handleCreateProject}
+      />
+
+      <ProjectTasksModal
+        open={showTasksModal}
+        onOpenChange={setShowTasksModal}
+        project={selectedProject ? projects.find(p => p.id === selectedProject.id) || selectedProject : null}
+        onAddTask={handleAddProjectTask}
+        onToggleTask={handleToggleProjectTask}
+        onDeleteTask={handleDeleteProjectTask}
+      />
+
+      <ProjectEditModal
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        project={selectedProject}
+        onUpdateProject={handleUpdateProject}
+      />
     </div>
   );
 };
