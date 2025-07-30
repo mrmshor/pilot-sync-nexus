@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { useDebounce, useOptimizedData } from '@/hooks/usePerformanceOptimizations';
+import { MemoryManager, debounce } from '@/utils/memoryManager';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +32,7 @@ export const ProjectManagementApp = () => {
   const [quickTasks, setQuickTasks] = useState<QuickTask[]>([]);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'projects'>('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300); // Debounced search
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'priority' | 'status' | 'createdAt' | 'updatedAt'>('createdAt');
@@ -251,12 +254,13 @@ export const ProjectManagementApp = () => {
     };
   }, [projects]);
 
-  // Filter and sort projects
+  // Optimized filter and sort projects with debounced search
   const filteredAndSortedProjects = useMemo(() => {
     let filtered = projects.filter(project => {
-      const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          project.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          project.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = debouncedSearchTerm === '' || 
+        project.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        project.clientName.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        (project.description && project.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
       
       const matchesPriority = priorityFilter === 'all' || project.priority === priorityFilter;
       const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
@@ -302,7 +306,10 @@ export const ProjectManagementApp = () => {
     });
 
     return filtered;
-  }, [projects, searchTerm, priorityFilter, statusFilter, sortBy, sortOrder]);
+  }, [projects, debouncedSearchTerm, priorityFilter, statusFilter, sortBy, sortOrder]);
+
+  // Optimized data handling for large datasets
+  const { visibleData: visibleProjects } = useOptimizedData(filteredAndSortedProjects, 50);
 
   // Contact handlers
   const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', value: string) => {
