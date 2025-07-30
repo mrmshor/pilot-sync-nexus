@@ -671,8 +671,6 @@ export const ProjectManagementApp = () => {
                 {/* Empty space for balance */}
                 <div className="w-24"></div>
               </div>
-
-              </div>
             </div>
           </div>
 
@@ -1042,7 +1040,6 @@ export const ProjectManagementApp = () => {
               />
             </div>
           </div>
-
         </div>
 
         {/* Projects Sidebar - Left Side (appears last due to RTL) */}
