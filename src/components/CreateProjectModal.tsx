@@ -156,7 +156,6 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
                       <option value="in-review">בבדיקה</option>
                       <option value="completed">הושלם</option>
                       <option value="on-hold">מושהה</option>
-                      <option value="waiting">ממתין</option>
                     </select>
                   </div>
 

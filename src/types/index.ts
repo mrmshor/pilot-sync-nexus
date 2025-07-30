@@ -28,7 +28,7 @@ export interface Project {
   email: string;
   folderPath?: string;
   icloudLink?: string;
-  status: 'not-started' | 'in-progress' | 'in-review' | 'completed' | 'on-hold' | 'waiting';
+  status: 'not-started' | 'in-progress' | 'in-review' | 'completed' | 'on-hold';
   priority: 'low' | 'medium' | 'high';
   price: number;
   currency: 'USD' | 'EUR' | 'ILS' | 'GBP' | 'CAD';

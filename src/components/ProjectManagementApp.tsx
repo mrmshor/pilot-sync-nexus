@@ -98,7 +98,7 @@ export const ProjectManagementApp = () => {
         email: 'avraham@company.com',
         folderPath: '',
         icloudLink: '',
-        status: 'waiting',
+        status: 'on-hold',
         priority: 'medium',
         price: 8000,
         currency: 'ILS',
