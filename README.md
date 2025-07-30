@@ -1,73 +1,145 @@
-# Welcome to your Lovable project
+# מערכת ניהול פרויקטים Pro 🚀
 
-## Project info
+מערכת ניהול פרויקטים מתקדמת המותאמת לשולחן העבודה עבור macOS.
+
+## תכונות עיקריות
+
+- ✨ ניהול פרויקטים מתקדם עם משימות ותת-משימות
+- 📊 לוח בקרה אינטראקטיבי עם נתונים חיים
+- 📋 רשימת משימות מהירות בסיידבר
+- 🎨 עיצוב מותאם למק עם אנימציות חלקות
+- ⌨️ קיצורי דרך למקלדת (CMD+N, CMD+E, CMD+1, CMD+2)
+- 📱 תמיכה מלאה בעברית (RTL)
+- 🔍 חיפוש וסינון מתקדם
+- 📄 ייצוא נתונים לקובץ CSV
+- 💰 מעקב תשלומים ומחירים
+- 📞 פעולות קשר ישירות (טלפון, וואטסאפ, מייל)
+- 📁 פתיחת תיקיות בFinder
+
+## דרישות מערכת
+
+- macOS 10.15 (Catalina) ומעלה
+- Node.js 18.0.0 ומעלה
+- 4GB זכרון פנוי
+- 500MB שטח פנוי בדיסק
+
+## התקנה למק
+
+### שלב 1: הורדת הפרויקט
+```bash
+git clone https://github.com/your-username/project-management-pro.git
+cd project-management-pro
+```
+
+### שלב 2: התקנת dependencies
+```bash
+npm install
+```
+
+### שלב 3: בנייה לייצור
+```bash
+npm run build
+```
+
+### שלב 4: הוספת פלטפורמות native
+```bash
+# iOS (עבור מק)
+npx cap add ios
+```
+
+### שלב 5: סנכרון הפרויקט
+```bash
+npx cap sync
+```
+
+### שלב 6: פתיחה ב-Xcode (למק)
+```bash
+npx cap open ios
+```
+
+## קיצורי מקלדת
+
+- `⌘ + N` - יצירת פרויקט חדש
+- `⌘ + E` - ייצוא נתונים לCSV
+- `⌘ + 1` - מעבר ללוח בקרה
+- `⌘ + 2` - מעבר לטאב פרויקטים
+- `ESC` - סגירת מודלים פתוחים
+
+## פיתוח מקומי
+
+```bash
+# הפעלה במצב פיתוח
+npm run dev
+
+# בנייה לייצור
+npm run build
+
+# בדיקת build
+npm run preview
+```
+
+## הגדרות אפליקציה
+
+הקובץ `capacitor.config.ts` מכיל את הגדרות האפליקציה:
+
+- **App ID**: `app.lovable.c31801b6534f41cd9c671e50db5bd43a`
+- **App Name**: מערכת ניהול פרויקטים Pro
+- **פורט**: 5173 (פיתוח)
+
+## שפה ותרבות
+
+- תמיכה מלאה בעברית (RTL)
+- עיצוב מותאם לתרבות המקומית
+- פונטים מותאמים למק
+- תמיכה בסמלי מטבע ישראליים
+
+## תמיכה טכנית
+
+בעיות נפוצות ופתרונות:
+
+### בעיית הרשאות על מק
+```bash
+sudo xcode-select --install
+```
+
+### בעיות Node.js
+```bash
+# בדיקת גרסה
+node --version
+npm --version
+
+# עדכון npm
+npm install -g npm@latest
+```
+
+### בעיות Capacitor
+```bash
+# ניקוי cache
+npm run clean
+npx cap clean
+
+# התקנה מחדש
+rm -rf node_modules package-lock.json
+npm install
+npx cap sync
+```
+
+## רישיון
+
+פרויקט זה מופץ תחת רישיון MIT.
+
+---
+
+**הערה**: פרויקט זה פותח במיוחד עבור macOS ומותאם לעבודה עם מסכים גדולים ואינטראקציה עם עכבר ומקלדת.
+
+## מידע על הפרויקט המקורי
 
 **URL**: https://lovable.dev/projects/c31801b6-534f-41cd-9c67-1e50db5bd43a
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/c31801b6-534f-41cd-9c67-1e50db5bd43a) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
+הפרויקט בנוי עם:
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/c31801b6-534f-41cd-9c67-1e50db5bd43a) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Capacitor (לאפליקציה שולחנית)

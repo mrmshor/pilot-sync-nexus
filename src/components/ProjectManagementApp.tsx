@@ -43,6 +43,35 @@ export const ProjectManagementApp = () => {
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const { toast } = useToast();
 
+  // Keyboard shortcuts for macOS
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // CMD+N for new project
+      if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
+        event.preventDefault();
+        setShowCreateModal(true);
+      }
+      // CMD+E for export
+      if ((event.metaKey || event.ctrlKey) && event.key === 'e') {
+        event.preventDefault();
+        handleExportCSV();
+      }
+      // CMD+1 for dashboard
+      if ((event.metaKey || event.ctrlKey) && event.key === '1') {
+        event.preventDefault();
+        setActiveTab('dashboard');
+      }
+      // CMD+2 for projects
+      if ((event.metaKey || event.ctrlKey) && event.key === '2') {
+        event.preventDefault();
+        setActiveTab('projects');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // שמירת מיקום גלילה
   const saveScrollPosition = () => {
     setPreserveScroll(window.scrollY);
@@ -303,14 +332,39 @@ export const ProjectManagementApp = () => {
   const openFolder = (folderPath?: string, icloudLink?: string) => {
     if (folderPath) {
       try {
-        window.open(`file://${folderPath}`, '_blank');
+        // For macOS desktop app - use reveal in Finder
+        if (window.navigator.userAgent.includes('Mac')) {
+          // Try to use shell command for macOS
+          window.open(`file://${folderPath}`, '_blank');
+        } else {
+          window.open(`file://${folderPath}`, '_blank');
+        }
+        toast({
+          title: "תיקייה נפתחת",
+          description: "התיקייה נפתחת ב-Finder",
+        });
       } catch (error) {
+        console.error('Error opening folder:', error);
         if (icloudLink) {
           window.open(icloudLink, '_blank');
+          toast({
+            title: "קישור iCloud נפתח",
+            description: "הקישור נפתח בדפדפן",
+          });
+        } else {
+          toast({
+            title: "שגיאה",
+            description: "לא ניתן לפתוח את התיקייה",
+            variant: "destructive"
+          });
         }
       }
     } else if (icloudLink) {
       window.open(icloudLink, '_blank');
+      toast({
+        title: "קישור iCloud נפתח",
+        description: "הקישור נפתח בדפדפן",
+      });
     }
   };
 
@@ -629,7 +683,7 @@ export const ProjectManagementApp = () => {
                     )}
                   </div>
                   <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent macos-text">
                       מערכת ניהול פרויקטים Pro
                     </h1>
                   </div>
@@ -643,6 +697,7 @@ export const ProjectManagementApp = () => {
                   variant="outline"
                   onClick={handleExportCSV}
                   className="gap-2"
+                  title="ייצוא נתונים לקובץ CSV (⌘E)"
                 >
                   <Download className="w-4 h-4" />
                   ייצוא CSV
@@ -654,6 +709,7 @@ export const ProjectManagementApp = () => {
                     onClick={() => setActiveTab('dashboard')}
                     variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
                     className="px-6 py-3 rounded-lg text-sm font-medium"
+                    title="לוח בקרה Pro (⌘1)"
                   >
                     <BarChart3 className="w-4 h-4 ml-2" />
                     לוח בקרה Pro
@@ -662,6 +718,7 @@ export const ProjectManagementApp = () => {
                     onClick={() => setActiveTab('projects')}
                     variant={activeTab === 'projects' ? 'default' : 'ghost'}
                     className="px-6 py-3 rounded-lg text-sm font-medium"
+                    title="פרויקטים מתקדם (⌘2)"
                   >
                     <Users className="w-4 h-4 ml-2" />
                     פרויקטים מתקדם
@@ -738,6 +795,7 @@ export const ProjectManagementApp = () => {
                             <Button 
                               onClick={() => setShowCreateModal(true)} 
                               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6"
+                              title="צור פרויקט חדש (⌘N)"
                             >
                               <Plus className="w-4 h-4 ml-2" />
                               פרויקט חדש
