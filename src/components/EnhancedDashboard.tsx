@@ -110,7 +110,6 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
       case 'in-progress': return 'secondary';
       case 'in-review': return 'outline';
       case 'on-hold': return 'destructive';
-      case 'waiting': return 'outline';
       default: return 'secondary';
     }
   };

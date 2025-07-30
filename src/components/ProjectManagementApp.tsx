@@ -478,7 +478,6 @@ export const ProjectManagementApp = () => {
       case 'in-progress': return 'secondary';
       case 'in-review': return 'outline';
       case 'on-hold': return 'destructive';
-      case 'waiting': return 'outline';
       default: return 'outline';
     }
   };
@@ -629,7 +628,6 @@ export const ProjectManagementApp = () => {
                             <option value="in-review">בבדיקה</option>
                             <option value="completed">הושלם</option>
                             <option value="on-hold">מושהה</option>
-                            <option value="waiting">ממתין</option>
                           </select>
                           
                           <select
