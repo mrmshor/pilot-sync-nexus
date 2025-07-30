@@ -588,7 +588,7 @@ export const ProjectManagementApp = () => {
           <div className="flex items-center justify-center min-h-screen">
             <div className="container mx-auto px-4 py-8">
               {/* Header */}
-              <header className="text-center mb-12">
+              <header className="text-center mb-8">
                 <div className="flex items-center justify-center gap-4 mb-4">
                   <div className="relative group">
                     <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-macos overflow-hidden">
@@ -633,23 +633,21 @@ export const ProjectManagementApp = () => {
                     </h1>
                   </div>
                 </div>
-                
-                {/* Action Button - Export + Projects List */}
-                <div className="flex items-center justify-center gap-3 mb-6">
-                  <Button
-                    variant="outline"
-                    onClick={handleExportCSV}
-                    className="gap-2"
-                  >
-                    <Download className="w-4 h-4" />
-                    ייצוא CSV
-                  </Button>
-                  
-                </div>
               </header>
 
               {/* Navigation */}
-              <div className="flex justify-center mb-8">
+              <div className="flex justify-between items-center mb-6">
+                {/* Export Button - Left Side */}
+                <Button
+                  variant="outline"
+                  onClick={handleExportCSV}
+                  className="gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  ייצוא CSV
+                </Button>
+
+                {/* Navigation Tabs - Center */}
                 <div className="glass p-1.5 rounded-xl shadow-medium">
                   <Button
                     onClick={() => setActiveTab('dashboard')}
@@ -668,6 +666,9 @@ export const ProjectManagementApp = () => {
                     פרויקטים מתקדם
                   </Button>
                 </div>
+
+                {/* Empty space for balance */}
+                <div className="w-24"></div>
               </div>
 
               {/* Content */}
