@@ -15,6 +15,7 @@ const App: React.FC = () => {
 
   // Sample data initialization
   useEffect(() => {
+    console.log('🔄 Loading sample data...');
     const sampleProjects: Project[] = [
       {
         id: '1',
@@ -93,7 +94,9 @@ const App: React.FC = () => {
       }
     ];
 
+    console.log('📊 Sample projects created:', sampleProjects.length, 'projects');
     setProjects(sampleProjects);
+    console.log('✅ Projects state updated');
   }, []);
 
   const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks'>) => {
@@ -126,7 +129,7 @@ const App: React.FC = () => {
     alert('ייצוא CSV הושלם בהצלחה עם עמודות מפורטות במיוחד עבור macOS! 🍎');
   };
 
-  // Statistics calculation
+  console.log('🔍 Current projects state:', projects.length, 'projects');
   const stats = {
     totalProjects: projects.length,
     completedProjects: projects.filter(p => p.completed).length,

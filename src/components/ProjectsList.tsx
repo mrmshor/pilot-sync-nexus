@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search, Edit, Trash2, User, PhoneCall, MessageCircle, Mail, FolderOpen,
   CheckCircle2, CreditCard, Plus, X, Calendar, Clock, Filter, SortAsc, SortDesc
@@ -32,6 +32,12 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('updatedAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Debug projects prop
+  useEffect(() => {
+    console.log('📋 ProjectsList received projects:', projects.length);
+    console.log('📋 Projects data:', projects);
+  }, [projects]);
 
   const filteredAndSortedProjects = useMemo(() => {
     let filtered = projects.filter(project => {
