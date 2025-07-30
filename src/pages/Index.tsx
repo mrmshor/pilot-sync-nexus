@@ -7,6 +7,7 @@ import { ExportService } from '../services';
 import { Button } from '../components/ui/button';
 import { CreateProjectModal } from '../components/CreateProjectModal';
 import { ProjectsList } from '../components/ProjectsList';
+import { EnhancedDashboard } from '../components/EnhancedDashboard';
 
 const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -133,12 +134,15 @@ const App: React.FC = () => {
 
   console.log('🔍 Current projects state:', projects.length, 'projects');
   const stats = {
-    totalProjects: projects.length,
-    completedProjects: projects.filter(p => p.completed).length,
-    inProgressProjects: projects.filter(p => p.status === 'in-progress').length,
+    total: projects.length,
+    completed: projects.filter(p => p.completed).length,
+    inProgress: projects.filter(p => p.status === 'in-progress').length,
+    paid: projects.filter(p => p.paid).length,
+    unpaid: projects.filter(p => !p.paid).length,
     totalRevenue: projects.reduce((sum, p) => sum + (p.paid ? p.price : 0), 0),
     pendingRevenue: projects.reduce((sum, p) => sum + (p.paid ? 0 : p.price), 0),
-    completionRate: projects.length > 0 ? (projects.filter(p => p.completed).length / projects.length) * 100 : 0
+    completionRate: projects.length > 0 ? (projects.filter(p => p.completed).length / projects.length) * 100 : 0,
+    paymentRate: projects.length > 0 ? (projects.filter(p => p.paid).length / projects.length) * 100 : 0
   };
 
   return (
@@ -225,121 +229,7 @@ const App: React.FC = () => {
         {/* Tab Content */}
         <div className="transition-all duration-500 ease-in-out">
           {activeTab === 'dashboard' && (
-            <div className="space-y-8">
-              {/* macOS System Status Banner */}
-              <div className="bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 text-white border-0 shadow-2xl rounded-xl p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Apple className="h-8 w-8 text-white" />
-                    <div>
-                      <h2 className="text-xl font-bold">מערכת ניהול פרויקטים Pro</h2>
-                      <p className="text-sm text-white/80">מותאם במיוחד למחשבי Mac • ביצועים מהירים • נתונים גדולים</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleExportCSV}
-                      className="bg-white/10 border-white/30 text-white hover:bg-white/20"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      ייצוא מתקדם
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Statistics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-gradient-to-br from-blue-500 to-blue-700 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-white/80 mb-1">סה"כ פרויקטים</p>
-                      <p className="text-3xl font-bold mb-2">{stats.totalProjects}</p>
-                      <div className="flex items-center gap-1 text-sm text-white/70">
-                        <Briefcase className="h-3 w-3" />
-                        {stats.inProgressProjects} בתהליך
-                      </div>
-                    </div>
-                    <div className="p-4 rounded-full bg-white/20 backdrop-blur">
-                      <BarChart3 className="h-6 w-6" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-green-500 to-green-700 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-white/80 mb-1">פרויקטים שהושלמו</p>
-                      <p className="text-3xl font-bold mb-2">{stats.completedProjects}</p>
-                      <div className="flex items-center gap-1 text-sm text-white/70">
-                        <BarChart3 className="h-3 w-3" />
-                        {stats.completionRate.toFixed(1)}% השלמה
-                      </div>
-                    </div>
-                    <div className="p-4 rounded-full bg-white/20 backdrop-blur">
-                      <BarChart3 className="h-6 w-6" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-white/80 mb-1">סך הכנסות</p>
-                      <p className="text-3xl font-bold mb-2">₪{stats.totalRevenue.toLocaleString()}</p>
-                      <div className="flex items-center gap-1 text-sm text-white/70">
-                        <BarChart3 className="h-3 w-3" />
-                        שולם
-                      </div>
-                    </div>
-                    <div className="p-4 rounded-full bg-white/20 backdrop-blur">
-                      <BarChart3 className="h-6 w-6" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-amber-500 to-amber-700 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-white/80 mb-1">הכנסות ממתינות</p>
-                      <p className="text-3xl font-bold mb-2">₪{stats.pendingRevenue.toLocaleString()}</p>
-                      <div className="flex items-center gap-1 text-sm text-white/70">
-                        <BarChart3 className="h-3 w-3" />
-                        ממתין
-                      </div>
-                    </div>
-                    <div className="p-4 rounded-full bg-white/20 backdrop-blur">
-                      <BarChart3 className="h-6 w-6" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Performance Indicator */}
-              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200/50 rounded-xl p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Gauge className="h-6 w-6 text-indigo-600" />
-                    <div>
-                      <h3 className="font-semibold text-gray-800">ביצועי מערכת macOS</h3>
-                      <p className="text-sm text-gray-600">מותאם לניהול נתונים גדולים עם מהירות מקסימלית</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-indigo-600">{projects.length}</div>
-                      <div className="text-xs text-gray-500">פרויקטים</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">⚡</div>
-                      <div className="text-xs text-gray-500">מהיר</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <EnhancedDashboard projects={projects} stats={stats} />
           )}
 
           {activeTab === 'projects' && (

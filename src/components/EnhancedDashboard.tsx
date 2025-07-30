@@ -209,7 +209,7 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
         <Card className="card-macos">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">תזכורות השבוע</h3>
+              <h3 className="font-semibold">מועדי יעד השבוע</h3>
               <Calendar className="w-5 h-5 text-warning" />
             </div>
             <div className="space-y-3">
@@ -219,13 +219,13 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
                     <div className="font-medium text-sm">{project.name}</div>
                     <div className="text-xs text-muted-foreground">{project.clientName}</div>
                     <div className="text-xs text-warning font-medium mt-1">
-                      מועד צפוי השבוע
+                      יעד השלמה השבוע
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="text-center py-4 text-muted-foreground text-sm">
-                  אין מועדים השבוע
+                  אין מועדי יעד השבוע
                 </div>
               )}
             </div>
