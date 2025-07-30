@@ -581,8 +581,8 @@ export const ProjectManagementApp = () => {
                   <Card className="card-macos">
                     <CardContent className="p-6">
                       <div className="flex flex-col gap-4">
-                        {/* Search Bar - Full width at top */}
-                        <div className="relative w-full">
+                        {/* Search Bar */}
+                        <div className="relative w-full max-w-md mx-auto">
                           <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input
                             placeholder="חיפוש פרויקטים..."
