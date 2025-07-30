@@ -22,6 +22,7 @@ import { ProjectEditModal } from './ProjectEditModal';
 import { EnhancedDashboard } from './EnhancedDashboard';
 
 export const ProjectManagementApp = () => {
+  console.log('🚀 ProjectManagementApp component initialized');
   const [projects, setProjects] = useState<Project[]>([]);
   const [quickTasks, setQuickTasks] = useState<QuickTask[]>([]);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'projects'>('dashboard');
@@ -140,6 +141,12 @@ export const ProjectManagementApp = () => {
     ];
 
     setProjects(sampleProjects);
+    console.log('✅ Projects loaded successfully:', sampleProjects);
+    console.log('📊 Stats calculated:', {
+      total: sampleProjects.length,
+      completed: sampleProjects.filter(p => p.completed).length,
+      inProgress: sampleProjects.filter(p => p.status === 'in-progress').length
+    });
     toast({
       title: "מערכת נטענה בהצלחה",
       description: `נטענו ${sampleProjects.length} פרויקטים`,
@@ -498,6 +505,9 @@ export const ProjectManagementApp = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir="rtl">
+      <div style={{position: 'fixed', top: '10px', left: '10px', backgroundColor: 'red', color: 'white', padding: '10px', zIndex: 9999}}>
+        DEBUG: App is rendering! Projects: {projects.length}, Active Tab: {activeTab}
+      </div>
       <div className="flex w-full">
         {/* Quick Tasks Sidebar - Fixed positioning */}
         <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto">
@@ -563,20 +573,23 @@ export const ProjectManagementApp = () => {
             {/* Content */}
             <main>
               {activeTab === 'dashboard' && (
-                <EnhancedDashboard 
-                  projects={projects} 
-                  stats={{
-                    total: stats.total,
-                    completed: stats.completed,
-                    inProgress: stats.inProgress,
-                    paid: stats.paid,
-                    unpaid: stats.unpaid,
-                    totalRevenue: stats.totalRevenue,
-                    pendingRevenue: stats.pendingRevenue,
-                    completionRate: stats.completionRate,
-                    paymentRate: stats.paymentRate
-                  }}
-                />
+                <div>
+                  <h2 style={{color: 'red', fontSize: '24px'}}>DEBUG: About to render EnhancedDashboard</h2>
+                  <EnhancedDashboard 
+                    projects={projects} 
+                    stats={{
+                      total: stats.total,
+                      completed: stats.completed,
+                      inProgress: stats.inProgress,
+                      paid: stats.paid,
+                      unpaid: stats.unpaid,
+                      totalRevenue: stats.totalRevenue,
+                      pendingRevenue: stats.pendingRevenue,
+                      completionRate: stats.completionRate,
+                      paymentRate: stats.paymentRate
+                    }}
+                  />
+                </div>
               )}
 
               {activeTab === 'projects' && (

@@ -98,6 +98,7 @@ const UrgentProjectItem = memo(({ project }: { project: Project }) => (
 ));
 
 export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardProps) => {
+  console.log('📊 EnhancedDashboard rendered with:', { projects: projects.length, stats });
   // Memoized calculations for performance
   const recentProjects = useMemo(() => 
     projects
@@ -126,212 +127,219 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
     }).slice(0, 3);
   }, [projects]);
 
+  console.log('📈 Dashboard calculations:', { recentProjects: recentProjects.length, urgentProjects: urgentProjects.length, upcomingDeadlines: upcomingDeadlines.length });
+  
   return (
-    <div className="space-y-8 animate-slide-up">
-      {/* Quick Stats Grid - Top Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="card-macos gradient-primary text-white border-0">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-white/80">היום</p>
-                <p className="text-2xl font-bold">
-                  {projects.filter(p => {
-                    const today = new Date();
-                    return p.createdAt.toDateString() === today.toDateString();
-                  }).length}
-                </p>
-                <p className="text-xs text-white/70">פרויקטים חדשים</p>
-              </div>
-              <TrendingUp className="w-6 h-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-macos gradient-success text-white border-0">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-white/80">השבוע</p>
-                <p className="text-2xl font-bold">
-                  {projects.filter(p => {
-                    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-                    return p.updatedAt >= weekAgo;
-                  }).length}
-                </p>
-                <p className="text-xs text-white/70">פרויקטים פעילים</p>
-              </div>
-              <BarChart3 className="w-6 h-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-macos gradient-warning text-white border-0">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-white/80">ממוצע</p>
-                <p className="text-2xl font-bold">
-                  {projects.length > 0 ? Math.round(projects.reduce((sum, p) => sum + p.price, 0) / projects.length / 1000) : 0}K
-                </p>
-                <p className="text-xs text-white/70">ערך פרויקט</p>
-              </div>
-              <DollarSign className="w-6 h-6" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="סה&quot;כ פרויקטים"
-          value={stats.total}
-          subtitle={`${stats.inProgress} בתהליך`}
-          icon={BarChart3}
-          bgGradient="gradient-primary"
-        />
-
-        <StatCard
-          title="פרויקטים הושלמו"
-          value={stats.completed}
-          subtitle={`${stats.completionRate.toFixed(1)}% השלמה`}
-          icon={CheckCircle}
-          bgGradient="gradient-success"
-        />
-
-        <StatCard
-          title="הכנסות שהתקבלו"
-          value={`₪${stats.totalRevenue.toLocaleString()}`}
-          subtitle={`${stats.paymentRate.toFixed(1)}% נתקבל`}
-          icon={CreditCard}
-          bgGradient="gradient-warning"
-        />
-
-        <StatCard
-          title="הכנסות ממתינות"
-          value={`₪${stats.pendingRevenue.toLocaleString()}`}
-          subtitle={`${stats.unpaid} פרויקטים`}
-          icon={Clock}
-          bgGradient="gradient-danger"
-        />
-      </div>
-
-      {/* Secondary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="card-macos">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">פעילות אחרונה</h3>
-              <Users className="w-5 h-5 text-primary" />
-            </div>
-            <div className="space-y-3">
-              {recentProjects.length > 0 ? (
-                recentProjects.map(project => (
-                  <ActivityItem key={project.id} project={project} />
-                ))
-              ) : (
-                <div className="text-center py-4 text-muted-foreground text-sm">
-                  אין פעילות אחרונה
+    <div style={{color: 'blue', fontSize: '20px', padding: '20px', backgroundColor: 'yellow'}}>
+      <h1>DEBUG: EnhancedDashboard is rendering!</h1>
+      <p>Projects count: {projects.length}</p>
+      <p>Stats total: {stats.total}</p>
+      <div className="space-y-8 animate-slide-up">
+        {/* Quick Stats Grid - Top Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="card-macos gradient-primary text-white border-0">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-white/80">היום</p>
+                  <p className="text-2xl font-bold">
+                    {projects.filter(p => {
+                      const today = new Date();
+                      return p.createdAt.toDateString() === today.toDateString();
+                    }).length}
+                  </p>
+                  <p className="text-xs text-white/70">פרויקטים חדשים</p>
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                <TrendingUp className="w-6 h-6" />
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card className="card-macos">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">פרויקטים דחופים</h3>
-              <AlertCircle className="w-5 h-5 text-destructive" />
-            </div>
-            <div className="space-y-3">
-              {urgentProjects.length > 0 ? (
-                urgentProjects.map(project => (
-                  <UrgentProjectItem key={project.id} project={project} />
-                ))
-              ) : (
-                <div className="text-center py-4 text-muted-foreground text-sm">
-                  אין פרויקטים דחופים
+          <Card className="card-macos gradient-success text-white border-0">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-white/80">השבוע</p>
+                  <p className="text-2xl font-bold">
+                    {projects.filter(p => {
+                      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                      return p.updatedAt >= weekAgo;
+                    }).length}
+                  </p>
+                  <p className="text-xs text-white/70">פרויקטים פעילים</p>
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                <BarChart3 className="w-6 h-6" />
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card className="card-macos">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">מועדי יעד השבוע</h3>
-              <Calendar className="w-5 h-5 text-warning" />
-            </div>
-            <div className="space-y-3">
-              {upcomingDeadlines.length > 0 ? (
-                upcomingDeadlines.map(project => (
-                  <div key={project.id} className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
-                    <div className="font-medium text-sm">{project.name}</div>
-                    <div className="text-xs text-muted-foreground">{project.clientName}</div>
-                    <div className="text-xs text-warning font-medium mt-1">
-                      יעד: {project.deadline?.toLocaleDateString('he-IL')}
-                    </div>
+          <Card className="card-macos gradient-warning text-white border-0">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-white/80">ממוצע</p>
+                  <p className="text-2xl font-bold">
+                    {projects.length > 0 ? Math.round(projects.reduce((sum, p) => sum + p.price, 0) / projects.length / 1000) : 0}K
+                  </p>
+                  <p className="text-xs text-white/70">ערך פרויקט</p>
+                </div>
+                <DollarSign className="w-6 h-6" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard
+            title="סה&quot;כ פרויקטים"
+            value={stats.total}
+            subtitle={`${stats.inProgress} בתהליך`}
+            icon={BarChart3}
+            bgGradient="gradient-primary"
+          />
+
+          <StatCard
+            title="פרויקטים הושלמו"
+            value={stats.completed}
+            subtitle={`${stats.completionRate.toFixed(1)}% השלמה`}
+            icon={CheckCircle}
+            bgGradient="gradient-success"
+          />
+
+          <StatCard
+            title="הכנסות שהתקבלו"
+            value={`₪${stats.totalRevenue.toLocaleString()}`}
+            subtitle={`${stats.paymentRate.toFixed(1)}% נתקבל`}
+            icon={CreditCard}
+            bgGradient="gradient-warning"
+          />
+
+          <StatCard
+            title="הכנסות ממתינות"
+            value={`₪${stats.pendingRevenue.toLocaleString()}`}
+            subtitle={`${stats.unpaid} פרויקטים`}
+            icon={Clock}
+            bgGradient="gradient-danger"
+          />
+        </div>
+
+        {/* Secondary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="card-macos">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">פעילות אחרונה</h3>
+                <Users className="w-5 h-5 text-primary" />
+              </div>
+              <div className="space-y-3">
+                {recentProjects.length > 0 ? (
+                  recentProjects.map(project => (
+                    <ActivityItem key={project.id} project={project} />
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-muted-foreground text-sm">
+                    אין פעילות אחרונה
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-4 text-muted-foreground text-sm">
-                  אין מועדי יעד השבוע
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="card-macos">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">פרויקטים דחופים</h3>
+                <AlertCircle className="w-5 h-5 text-destructive" />
+              </div>
+              <div className="space-y-3">
+                {urgentProjects.length > 0 ? (
+                  urgentProjects.map(project => (
+                    <UrgentProjectItem key={project.id} project={project} />
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-muted-foreground text-sm">
+                    אין פרויקטים דחופים
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="card-macos">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">מועדי יעד השבוע</h3>
+                <Calendar className="w-5 h-5 text-warning" />
+              </div>
+              <div className="space-y-3">
+                {upcomingDeadlines.length > 0 ? (
+                  upcomingDeadlines.map(project => (
+                    <div key={project.id} className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                      <div className="font-medium text-sm">{project.name}</div>
+                      <div className="text-xs text-muted-foreground">{project.clientName}</div>
+                      <div className="text-xs text-warning font-medium mt-1">
+                        יעד: {project.deadline?.toLocaleDateString('he-IL')}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-muted-foreground text-sm">
+                    אין מועדי יעד השבוע
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Performance Indicators */}
+        <Card className="card-macos">
+          <CardContent className="p-6">
+            <h3 className="font-semibold mb-4">מדדי ביצועים</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary mb-1">
+                  {stats.completionRate.toFixed(1)}%
                 </div>
-              )}
+                <div className="text-sm text-muted-foreground">שיעור השלמה</div>
+                <div className="w-full bg-muted rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-gradient-primary h-2 rounded-full transition-all"
+                    style={{ width: `${stats.completionRate}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="text-2xl font-bold text-success mb-1">
+                  {stats.paymentRate.toFixed(1)}%
+                </div>
+                <div className="text-sm text-muted-foreground">שיעור תשלומים</div>
+                <div className="w-full bg-muted rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-gradient-success h-2 rounded-full transition-all"
+                    style={{ width: `${stats.paymentRate}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="text-2xl font-bold text-warning mb-1">
+                  {stats.inProgress}
+                </div>
+                <div className="text-sm text-muted-foreground">פרויקטים פעילים</div>
+                <div className="w-full bg-muted rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-gradient-warning h-2 rounded-full transition-all"
+                    style={{ width: `${Math.min((stats.inProgress / Math.max(stats.total, 1)) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Performance Indicators */}
-      <Card className="card-macos">
-        <CardContent className="p-6">
-          <h3 className="font-semibold mb-4">מדדי ביצועים</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary mb-1">
-                {stats.completionRate.toFixed(1)}%
-              </div>
-              <div className="text-sm text-muted-foreground">שיעור השלמה</div>
-              <div className="w-full bg-muted rounded-full h-2 mt-2">
-                <div 
-                  className="bg-gradient-primary h-2 rounded-full transition-all"
-                  style={{ width: `${stats.completionRate}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="text-center">
-              <div className="text-2xl font-bold text-success mb-1">
-                {stats.paymentRate.toFixed(1)}%
-              </div>
-              <div className="text-sm text-muted-foreground">שיעור תשלומים</div>
-              <div className="w-full bg-muted rounded-full h-2 mt-2">
-                <div 
-                  className="bg-gradient-success h-2 rounded-full transition-all"
-                  style={{ width: `${stats.paymentRate}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="text-center">
-              <div className="text-2xl font-bold text-warning mb-1">
-                {stats.inProgress}
-              </div>
-              <div className="text-sm text-muted-foreground">פרויקטים פעילים</div>
-              <div className="w-full bg-muted rounded-full h-2 mt-2">
-                <div 
-                  className="bg-gradient-warning h-2 rounded-full transition-all"
-                  style={{ width: `${Math.min((stats.inProgress / Math.max(stats.total, 1)) * 100, 100)}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 });
