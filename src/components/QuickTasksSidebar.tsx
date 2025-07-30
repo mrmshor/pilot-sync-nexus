@@ -119,10 +119,10 @@ export const QuickTasksSidebar = ({
                 size="sm"
                 variant="outline"
                 onClick={handleCopyPendingTasks}
-                className="h-7 px-2 text-xs"
+                className="h-7 px-2 text-xs hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-all duration-200 active:scale-95"
               >
                 <Copy className="w-3 h-3 ml-1" />
-                העתק ל-Google Tasks
+                העתק
               </Button>
             </div>
           </CardHeader>
