@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Clock, Play, Eye, CheckCircle, Pause, Timer } from 'lucide-react';
 
 export const StatusDropdown: React.FC<{
   value: string;
@@ -9,12 +9,12 @@ export const StatusDropdown: React.FC<{
   const [isOpen, setIsOpen] = useState(false);
   
   const statusOptions = [
-    { value: 'not-started', label: 'לא התחיל', color: 'bg-gray-100 text-gray-800', icon: '⭕' },
-    { value: 'in-progress', label: 'בתהליך', color: 'bg-blue-100 text-blue-800', icon: '🔄' },
-    { value: 'in-review', label: 'בסקירה', color: 'bg-purple-100 text-purple-800', icon: '👁️' },
-    { value: 'completed', label: 'הושלם', color: 'bg-green-100 text-green-800', icon: '✅' },
-    { value: 'on-hold', label: 'ממתין', color: 'bg-yellow-100 text-yellow-800', icon: '⏸️' },
-    { value: 'waiting', label: 'ממתין', color: 'bg-orange-100 text-orange-800', icon: '⏳' }
+    { value: 'not-started', label: 'לא התחיל', color: 'bg-gray-100 text-gray-800', Icon: Clock },
+    { value: 'in-progress', label: 'בתהליך', color: 'bg-blue-100 text-blue-800', Icon: Play },
+    { value: 'in-review', label: 'בסקירה', color: 'bg-purple-100 text-purple-800', Icon: Eye },
+    { value: 'completed', label: 'הושלם', color: 'bg-green-100 text-green-800', Icon: CheckCircle },
+    { value: 'on-hold', label: 'ממתין', color: 'bg-yellow-100 text-yellow-800', Icon: Pause },
+    { value: 'waiting', label: 'ממתין', color: 'bg-orange-100 text-orange-800', Icon: Timer }
   ];
   
   const currentStatus = statusOptions.find(s => s.value === value) || statusOptions[0];
@@ -25,7 +25,10 @@ export const StatusDropdown: React.FC<{
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full px-3 py-1.5 h-8 rounded-lg text-xs font-medium transition-all duration-200 ${currentStatus.color} border-2 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex items-center justify-between`}
       >
-        <span>{currentStatus.icon} {currentStatus.label}</span>
+        <span className="flex items-center gap-1">
+          <currentStatus.Icon className="h-3 w-3" />
+          {currentStatus.label}
+        </span>
         <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       
@@ -38,11 +41,12 @@ export const StatusDropdown: React.FC<{
                 onChange(option.value);
                 setIsOpen(false);
               }}
-              className={`w-full text-right px-4 py-3 text-sm hover:bg-gray-100 transition-all duration-150 ${
+              className={`w-full text-right px-4 py-3 text-sm hover:bg-gray-100 transition-all duration-150 flex items-center gap-2 ${
                 option.value === value ? 'bg-blue-50 font-medium' : ''
               }`}
             >
-              {option.icon} {option.label}
+              <option.Icon className="h-3 w-3" />
+              {option.label}
             </button>
           ))}
         </div>
