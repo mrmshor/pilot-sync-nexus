@@ -941,12 +941,12 @@ export const ProjectManagementApp = () => {
                                 variant="outline"
                                 onClick={() => {
                                   setSelectedProject(project);
-                                  setShowEditModal(true);
+                                  setShowTasksModal(true);
                                 }}
                                 className="flex items-center gap-1 h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200"
                               >
                                 <Edit className="w-3 h-3" />
-                                ערוך
+                                פתח פרויקט
                               </Button>
                               <Button
                                 size="sm"
