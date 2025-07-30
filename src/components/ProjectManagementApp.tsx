@@ -886,7 +886,7 @@ export const ProjectManagementApp = () => {
             <ProjectTasksModal
               open={showTasksModal}
               onOpenChange={setShowTasksModal}
-              project={selectedProject}
+              project={selectedProject ? projects.find(p => p.id === selectedProject.id) || selectedProject : null}
               onAddTask={handleAddProjectTask}
               onToggleTask={handleToggleProjectTask}
               onDeleteTask={handleDeleteProjectTask}
