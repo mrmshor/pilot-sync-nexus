@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -76,6 +76,9 @@ export const ProjectTasksModal = ({
               </Badge>
             )}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            ניהול משימות לפרויקט {project.name}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-3 py-2"
@@ -87,7 +90,12 @@ export const ProjectTasksModal = ({
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               placeholder="משימה חדשה..."
-              onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddTask();
+                }
+              }}
               className="flex-1 text-sm h-8"
             />
             <Button 
@@ -121,18 +129,20 @@ export const ProjectTasksModal = ({
               {project.tasks.map((task) => (
                 <div 
                   key={task.id} 
-                  className={`flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 p-2 rounded-lg border transition-all ${
                     task.completed 
                       ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800' 
                       : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750'
                   }`}
-                  onClick={() => onToggleTask(project.id, task.id)}
                 >
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
-                    task.completed 
-                      ? 'bg-green-500 border-green-500' 
-                      : 'border-gray-300 hover:border-blue-400'
-                  }`}>
+                  <div 
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
+                      task.completed 
+                        ? 'bg-green-500 border-green-500' 
+                        : 'border-gray-300 hover:border-blue-400'
+                    }`}
+                    onClick={() => onToggleTask(project.id, task.id)}
+                  >
                     {task.completed && <CheckCircle2 className="w-2.5 h-2.5 text-white" />}
                   </div>
                   
