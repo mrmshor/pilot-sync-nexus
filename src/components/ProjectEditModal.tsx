@@ -44,16 +44,24 @@ export const ProjectEditModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Edit className="w-5 h-5" />
-            עריכת פרויקט: {project.name}
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden" dir="rtl">
+        <DialogHeader className="pb-3 border-b">
+          <DialogTitle className="flex items-center gap-3">
+            <div className="p-1.5 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <Edit className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <div className="text-lg font-bold">{project.name}</div>
+              <div className="text-xs text-muted-foreground font-normal">
+                {project.clientName}
+              </div>
+            </div>
           </DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex-1 overflow-y-auto space-y-4 py-2"
+             style={{ maxHeight: 'calc(80vh - 160px)' }}>
+        <form onSubmit={handleSubmit} className="space-y-4">
             {/* Project Details */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold border-b pb-2">פרטי הפרויקט</h3>
@@ -251,23 +259,27 @@ export const ProjectEditModal = ({
                 </div>
               </div>
             </div>
-          </div>
+          </form>
+        </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-            >
-              <X className="w-4 h-4 ml-2" />
-              ביטול
-            </Button>
-            <Button type="submit" className="gradient-primary text-white">
-              <Save className="w-4 h-4 ml-2" />
-              שמור שינויים
-            </Button>
-          </div>
-        </form>
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+          >
+            <X className="w-4 h-4 ml-2" />
+            ביטול
+          </Button>
+          <Button 
+            type="submit" 
+            onClick={handleSubmit}
+            className="gradient-primary text-white"
+          >
+            <Save className="w-4 h-4 ml-2" />
+            שמור שינויים
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

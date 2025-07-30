@@ -325,10 +325,6 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onProjectSelect && onProjectSelect(project.id);
-                    }}
                     className="h-8 w-8 p-0 hover:bg-blue-100 text-blue-600"
                   >
                     <Edit className="h-4 w-4" />
