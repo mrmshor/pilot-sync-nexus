@@ -508,7 +508,7 @@ export const ProjectManagementApp = () => {
                 </div>
               </div>
               
-              {/* Action Buttons */}
+              {/* Action Buttons - Centered */}
               <div className="flex items-center justify-center gap-3 mb-6">
                 <Button
                   variant="outline"
@@ -574,8 +574,9 @@ export const ProjectManagementApp = () => {
                   {/* Search and Filters */}
                   <Card className="card-macos">
                     <CardContent className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                        <div className="relative md:col-span-2">
+                      <div className="flex flex-col gap-4">
+                        {/* Search Bar */}
+                        <div className="relative w-full max-w-md mx-auto">
                           <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input
                             placeholder="חיפוש פרויקטים..."
@@ -585,54 +586,60 @@ export const ProjectManagementApp = () => {
                           />
                         </div>
                         
-                        <select
-                          value={priorityFilter}
-                          onChange={(e) => setPriorityFilter(e.target.value)}
-                          className="w-full px-3 py-2 border rounded-lg text-sm bg-white"
-                        >
-                          <option value="all">כל העדיפויות</option>
-                          <option value="high">עדיפות גבוהה</option>
-                          <option value="medium">עדיפות בינונית</option>
-                          <option value="low">עדיפות נמוכה</option>
-                        </select>
-                        
-                        <select
-                          value={statusFilter}
-                          onChange={(e) => setStatusFilter(e.target.value)}
-                          className="w-full px-3 py-2 border rounded-lg text-sm bg-white"
-                        >
-                          <option value="all">כל הסטטוסים</option>
-                          <option value="not-started">לא התחיל</option>
-                          <option value="in-progress">בתהליך</option>
-                          <option value="in-review">בבדיקה</option>
-                          <option value="completed">הושלם</option>
-                          <option value="on-hold">מושהה</option>
-                          <option value="waiting">ממתין</option>
-                        </select>
-
-                        <select
-                          value={`${sortBy}-${sortOrder}`}
-                          onChange={(e) => {
-                            const [field, order] = e.target.value.split('-');
-                            setSortBy(field as any);
-                            setSortOrder(order as any);
-                          }}
-                          className="w-full px-3 py-2 border rounded-lg text-sm bg-white"
-                        >
-                          <option value="updatedAt-desc">עדכון אחרון ↓</option>
-                          <option value="updatedAt-asc">עדכון אחרון ↑</option>
-                          <option value="createdAt-desc">תאריך יצירה ↓</option>
-                          <option value="createdAt-asc">תאריך יצירה ↑</option>
-                          <option value="name-asc">שם א-ת</option>
-                          <option value="name-desc">שם ת-א</option>
-                          <option value="priority-desc">עדיפות ↓</option>
-                          <option value="priority-asc">עדיפות ↑</option>
-                        </select>
-                        
-                        <Button onClick={() => setShowCreateModal(true)} className="gradient-primary text-white">
-                          <Plus className="w-4 h-4 ml-2" />
-                          פרויקט חדש
-                        </Button>
+                        {/* Filters and Actions - Centered */}
+                        <div className="flex flex-wrap items-center justify-center gap-3">
+                          <select
+                            value={priorityFilter}
+                            onChange={(e) => setPriorityFilter(e.target.value)}
+                            className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
+                          >
+                            <option value="all">כל העדיפויות</option>
+                            <option value="high">עדיפות גבוהה</option>
+                            <option value="medium">עדיפות בינונית</option>
+                            <option value="low">עדיפות נמוכה</option>
+                          </select>
+                          
+                          <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
+                          >
+                            <option value="all">כל הסטטוסים</option>
+                            <option value="not-started">לא התחיל</option>
+                            <option value="in-progress">בתהליך</option>
+                            <option value="in-review">בבדיקה</option>
+                            <option value="completed">הושלם</option>
+                            <option value="on-hold">מושהה</option>
+                            <option value="waiting">ממתין</option>
+                          </select>
+                          
+                          <select
+                            value={`${sortBy}-${sortOrder}`}
+                            onChange={(e) => {
+                              const [field, order] = e.target.value.split('-');
+                              setSortBy(field as any);
+                              setSortOrder(order as any);
+                            }}
+                            className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
+                          >
+                            <option value="updatedAt-desc">עדכון אחרון ↓</option>
+                            <option value="updatedAt-asc">עדכון אחרון ↑</option>
+                            <option value="createdAt-desc">תאריך יצירה ↓</option>
+                            <option value="createdAt-asc">תאריך יצירה ↑</option>
+                            <option value="name-asc">שם א-ת</option>
+                            <option value="name-desc">שם ת-א</option>
+                            <option value="priority-desc">עדיפות ↓</option>
+                            <option value="priority-asc">עדיפות ↑</option>
+                          </select>
+                          
+                          <Button 
+                            onClick={() => setShowCreateModal(true)} 
+                            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6"
+                          >
+                            <Plus className="w-4 h-4 ml-2" />
+                            פרויקט חדש
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

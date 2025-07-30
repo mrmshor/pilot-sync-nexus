@@ -55,168 +55,145 @@ export const ProjectTasksModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh]" dir="rtl">
-        <DialogHeader className="border-b pb-4">
-          <DialogTitle className="flex items-center gap-3">
-            <CheckSquare className="w-6 h-6 text-primary" />
-            <div className="flex-1">
-              <div className="text-xl font-bold">{project.name}</div>
-              <div className="text-sm text-muted-foreground font-normal">
-                לקוח: {project.clientName}
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden" dir="rtl">
+        <DialogHeader className="pb-3 border-b">
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <CheckSquare className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <div className="text-lg font-bold">{project.name}</div>
+                <div className="text-sm text-muted-foreground font-normal">
+                  {project.clientName}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline">
+              <Badge variant="outline" className="text-xs">
                 {project.tasks.length} משימות
               </Badge>
               {project.tasks.length > 0 && (
-                <Badge variant={completionRate === 100 ? "success" : "secondary"}>
-                  {completionRate.toFixed(0)}% הושלם
+                <Badge 
+                  variant={completionRate === 100 ? "default" : "secondary"}
+                  className={completionRate === 100 ? "bg-green-600 text-white" : ""}
+                >
+                  {completionRate.toFixed(0)}%
                 </Badge>
               )}
             </div>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 max-h-[60vh] overflow-y-auto">
+        <div className="flex-1 overflow-y-auto space-y-4 py-2"
+             style={{ maxHeight: 'calc(85vh - 200px)' }}>
           {/* Add New Task */}
-          <div className="flex gap-3 p-4 bg-muted/30 rounded-lg">
+          <div className="flex gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <Input
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
-              placeholder="הזן משימה חדשה לפרויקט..."
+              placeholder="הזן משימה חדשה..."
               onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-              className="flex-1"
+              className="flex-1 text-sm"
             />
             <Button 
               onClick={handleAddTask}
-              className="gradient-primary text-white"
+              size="sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4"
             >
-              <Plus className="w-4 h-4 ml-2" />
-              הוסף
+              <Plus className="w-4 h-4" />
             </Button>
           </div>
 
           {/* Progress Bar */}
           {project.tasks.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>התקדמות הפרויקט</span>
-                <span>{completionRate.toFixed(1)}%</span>
+            <div className="space-y-2 bg-white dark:bg-gray-900 p-3 rounded-lg border">
+              <div className="flex justify-between text-sm font-medium">
+                <span>התקדמות</span>
+                <span className="text-blue-600">{completionRate.toFixed(0)}%</span>
               </div>
-              <div className="w-full bg-muted rounded-full h-2">
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div 
-                  className="bg-gradient-primary h-2 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${completionRate}%` }}
                 />
               </div>
             </div>
           )}
 
-          {/* Pending Tasks */}
-          {pendingTasks.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="font-semibold flex items-center gap-2">
-                <Clock className="w-5 h-5 text-warning" />
-                משימות ממתינות ({pendingTasks.length})
-              </h3>
-              <div className="space-y-2">
-                {pendingTasks.map((task) => (
-                  <div 
-                    key={task.id} 
-                    className="flex items-center gap-3 p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+          {/* All Tasks - Simplified */}
+          {project.tasks.length > 0 && (
+            <div className="space-y-2">
+              {project.tasks.map((task) => (
+                <div 
+                  key={task.id} 
+                  className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                    task.completed 
+                      ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800' 
+                      : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750'
+                  }`}
+                >
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onToggleTask(project.id, task.id)}
+                    className={`p-1 h-8 w-8 flex items-center justify-center rounded-full transition-colors ${
+                      task.completed 
+                        ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800' 
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-400 hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-600 dark:hover:text-blue-400'
+                    }`}
                   >
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onToggleTask(project.id, task.id)}
-                      className="p-1 h-auto hover:text-success"
-                    >
-                      <CheckCircle2 className="w-5 h-5" />
-                    </Button>
-                    <div className="flex-1">
-                      <div className="font-medium">{task.title}</div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        נוצר: {task.createdAt.toLocaleDateString('he-IL')}
-                      </div>
+                    <CheckCircle2 className="w-4 h-4" />
+                  </Button>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-medium text-sm ${
+                      task.completed 
+                        ? 'line-through text-gray-500 dark:text-gray-400' 
+                        : 'text-gray-900 dark:text-gray-100'
+                    }`}>
+                      {task.title}
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onDeleteTask(project.id, task.id)}
-                      className="p-1 h-auto hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Completed Tasks */}
-          {completedTasks.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="font-semibold flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-success" />
-                משימות שהושלמו ({completedTasks.length})
-              </h3>
-              <div className="space-y-2">
-                {completedTasks.map((task) => (
-                  <div 
-                    key={task.id} 
-                    className="flex items-center gap-3 p-4 rounded-lg bg-success/10 border border-success/20"
-                  >
-                    <CheckCircle2 className="w-5 h-5 text-success" />
-                    <div className="flex-1">
-                      <div className="font-medium line-through text-muted-foreground">
-                        {task.title}
-                      </div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-4">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          נוצר: {task.createdAt.toLocaleDateString('he-IL')}
+                    <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-3">
+                      <span>נוצר: {task.createdAt.toLocaleDateString('he-IL')}</span>
+                      {task.completed && task.completedAt && (
+                        <span className="text-green-600 dark:text-green-400">
+                          הושלם: {task.completedAt.toLocaleDateString('he-IL')}
                         </span>
-                        {task.completedAt && (
-                          <span className="flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3" />
-                            הושלם: {task.completedAt.toLocaleDateString('he-IL')}
-                          </span>
-                        )}
-                      </div>
+                      )}
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onDeleteTask(project.id, task.id)}
-                      className="p-1 h-auto hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
                   </div>
-                ))}
-              </div>
+                  
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onDeleteTask(project.id, task.id)}
+                    className="p-1 h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
           )}
 
           {/* Empty State */}
           {project.tasks.length === 0 && (
-            <div className="text-center py-12">
-              <CheckSquare className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-medium text-lg mb-2">אין משימות בפרויקט</h3>
-              <p className="text-muted-foreground">
+            <div className="text-center py-8">
+              <CheckSquare className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <h3 className="font-medium text-base mb-1 text-gray-700 dark:text-gray-300">אין משימות בפרויקט</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 הוסף משימות כדי לעקוב אחר התקדמות הפרויקט
               </p>
             </div>
           )}
         </div>
 
-        <div className="border-t pt-4">
+        <div className="border-t pt-3 flex gap-2">
           <Button 
             onClick={() => onOpenChange(false)}
             variant="outline"
-            className="w-full"
+            className="flex-1"
           >
             סגור
           </Button>

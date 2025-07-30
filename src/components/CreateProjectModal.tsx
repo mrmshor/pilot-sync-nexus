@@ -336,7 +336,7 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
                   <Button
                     type="button"
                     onClick={handleSelectFolder}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 h-10 flex items-center gap-2"
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 h-10 flex items-center gap-2 whitespace-nowrap"
                   >
                     <FolderOpen className="w-4 h-4" />
                     בחר תיקיה
