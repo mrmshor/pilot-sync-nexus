@@ -574,7 +574,7 @@ export const ProjectManagementApp = () => {
         
         <div className="flex w-full">
           {/* Quick Tasks Sidebar - Fixed positioning */}
-          <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto">
+          <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto fixed left-0 top-0 z-30">
             <QuickTasksSidebar
               quickTasks={quickTasks}
               onAddTask={handleAddQuickTask}
@@ -584,7 +584,7 @@ export const ProjectManagementApp = () => {
           </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex items-center justify-center min-h-screen">
+        <div className="flex-1 flex items-center justify-center min-h-screen pl-80">
           <div className="container mx-auto px-4 py-8">
             {/* Header */}
             <header className="text-center mb-12">
