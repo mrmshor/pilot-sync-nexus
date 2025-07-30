@@ -726,18 +726,17 @@ export const ProjectManagementApp = () => {
                                   </span>
                                 </div>
                               </div>
-                              <div className="flex flex-col gap-1">
-                                {/* Interactive Status Dropdown */}
+                              <div className="flex flex-col gap-2">
+                                {/* Interactive Status and Priority Dropdowns - Fixed Size */}
                                 <StatusDropdown
                                   value={project.status}
                                   onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
-                                  className="text-xs"
+                                  className="w-32"
                                 />
-                                {/* Interactive Priority Dropdown */}
                                 <PriorityDropdown
                                   value={project.priority}
                                   onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
-                                  className="text-xs"
+                                  className="w-32"
                                 />
                               </div>
                             </div>
@@ -757,7 +756,11 @@ export const ProjectManagementApp = () => {
                                 size="sm"
                                 variant={project.paid ? "default" : "outline"}
                                 onClick={() => toggleProjectPaid(project.id)}
-                                className="text-xs"
+                                className={`text-xs h-8 px-3 transition-all duration-200 ${
+                                  project.paid 
+                                    ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
+                                    : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
+                                }`}
                               >
                                 <CreditCard className="w-3 h-3 ml-1" />
                                 {project.paid ? 'שולם' : 'לא שולם'}
@@ -775,7 +778,7 @@ export const ProjectManagementApp = () => {
                                     setSelectedProject(project);
                                     setShowTasksModal(true);
                                   }}
-                                  className="text-xs h-auto p-1 hover:text-primary"
+                                  className="text-xs h-8 px-3 hover:text-primary bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all duration-200"
                                 >
                                   <ListTodo className="w-3 h-3 ml-1" />
                                   {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : 'הוסף משימות'}
@@ -800,7 +803,7 @@ export const ProjectManagementApp = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleContactClick('phone', project.phone1)}
-                                  className="flex items-center gap-1"
+                                  className="flex items-center gap-1 h-8 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200"
                                 >
                                   <PhoneCall className="w-3 h-3" />
                                   <span className="hidden sm:inline">חייג</span>
@@ -811,7 +814,7 @@ export const ProjectManagementApp = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleContactClick('whatsapp', project.whatsapp1)}
-                                  className="flex items-center gap-1"
+                                  className="flex items-center gap-1 h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 transition-all duration-200"
                                 >
                                   <MessageCircle className="w-3 h-3" />
                                   <span className="hidden sm:inline">וואטסאפ</span>
@@ -822,7 +825,7 @@ export const ProjectManagementApp = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleContactClick('email', project.email)}
-                                  className="flex items-center gap-1"
+                                  className="flex items-center gap-1 h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200"
                                 >
                                   <Mail className="w-3 h-3" />
                                   <span className="hidden sm:inline">מייל</span>
@@ -837,7 +840,7 @@ export const ProjectManagementApp = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => openFolder(project.folderPath, project.icloudLink)}
-                                  className="flex items-center gap-1"
+                                  className="flex items-center gap-1 h-8 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 transition-all duration-200"
                                 >
                                   <FolderOpen className="w-3 h-3" />
                                   פתח תיקייה
@@ -854,7 +857,7 @@ export const ProjectManagementApp = () => {
                                   setSelectedProject(project);
                                   setShowEditModal(true);
                                 }}
-                                className="flex items-center gap-1"
+                                className="flex items-center gap-1 h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200"
                               >
                                 <Edit className="w-3 h-3" />
                                 ערוך
@@ -863,7 +866,7 @@ export const ProjectManagementApp = () => {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleDeleteProject(project.id)}
-                                className="flex items-center gap-1 hover:text-destructive"
+                                className="flex items-center gap-1 h-8 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200"
                               >
                                 <Trash2 className="w-3 h-3" />
                                 מחק
