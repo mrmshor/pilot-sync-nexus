@@ -74,11 +74,12 @@ export const ProjectManagementApp = () => {
         currency: 'ILS',
         paid: false,
         completed: false,
+        deadline: new Date('2024-02-28'),
         createdAt: new Date('2024-01-15'),
         updatedAt: new Date(),
         tasks: [
           { id: '1', title: 'לחזור בקרוב', completed: false, createdAt: new Date('2024-01-16') },
-          { id: '2', title: 'לבצע', completed: false, createdAt: new Date('2024-01-21') },
+          { id: '2', title: 'לבצע עיצוב ראשוני', completed: true, createdAt: new Date('2024-01-20'), completedAt: new Date('2024-01-25') },
           { id: '3', title: 'להזמין חומר', completed: false, createdAt: new Date('2024-01-21') },
           { id: '4', title: 'לעדכן מחיר', completed: false, createdAt: new Date('2024-01-21') },
           { id: '5', title: 'לתקן קבצים לשליחה לאישור סופי', completed: false, createdAt: new Date('2024-01-21') }
@@ -103,6 +104,7 @@ export const ProjectManagementApp = () => {
         currency: 'ILS',
         paid: false,
         completed: false,
+        deadline: new Date('2024-02-10'),
         createdAt: new Date('2024-02-01'),
         updatedAt: new Date('2024-02-15'),
         tasks: [],
@@ -126,6 +128,7 @@ export const ProjectManagementApp = () => {
         currency: 'ILS',
         paid: false,
         completed: false,
+        deadline: new Date('2024-02-05'),
         createdAt: new Date('2024-01-20'),
         updatedAt: new Date('2024-02-10'),
         tasks: [
@@ -145,26 +148,27 @@ export const ProjectManagementApp = () => {
 
   // Calculate statistics
   const stats = useMemo(() => {
-    const totalProjects = projects.length;
-    const completedProjects = projects.filter(p => p.completed).length;
-    const inProgressProjects = projects.filter(p => p.status === 'in-progress').length;
-    const completionRate = totalProjects > 0 ? (completedProjects / totalProjects) * 100 : 0;
+    const total = projects.length;
+    const completed = projects.filter(p => p.completed).length;
+    const inProgress = projects.filter(p => p.status === 'in-progress').length;
+    const paid = projects.filter(p => p.paid).length;
+    const unpaid = projects.filter(p => !p.paid).length;
+    const completionRate = total > 0 ? (completed / total) * 100 : 0;
 
     const totalRevenue = projects.reduce((sum, p) => sum + (p.paid ? p.price : 0), 0);
     const pendingRevenue = projects.reduce((sum, p) => sum + (p.paid ? 0 : p.price), 0);
     const paymentRate = (totalRevenue + pendingRevenue) > 0 ? (totalRevenue / (totalRevenue + pendingRevenue)) * 100 : 0;
 
-    const unpaidProjects = projects.filter(p => !p.paid).length;
-
     return {
-      totalProjects,
-      completedProjects,
-      inProgressProjects,
+      total,
+      completed,
+      inProgress,
+      paid,
+      unpaid,
       completionRate,
       totalRevenue,
       pendingRevenue,
-      paymentRate,
-      unpaidProjects
+      paymentRate
     };
   }, [projects]);
 
@@ -562,11 +566,11 @@ export const ProjectManagementApp = () => {
                 <EnhancedDashboard 
                   projects={projects} 
                   stats={{
-                    total: stats.totalProjects,
-                    completed: stats.completedProjects,
-                    inProgress: stats.inProgressProjects,
-                    paid: projects.filter(p => p.paid).length,
-                    unpaid: stats.unpaidProjects,
+                    total: stats.total,
+                    completed: stats.completed,
+                    inProgress: stats.inProgress,
+                    paid: stats.paid,
+                    unpaid: stats.unpaid,
                     totalRevenue: stats.totalRevenue,
                     pendingRevenue: stats.pendingRevenue,
                     completionRate: stats.completionRate,
