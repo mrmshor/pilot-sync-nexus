@@ -671,36 +671,11 @@ export const ProjectManagementApp = () => {
                 {/* Empty space for balance */}
                 <div className="w-24"></div>
               </div>
-            </div>
-          </div>
 
-          {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="container mx-auto px-4 py-6">
-              {/* Content */}
-              <main>
-                {activeTab === 'dashboard' && (
-                  <div>
-                    <EnhancedDashboard 
-                      projects={projects} 
-                      stats={{
-                        total: stats.total,
-                        completed: stats.completed,
-                        inProgress: stats.inProgress,
-                        paid: stats.paid,
-                        unpaid: stats.unpaid,
-                        totalRevenue: stats.totalRevenue,
-                        pendingRevenue: stats.pendingRevenue,
-                        completionRate: stats.completionRate,
-                        paymentRate: stats.paymentRate
-                      }}
-                    />
-                  </div>
-                )}
-
-                {activeTab === 'projects' && (
-                  <div className="space-y-6">
-                    {/* Search and Filters */}
+              {/* Search and Filters - Only visible in projects tab */}
+              {activeTab === 'projects' && (
+                <div className="border-t border-white/20 pt-4">
+                  <div className="container mx-auto px-4">
                     <Card className="card-macos">
                       <CardContent className="p-6">
                         <div className="flex flex-col gap-4">
@@ -771,7 +746,38 @@ export const ProjectManagementApp = () => {
                         </div>
                       </CardContent>
                     </Card>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="container mx-auto px-4 py-6">
+              {/* Content */}
+              <main>
+                {activeTab === 'dashboard' && (
+                  <div>
+                    <EnhancedDashboard 
+                      projects={projects} 
+                      stats={{
+                        total: stats.total,
+                        completed: stats.completed,
+                        inProgress: stats.inProgress,
+                        paid: stats.paid,
+                        unpaid: stats.unpaid,
+                        totalRevenue: stats.totalRevenue,
+                        pendingRevenue: stats.pendingRevenue,
+                        completionRate: stats.completionRate,
+                        paymentRate: stats.paymentRate
+                      }}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'projects' && (
+                  <div className="space-y-6">
                     {/* Projects Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                       {filteredAndSortedProjects.map((project) => {
