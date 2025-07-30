@@ -126,11 +126,10 @@ export const QuickTasksSidebar = ({
               </div>
               <Button
                 size="sm"
-                variant="outline"
                 onClick={handleCopyPendingTasks}
-                className="h-8 flex items-center gap-1 text-xs"
+                className="copy-button h-9 px-3 rounded-lg flex items-center gap-2 text-sm font-medium"
               >
-                <Copy className="w-3 h-3" />
+                <Copy className="w-4 h-4" />
                 העתק הכל
               </Button>
             </CardTitle>
