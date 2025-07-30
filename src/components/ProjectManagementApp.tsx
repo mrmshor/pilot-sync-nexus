@@ -709,64 +709,86 @@ export const ProjectManagementApp = () => {
 
                             {/* Tasks Section - Enhanced with External Controls */}
                             <div className="space-y-3">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">משימות</span>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    setSelectedProject(project);
-                                    setShowTasksModal(true);
-                                  }}
-                                  className="text-xs h-7 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all duration-200"
-                                >
-                                  <ListTodo className="w-3 h-3 ml-1" />
-                                  {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : 'הוסף משימות'}
-                                </Button>
-                              </div>
-                              
-                              {/* Tasks Preview with Background and Frame */}
-                              {totalTasks > 0 && (
-                                <div className="bg-gradient-to-br from-blue-50/30 to-indigo-50/30 dark:from-blue-950/20 dark:to-indigo-950/20 p-3 rounded-lg border border-blue-100/50 dark:border-blue-800/30">
-                                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-3">
-                                    <div 
-                                      className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all"
-                                      style={{ width: `${completionRate}%` }}
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    {project.tasks.slice(0, 3).map((task) => (
-                                      <div key={task.id} className="flex items-center gap-2 text-xs group cursor-pointer hover:bg-white/50 dark:hover:bg-gray-800/50 p-1.5 rounded transition-all">
-                                        <div 
-                                          className={`w-3 h-3 rounded-full border-2 flex items-center justify-center transition-all hover:scale-110 ${
-                                            task.completed 
-                                              ? 'bg-green-500 border-green-500' 
-                                              : 'border-gray-400 hover:border-blue-500'
-                                          }`}
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleToggleProjectTask(project.id, task.id);
-                                          }}
-                                        >
-                                          {task.completed && <CheckCircle2 className="w-2 h-2 text-white" />}
-                                        </div>
-                                        <span className={`flex-1 truncate transition-all ${
-                                          task.completed 
-                                            ? 'line-through text-gray-500 dark:text-gray-400' 
-                                            : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100'
-                                        }`}>
-                                          {task.title}
-                                        </span>
-                                      </div>
-                                    ))}
-                                    {totalTasks > 3 && (
-                                      <div className="text-xs text-gray-500 text-center pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
-                                        +{totalTasks - 3} משימות נוספות...
-                                      </div>
-                                    )}
-                                  </div>
+                              {/* Tasks Header with Title and Button */}
+                              <div className="bg-gradient-to-br from-blue-50/30 to-indigo-50/30 dark:from-blue-950/20 dark:to-indigo-950/20 p-3 rounded-lg border border-blue-100/50 dark:border-blue-800/30">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400">משימות</h3>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      setSelectedProject(project);
+                                      setShowTasksModal(true);
+                                    }}
+                                    className="text-xs h-7 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all duration-200"
+                                  >
+                                    <ListTodo className="w-3 h-3 ml-1" />
+                                    {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : 'הוסף משימות'}
+                                  </Button>
                                 </div>
-                              )}
+                                
+                                {/* Tasks Preview with Sorting */}
+                                {totalTasks > 0 && (
+                                  <div className="space-y-3">
+                                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                                      <div 
+                                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all"
+                                        style={{ width: `${completionRate}%` }}
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      {[...project.tasks]
+                                        .sort((a, b) => {
+                                          // משימות לא מושלמות ראשונות, אחר כך מושלמות
+                                          if (a.completed !== b.completed) {
+                                            return a.completed ? 1 : -1;
+                                          }
+                                          return 0;
+                                        })
+                                        .slice(0, 3)
+                                        .map((task) => (
+                                        <div key={task.id} className="flex items-center gap-2 text-xs group cursor-pointer hover:bg-white/50 dark:hover:bg-gray-800/50 p-1.5 rounded transition-all">
+                                          <div 
+                                            className={`w-3 h-3 rounded-full border-2 flex items-center justify-center transition-all hover:scale-110 ${
+                                              task.completed 
+                                                ? 'bg-green-500 border-green-500' 
+                                                : 'border-gray-400 hover:border-blue-500'
+                                            }`}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleToggleProjectTask(project.id, task.id);
+                                            }}
+                                          >
+                                            {task.completed && <CheckCircle2 className="w-2 h-2 text-white" />}
+                                          </div>
+                                          <span className={`flex-1 truncate transition-all ${
+                                            task.completed 
+                                              ? 'line-through text-gray-500 dark:text-gray-400' 
+                                              : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100'
+                                          }`}>
+                                            {task.title}
+                                          </span>
+                                        </div>
+                                      ))}
+                                      {totalTasks > 3 && (
+                                        <div className="text-xs text-gray-500 text-center pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
+                                          +{totalTasks - 3} משימות נוספות...
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {/* Empty State */}
+                                {totalTasks === 0 && (
+                                  <div className="text-center py-4">
+                                    <CheckSquare className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                      לחץ על הכפתור להוספת משימות
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </CardHeader>
 
