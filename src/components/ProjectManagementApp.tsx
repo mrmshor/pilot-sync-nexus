@@ -707,10 +707,10 @@ export const ProjectManagementApp = () => {
                               </Button>
                             </div>
 
-                            {/* Tasks Progress */}
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-sm">
-                                <span>משימות</span>
+                            {/* Tasks Section - Enhanced */}
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium">משימות</span>
                                 <Button
                                   size="sm"
                                   variant="ghost"
@@ -718,18 +718,41 @@ export const ProjectManagementApp = () => {
                                     setSelectedProject(project);
                                     setShowTasksModal(true);
                                   }}
-                                  className="text-xs h-8 px-3 hover:text-primary bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all duration-200"
+                                  className="text-xs h-7 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all duration-200"
                                 >
                                   <ListTodo className="w-3 h-3 ml-1" />
                                   {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : 'הוסף משימות'}
                                 </Button>
                               </div>
+                              
+                              {/* Tasks Preview */}
                               {totalTasks > 0 && (
-                                <div className="w-full bg-muted rounded-full h-2">
-                                  <div 
-                                    className="bg-gradient-primary h-2 rounded-full transition-all"
-                                    style={{ width: `${completionRate}%` }}
-                                  />
+                                <div className="space-y-2">
+                                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                                    <div 
+                                      className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all"
+                                      style={{ width: `${completionRate}%` }}
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    {project.tasks.slice(0, 3).map((task) => (
+                                      <div key={task.id} className="flex items-center gap-2 text-xs">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${
+                                          task.completed ? 'bg-green-500' : 'bg-gray-400'
+                                        }`} />
+                                        <span className={`flex-1 truncate ${
+                                          task.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-700 dark:text-gray-300'
+                                        }`}>
+                                          {task.title}
+                                        </span>
+                                      </div>
+                                    ))}
+                                    {totalTasks > 3 && (
+                                      <div className="text-xs text-gray-500 text-center">
+                                        +{totalTasks - 3} עוד...
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               )}
                             </div>
