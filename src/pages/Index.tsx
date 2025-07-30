@@ -388,9 +388,9 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="w-full">
+      <main className="p-6">
         {/* Navigation Tabs */}
-        <div className="grid grid-cols-2 w-full bg-white/90 backdrop-blur p-1.5 rounded-xl shadow-lg mb-8 border border-gray-200/50 max-w-md mx-auto mt-6">
+        <div className="grid grid-cols-2 w-full max-w-md mx-auto bg-white/90 backdrop-blur p-1.5 rounded-xl shadow-lg mb-8 border border-gray-200/50">
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${

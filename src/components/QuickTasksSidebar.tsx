@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { QuickTask } from '@/types';
-import { Plus, X, CheckCircle2, Clock, Trash2, Copy } from 'lucide-react';
+import { Plus, X, CheckCircle2, Clock, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface QuickTasksSidebarProps {
@@ -39,42 +39,6 @@ export const QuickTasksSidebar = ({
       title: "משימה נוספה",
       description: `המשימה "${newTaskTitle}" נוספה בהצלחה`,
     });
-  };
-
-  const handleCopyPendingTasks = async () => {
-    if (pendingTasks.length === 0) {
-      toast({
-        title: "אין משימות להעתקה",
-        description: "אין משימות ממתינות להעתקה",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const tasksList = pendingTasks
-      .map(task => `• ${task.title}`)
-      .join('\n');
-
-    try {
-      await navigator.clipboard.writeText(tasksList);
-      toast({
-        title: "הועתק בהצלחה!",
-        description: `${pendingTasks.length} משימות ממתינות הועתקו ללוח`,
-      });
-    } catch (error) {
-      // Fallback for browsers that don't support clipboard API
-      const textArea = document.createElement('textarea');
-      textArea.value = tasksList;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
-      toast({
-        title: "הועתק בהצלחה!",
-        description: `${pendingTasks.length} משימות ממתינות הועתקו ללוח`,
-      });
-    }
   };
 
   const pendingTasks = quickTasks.filter(task => !task.completed);
@@ -119,19 +83,9 @@ export const QuickTasksSidebar = ({
       {pendingTasks.length > 0 && (
         <Card className="card-macos">
           <CardHeader className="pb-3">
-            <CardTitle className="text-md flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-warning" />
-                משימות ממתינות ({pendingTasks.length})
-              </div>
-              <Button
-                size="sm"
-                onClick={handleCopyPendingTasks}
-                className="copy-button h-9 px-3 rounded-lg flex items-center gap-2 text-sm font-medium"
-              >
-                <Copy className="w-4 h-4" />
-                העתק הכל
-              </Button>
+            <CardTitle className="text-md flex items-center gap-2">
+              <Clock className="w-4 h-4 text-warning" />
+              משימות ממתינות ({pendingTasks.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">

@@ -138,9 +138,9 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
   };
 
   return (
-    <div className="w-full max-w-none space-y-6">
+    <div className="space-y-6 p-6">
       {/* Statistics Cards */}
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 w-full">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {statCards.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
@@ -167,7 +167,7 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
       </div>
 
       {/* Recent Projects */}
-      <Card className="w-full bg-gradient-to-br from-slate-50 to-gray-100 border border-gray-200">
+      <Card className="bg-gradient-to-br from-slate-50 to-gray-100 border border-gray-200">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold flex items-center gap-3 text-gray-800">

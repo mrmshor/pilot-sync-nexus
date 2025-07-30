@@ -551,23 +551,14 @@ export const ProjectManagementApp = () => {
 
   const handleSidebarProjectSelect = (project: Project) => {
     setSelectedProject(project);
-    // Scroll to the project card in the main view
-    const projectElement = document.getElementById(`project-${project.id}`);
-    if (projectElement) {
-      projectElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Add temporary highlight effect
-      projectElement.classList.add('ring-4', 'ring-blue-500/50');
-      setTimeout(() => {
-        projectElement.classList.remove('ring-4', 'ring-blue-500/50');
-      }, 2000);
-    }
+    setShowTasksModal(true);
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir="rtl">
+      <div className="flex w-full">
         {/* Quick Tasks Sidebar - Fixed positioning */}
-        <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto fixed left-0 top-0 z-30">
+        <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto">
           <QuickTasksSidebar
             quickTasks={quickTasks}
             onAddTask={handleAddQuickTask}
@@ -576,9 +567,9 @@ export const ProjectManagementApp = () => {
           />
         </div>
 
-        {/* Main Content - with proper margins for fixed sidebars */}
-        <div className="ml-80 mr-48 min-h-screen">
-          <div className="w-full py-8">
+        {/* Main Content */}
+        <div className="flex-1 flex items-center justify-center min-h-screen">
+          <div className="container mx-auto px-4 py-8">
             {/* Header */}
             <header className="text-center mb-12">
               <div className="flex items-center justify-center gap-4 mb-4">
@@ -721,9 +712,9 @@ export const ProjectManagementApp = () => {
             </div>
 
             {/* Content */}
-            <main className="w-full">
+            <main>
               {activeTab === 'dashboard' && (
-                <div className="w-full">
+                <div>
                   <EnhancedDashboard 
                     projects={projects} 
                     stats={{
@@ -823,8 +814,7 @@ export const ProjectManagementApp = () => {
                       const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
                       return (
-                        <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group transition-all duration-300"
-                        >
+                        <Card key={project.id} className="card-macos relative group">
                           <CardHeader className="pb-4">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
@@ -1094,14 +1084,7 @@ export const ProjectManagementApp = () => {
             />
           </div>
         </div>
-        
-        {/* Projects Sidebar - Right side */}
-        <AppSidebar 
-          projects={projects}
-          onProjectSelect={handleSidebarProjectSelect}
-          selectedProjectId={selectedProject?.id}
-        />
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
