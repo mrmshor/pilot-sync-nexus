@@ -1077,14 +1077,7 @@ export const ProjectManagementApp = () => {
             </div>
           </div>
 
-          {/* Projects Sidebar - Right Side (Compact) */}
-          <AppSidebar 
-            projects={projects} 
-            onProjectSelect={handleSidebarProjectSelect}
-            selectedProjectId={selectedProject?.id}
-          />
-
-          {/* Quick Tasks Sidebar - Right Side */}
+          {/* Quick Tasks Sidebar - Far Right */}
           <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto">
             <QuickTasksSidebar
               quickTasks={quickTasks}
@@ -1093,6 +1086,13 @@ export const ProjectManagementApp = () => {
               onDeleteTask={handleDeleteQuickTask}
             />
           </div>
+
+          {/* Projects Sidebar - Right Side (Compact) */}
+          <AppSidebar 
+            projects={projects} 
+            onProjectSelect={handleSidebarProjectSelect}
+            selectedProjectId={selectedProject?.id}
+          />
         </div>
       </div>
     </SidebarProvider>
