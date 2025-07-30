@@ -565,26 +565,25 @@ export const ProjectManagementApp = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 pr-48" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir="rtl">
         <AppSidebar 
           projects={projects}
           onProjectSelect={handleSidebarProjectSelect}
           selectedProjectId={selectedProject?.id}
         />
         
-        <div className="flex w-full">
-          {/* Quick Tasks Sidebar - Fixed positioning */}
-          <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto fixed left-0 top-0 z-30">
-            <QuickTasksSidebar
-              quickTasks={quickTasks}
-              onAddTask={handleAddQuickTask}
-              onToggleTask={handleToggleQuickTask}
-              onDeleteTask={handleDeleteQuickTask}
-            />
-          </div>
+        {/* Quick Tasks Sidebar - Fixed positioning */}
+        <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto fixed left-0 top-0 z-30">
+          <QuickTasksSidebar
+            quickTasks={quickTasks}
+            onAddTask={handleAddQuickTask}
+            onToggleTask={handleToggleQuickTask}
+            onDeleteTask={handleDeleteQuickTask}
+          />
+        </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex items-center justify-center min-h-screen pl-80">
+        {/* Main Content - with proper margins for fixed sidebars */}
+        <div className="ml-80 mr-48">
           <div className="container mx-auto px-4 py-8">
             {/* Header */}
             <header className="text-center mb-12">
@@ -1100,7 +1099,6 @@ export const ProjectManagementApp = () => {
               onUpdateProject={handleUpdateProject}
             />
           </div>
-        </div>
         </div>
       </div>
     </SidebarProvider>
