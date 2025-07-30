@@ -745,7 +745,7 @@ export const ProjectManagementApp = () => {
                           <CardHeader className="pb-4">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
-                                <CardTitle className="text-xl font-semibold line-clamp-2 mb-2 text-gray-900">
+                                <CardTitle className="text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
                                   {project.name}
                                 </CardTitle>
                                 <div className="flex items-center gap-2 mb-3">
@@ -778,7 +778,7 @@ export const ProjectManagementApp = () => {
 
                             {/* Price and Payment Status */}
                             <div className="flex items-center justify-between mb-3">
-                              <div className="text-xs font-medium text-gray-600">
+                              <div className="text-sm font-semibold text-green-600">
                                 {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
                               </div>
                               <Button

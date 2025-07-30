@@ -188,7 +188,7 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
                 >
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-xl text-gray-900">{project.name}</h4>
+                      <h4 className="font-bold text-xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent hover:from-indigo-500 hover:to-purple-500 transition-colors duration-300">{project.name}</h4>
                       <Badge variant={getStatusBadgeVariant(project.status)}>
                         {statusLabels[project.status]}
                       </Badge>
@@ -196,8 +196,8 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
                         {priorityLabels[project.priority]}
                       </Badge>
                     </div>
-                     <p className="text-xs text-gray-500">
-                       {project.clientName} • {formatCurrency(project.price)}
+                     <p className="text-sm text-gray-600">
+                       {project.clientName} • <span className="font-semibold text-green-600">{formatCurrency(project.price)}</span>
                      </p>
                   </div>
                   <div className="flex items-center gap-2">
