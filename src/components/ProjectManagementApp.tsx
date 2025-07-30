@@ -22,11 +22,8 @@ import { ProjectEditModal } from './ProjectEditModal';
 import { EnhancedDashboard } from './EnhancedDashboard';
 
 export const ProjectManagementApp = () => {
-  console.log('🚀 ProjectManagementApp component initialized');
   const [projects, setProjects] = useState<Project[]>([]);
   const [quickTasks, setQuickTasks] = useState<QuickTask[]>([]);
-  
-  console.log('🔍 ProjectManagementApp state change - projects count:', projects.length);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'projects'>('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
@@ -508,9 +505,6 @@ export const ProjectManagementApp = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir="rtl">
-      <div style={{position: 'fixed', top: '10px', left: '10px', backgroundColor: 'red', color: 'white', padding: '10px', zIndex: 9999}}>
-        DEBUG: App is rendering! Projects: {projects.length}, Active Tab: {activeTab}
-      </div>
       <div className="flex w-full">
         {/* Quick Tasks Sidebar - Fixed positioning */}
         <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto">
@@ -577,7 +571,6 @@ export const ProjectManagementApp = () => {
             <main>
               {activeTab === 'dashboard' && (
                 <div>
-                  <h2 style={{color: 'red', fontSize: '24px'}}>DEBUG: About to render EnhancedDashboard</h2>
                   <EnhancedDashboard 
                     projects={projects} 
                     stats={{
