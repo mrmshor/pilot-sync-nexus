@@ -39,11 +39,12 @@ export const ProjectTasksModal = ({
       return;
     }
     
-    onAddTask(project.id, newTaskTitle.trim());
+    const taskTitle = newTaskTitle.trim();
+    onAddTask(project.id, taskTitle);
     setNewTaskTitle('');
     toast({
       title: "משימה נוספה",
-      description: `המשימה "${newTaskTitle}" נוספה לפרויקט`,
+      description: `המשימה "${taskTitle}" נוספה לפרויקט`,
     });
   };
 
@@ -127,7 +128,7 @@ export const ProjectTasksModal = ({
                   }`}
                   onClick={() => onToggleTask(project.id, task.id)}
                 >
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
                     task.completed 
                       ? 'bg-green-500 border-green-500' 
                       : 'border-gray-300 hover:border-blue-400'
@@ -151,6 +152,10 @@ export const ProjectTasksModal = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       onDeleteTask(project.id, task.id);
+                      toast({
+                        title: "משימה נמחקה",
+                        description: "המשימה נמחקה בהצלחה",
+                      });
                     }}
                     className="p-1 h-6 w-6 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
                   >
