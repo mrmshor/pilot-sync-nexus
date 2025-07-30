@@ -13,8 +13,7 @@ export const StatusDropdown: React.FC<{
     { value: 'in-progress', label: 'בתהליך', color: 'bg-blue-100 text-blue-800', Icon: Play },
     { value: 'in-review', label: 'בסקירה', color: 'bg-purple-100 text-purple-800', Icon: Eye },
     { value: 'completed', label: 'הושלם', color: 'bg-green-100 text-green-800', Icon: CheckCircle },
-    { value: 'on-hold', label: 'ממתין', color: 'bg-yellow-100 text-yellow-800', Icon: Pause },
-    { value: 'waiting', label: 'ממתין', color: 'bg-orange-100 text-orange-800', Icon: Timer }
+    { value: 'on-hold', label: 'ממתין', color: 'bg-yellow-100 text-yellow-800', Icon: Pause }
   ];
   
   const currentStatus = statusOptions.find(s => s.value === value) || statusOptions[0];

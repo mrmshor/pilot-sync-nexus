@@ -311,7 +311,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
             <div className="p-6 pb-3 bg-gradient-to-r from-white/50 to-transparent backdrop-blur">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2 leading-tight line-clamp-2">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2 leading-tight line-clamp-2 tracking-tight">
                     {project.name}
                   </h3>
                   <div className="flex items-center gap-2 mb-2">
@@ -372,7 +372,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               {/* Price Section */}
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200/50">
                 <div className="flex items-center justify-between">
-                  <div className="text-lg font-bold text-gray-800">
+                  <div className="text-sm font-semibold text-gray-700">
                     {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
                   </div>
                   <div className="flex gap-2">
