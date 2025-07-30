@@ -25,6 +25,8 @@ export const ProjectManagementApp = () => {
   console.log('🚀 ProjectManagementApp component initialized');
   const [projects, setProjects] = useState<Project[]>([]);
   const [quickTasks, setQuickTasks] = useState<QuickTask[]>([]);
+  
+  console.log('🔍 ProjectManagementApp state change - projects count:', projects.length);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'projects'>('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
@@ -140,8 +142,9 @@ export const ProjectManagementApp = () => {
       }
     ];
 
+    console.log('🔄 Before setProjects - current count:', projects.length);
     setProjects(sampleProjects);
-    console.log('✅ Projects loaded successfully:', sampleProjects);
+    console.log('✅ Projects set successfully - new count should be:', sampleProjects.length);
     console.log('📊 Stats calculated:', {
       total: sampleProjects.length,
       completed: sampleProjects.filter(p => p.completed).length,
