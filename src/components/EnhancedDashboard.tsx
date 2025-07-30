@@ -128,6 +128,60 @@ export const EnhancedDashboard = memo(({ projects, stats }: EnhancedDashboardPro
 
   return (
     <div className="space-y-8 animate-slide-up">
+      {/* Quick Stats Grid - Top Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="card-macos gradient-primary text-white border-0">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-white/80">היום</p>
+                <p className="text-2xl font-bold">
+                  {projects.filter(p => {
+                    const today = new Date();
+                    return p.createdAt.toDateString() === today.toDateString();
+                  }).length}
+                </p>
+                <p className="text-xs text-white/70">פרויקטים חדשים</p>
+              </div>
+              <TrendingUp className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="card-macos gradient-success text-white border-0">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-white/80">השבוע</p>
+                <p className="text-2xl font-bold">
+                  {projects.filter(p => {
+                    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                    return p.updatedAt >= weekAgo;
+                  }).length}
+                </p>
+                <p className="text-xs text-white/70">פרויקטים פעילים</p>
+              </div>
+              <BarChart3 className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="card-macos gradient-warning text-white border-0">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-white/80">ממוצע</p>
+                <p className="text-2xl font-bold">
+                  {projects.length > 0 ? Math.round(projects.reduce((sum, p) => sum + p.price, 0) / projects.length / 1000) : 0}K
+                </p>
+                <p className="text-xs text-white/70">ערך פרויקט</p>
+              </div>
+              <DollarSign className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
