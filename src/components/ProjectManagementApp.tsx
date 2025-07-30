@@ -557,12 +557,15 @@ export const ProjectManagementApp = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
-        {/* Projects Sidebar */}
-        <AppSidebar 
-          projects={projects} 
-          onProjectSelect={handleSidebarProjectSelect}
-          selectedProjectId={selectedProject?.id}
-        />
+        {/* Quick Tasks Sidebar - Left Side */}
+        <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto">
+          <QuickTasksSidebar
+            quickTasks={quickTasks}
+            onAddTask={handleAddQuickTask}
+            onToggleTask={handleToggleQuickTask}
+            onDeleteTask={handleDeleteQuickTask}
+          />
+        </div>
 
         {/* Main Content */}
         <div className="flex-1 flex">
@@ -1084,15 +1087,12 @@ export const ProjectManagementApp = () => {
             </div>
           </div>
 
-          {/* Quick Tasks Sidebar - Right Side */}
-          <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto">
-            <QuickTasksSidebar
-              quickTasks={quickTasks}
-              onAddTask={handleAddQuickTask}
-              onToggleTask={handleToggleQuickTask}
-              onDeleteTask={handleDeleteQuickTask}
-            />
-          </div>
+          {/* Projects Sidebar - Right Side (Compact) */}
+          <AppSidebar 
+            projects={projects} 
+            onProjectSelect={handleSidebarProjectSelect}
+            selectedProjectId={selectedProject?.id}
+          />
         </div>
       </div>
     </SidebarProvider>

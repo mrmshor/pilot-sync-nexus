@@ -51,7 +51,7 @@ export function AppSidebar({ projects, onProjectSelect, selectedProjectId }: App
 
   return (
     <Sidebar
-      className={open ? "w-80" : "w-14"}
+      className={open ? "w-64" : "w-12"}
       collapsible="icon"
     >
       <SidebarTrigger className="m-2 self-end" />
