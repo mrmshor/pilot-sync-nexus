@@ -745,7 +745,7 @@ export const ProjectManagementApp = () => {
                           <CardHeader className="pb-4">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
-                                <CardTitle className="text-lg line-clamp-2 mb-2">
+                                <CardTitle className="text-xl font-semibold line-clamp-2 mb-2 text-gray-900">
                                   {project.name}
                                 </CardTitle>
                                 <div className="flex items-center gap-2 mb-3">
@@ -778,7 +778,7 @@ export const ProjectManagementApp = () => {
 
                             {/* Price and Payment Status */}
                             <div className="flex items-center justify-between mb-3">
-                              <div className="text-lg font-bold text-primary">
+                              <div className="text-xs font-medium text-gray-600">
                                 {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
                               </div>
                               <Button
