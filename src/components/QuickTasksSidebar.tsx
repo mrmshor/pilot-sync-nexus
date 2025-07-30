@@ -45,7 +45,7 @@ export const QuickTasksSidebar = ({
   const completedTasks = quickTasks.filter(task => task.completed);
 
   return (
-    <div className="w-80 space-y-6">
+    <div className="h-full flex flex-col space-y-6 p-6 overflow-y-auto">
       {/* Add New Task */}
       <Card className="card-macos">
         <CardHeader className="pb-3">

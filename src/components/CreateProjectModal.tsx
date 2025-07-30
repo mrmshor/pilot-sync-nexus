@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Project } from '@/types';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, FolderOpen } from 'lucide-react';
+import { FolderService } from '@/services/folderService';
+import { useToast } from '@/hooks/use-toast';
 
 interface CreateProjectModalProps {
   open: boolean;
@@ -13,6 +15,7 @@ interface CreateProjectModalProps {
 }
 
 export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: CreateProjectModalProps) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -31,6 +34,27 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
     paid: false,
     completed: false
   });
+
+  const handleSelectFolder = async () => {
+    try {
+      const folderName = await FolderService.selectFolder();
+      if (folderName) {
+        const generatedPath = FolderService.generateFolderPath(formData.name || 'New Project', formData.clientName || 'Client');
+        setFormData(prev => ({ ...prev, folderPath: generatedPath }));
+        toast({
+          title: "תיקיה נבחרה",
+          description: `נבחרה התיקיה: ${folderName}`,
+        });
+      }
+    } catch (error) {
+      console.error('Error selecting folder:', error);
+      toast({
+        title: "שגיאה",
+        description: "לא ניתן לבחור תיקיה",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,12 +283,24 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
 
                 <div>
                   <Label htmlFor="folderPath">נתיב תיקייה</Label>
-                  <Input
-                    id="folderPath"
-                    value={formData.folderPath}
-                    onChange={(e) => setFormData(prev => ({ ...prev, folderPath: e.target.value }))}
-                    placeholder="/Users/YourName/Projects/..."
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="folderPath"
+                      value={formData.folderPath}
+                      onChange={(e) => setFormData(prev => ({ ...prev, folderPath: e.target.value }))}
+                      placeholder="/Users/YourName/Projects/..."
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSelectFolder}
+                      className="px-3"
+                    >
+                      <FolderOpen className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div>

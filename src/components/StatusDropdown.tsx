@@ -23,14 +23,14 @@ export const StatusDropdown: React.FC<{
     <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${currentStatus.color} border hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
+        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${currentStatus.color} border-2 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
       >
         {currentStatus.icon} {currentStatus.label}
         <ChevronDown className={`h-3 w-3 mr-1 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 bg-white backdrop-blur border border-gray-200 rounded-lg shadow-xl z-50 min-w-full">
+        <div className="absolute top-full left-0 mt-2 bg-white/95 backdrop-blur-md border-2 border-gray-200 rounded-xl shadow-2xl z-[100] min-w-full overflow-hidden">
           {statusOptions.map((option) => (
             <button
               key={option.value}
@@ -38,8 +38,8 @@ export const StatusDropdown: React.FC<{
                 onChange(option.value);
                 setIsOpen(false);
               }}
-              className={`w-full text-right px-3 py-2 text-xs hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors ${
-                option.value === value ? 'bg-blue-50' : ''
+              className={`w-full text-right px-4 py-3 text-sm hover:bg-gray-100 transition-all duration-150 ${
+                option.value === value ? 'bg-blue-50 font-medium' : ''
               }`}
             >
               {option.icon} {option.label}
