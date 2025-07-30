@@ -64,7 +64,8 @@ export const ProjectManagementApp = () => {
           { id: '3', title: 'להזמין חומר', completed: false, createdAt: new Date('2024-01-21') },
           { id: '4', title: 'לעדכן מחיר', completed: false, createdAt: new Date('2024-01-21') },
           { id: '5', title: 'לתקן קבצים לשליחה לאישור סופי', completed: false, createdAt: new Date('2024-01-21') }
-        ]
+        ],
+        subtasks: []
       },
       {
         id: '2',
@@ -86,7 +87,8 @@ export const ProjectManagementApp = () => {
         completed: false,
         createdAt: new Date('2024-02-01'),
         updatedAt: new Date('2024-02-15'),
-        tasks: []
+        tasks: [],
+        subtasks: []
       },
       {
         id: '3',
@@ -111,7 +113,8 @@ export const ProjectManagementApp = () => {
         tasks: [
           { id: '1', title: 'מדידת הבגדים', completed: true, createdAt: new Date('2024-01-21'), completedAt: new Date('2024-01-25') },
           { id: '2', title: 'הזמנת חומרי גלם', completed: false, createdAt: new Date('2024-01-26') }
-        ]
+        ],
+        subtasks: []
       }
     ];
 
@@ -289,13 +292,14 @@ export const ProjectManagementApp = () => {
     }
   };
 
-  const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks'>) => {
+  const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => {
     const newProject: Project = {
       ...projectData,
       id: Date.now().toString(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      tasks: []
+      tasks: [],
+      subtasks: []
     };
     
     setProjects(prev => [...prev, newProject]);
