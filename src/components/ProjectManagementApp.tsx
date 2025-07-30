@@ -367,6 +367,9 @@ export const ProjectManagementApp = () => {
 
   // Project Tasks handlers
   const handleAddProjectTask = (projectId: string, title: string) => {
+    // שמירת מיקום הגלילה הנוכחי
+    const scrollPosition = window.scrollY;
+    
     const newTask: ProjectTask = {
       id: Date.now().toString(),
       title,
@@ -379,6 +382,11 @@ export const ProjectManagementApp = () => {
         ? { ...project, tasks: [newTask, ...project.tasks], updatedAt: new Date() }
         : project
     ));
+    
+    // חזרה למיקום הגלילה הקודם
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollPosition);
+    });
   };
 
   const handleToggleProjectTask = (projectId: string, taskId: string) => {
@@ -410,6 +418,9 @@ export const ProjectManagementApp = () => {
   };
 
   const handleDeleteProjectTask = (projectId: string, taskId: string) => {
+    // שמירת מיקום הגלילה הנוכחי
+    const scrollPosition = window.scrollY;
+    
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? {
@@ -419,6 +430,11 @@ export const ProjectManagementApp = () => {
           }
         : project
     ));
+    
+    // חזרה למיקום הגלילה הקודם
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollPosition);
+    });
   };
 
   // Status and Priority handlers for external buttons
