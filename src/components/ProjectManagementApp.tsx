@@ -72,21 +72,8 @@ export const ProjectManagementApp = () => {
     };
     
     loadCustomLogo();
-  // Update favicon when logo changes
-  useEffect(() => {
-    if (customLogo && typeof window !== 'undefined') {
-      const favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
-      if (favicon) {
-        favicon.href = customLogo;
-      } else {
-        const newFavicon = document.createElement('link');
-        newFavicon.rel = 'icon';
-        newFavicon.href = customLogo;
-        document.head.appendChild(newFavicon);
-      }
-    }
-  }, [customLogo]);
-  
+  }, []);
+
   // Update favicon when logo changes
   useEffect(() => {
     if (customLogo && typeof window !== 'undefined') {
@@ -107,6 +94,9 @@ export const ProjectManagementApp = () => {
       document.title = 'מערכת ניהול פרויקטים Pro';
     }
   }, [customLogo]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // CMD+N for new project
       if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
