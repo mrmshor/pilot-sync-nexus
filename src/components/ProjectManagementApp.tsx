@@ -551,7 +551,7 @@ export const ProjectManagementApp = () => {
 
   const handleSidebarProjectSelect = (project: Project) => {
     setSelectedProject(project);
-    setShowTasksModal(true);
+    setActiveTab('projects');
   };
 
   return (
