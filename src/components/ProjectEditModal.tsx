@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { Project } from '@/types';
-import { Edit, Save, X } from 'lucide-react';
+import { Edit, Save, X, FolderOpen } from 'lucide-react';
+import { FolderService } from '@/services/folderService';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProjectEditModalProps {
   open: boolean;
@@ -19,6 +21,7 @@ export const ProjectEditModal = ({
   project, 
   onUpdateProject 
 }: ProjectEditModalProps) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState<Project | null>(null);
 
   useEffect(() => {
@@ -28,6 +31,41 @@ export const ProjectEditModal = ({
   }, [project]);
 
   if (!project || !formData) return null;
+
+  const handleSelectFolder = async () => {
+    try {
+      // For desktop applications - use native directory picker
+      if (window.electronAPI && window.electronAPI.selectFolder) {
+        const folderPath = await window.electronAPI.selectFolder();
+        if (folderPath) {
+          setFormData(prev => prev ? ({ ...prev, folderPath }) : null);
+          toast({
+            title: "תיקיה נבחרה",
+            description: `נבחרה התיקיה: ${folderPath}`,
+          });
+        }
+        return;
+      }
+
+      // Fallback for web browsers - use File System Access API
+      const folderName = await FolderService.selectFolder();
+      if (folderName) {
+        const generatedPath = FolderService.generateFolderPath(formData.name || 'Project', formData.clientName || 'Client');
+        setFormData(prev => prev ? ({ ...prev, folderPath: generatedPath }) : null);
+        toast({
+          title: "תיקיה נבחרה",
+          description: `נבחרה התיקיה: ${folderName}`,
+        });
+      }
+    } catch (error) {
+      console.error('Error selecting folder:', error);
+      toast({
+        title: "שגיאה",
+        description: "לא ניתן לבחור תיקיה",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,249 +80,294 @@ export const ProjectEditModal = ({
     setFormData(prev => prev ? { ...prev, [field]: value } : null);
   };
 
-  const getCurrencySymbol = (currency: string) => {
-    switch (currency) {
-      case 'ILS': return '₪';
-      case 'USD': return '$';
-      case 'EUR': return '€';
-      case 'GBP': return '£';
-      case 'CAD': return 'C$';
-      default: return '$';
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden" dir="rtl">
-        <DialogHeader className="pb-3 border-b">
-          <DialogTitle className="flex items-center gap-3">
-            <div className="p-1.5 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <Edit className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg mb-6">
+          <DialogTitle className="flex items-center gap-3 text-xl">
+            <div className="p-2 bg-primary/20 rounded-full">
+              <Edit className="w-6 h-6 text-primary" />
             </div>
-            <div className="flex-1">
-              <div className="text-lg font-bold">{project.name}</div>
-              <div className="text-xs text-muted-foreground font-normal">
-                {project.clientName}
-              </div>
-            </div>
-            <Badge variant="secondary" className="text-xs">
-              {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
-            </Badge>
+            עריכת פרויקט: {project.name}
           </DialogTitle>
-          <DialogDescription className="sr-only">
-            עריכת פרויקט {project.name}
-          </DialogDescription>
         </DialogHeader>
-
-        <div className="flex-1 overflow-y-auto space-y-3 py-2"
-             style={{ maxHeight: 'calc(80vh - 160px)' }}>
-          
-          {/* Project Info Section */}
-          <div className="bg-white dark:bg-gray-900 p-3 rounded-lg border">
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">שם הפרויקט</label>
-                <Input
-                  value={formData.name}
-                  onChange={(e) => handleFieldChange('name', e.target.value)}
-                  className="text-sm h-8"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">תיאור</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => handleFieldChange('description', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg text-sm min-h-[60px] resize-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
+        
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Project Details */}
+            <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 p-6 rounded-xl border border-blue-200/30 dark:border-blue-800/30">
+              <h3 className="text-lg font-bold text-blue-700 dark:text-blue-300 mb-4 flex items-center gap-2">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                פרטי הפרויקט
+              </h3>
+              
+              <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">סטטוס</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => handleFieldChange('status', e.target.value)}
-                    className="w-full px-2 py-1.5 border rounded-lg text-xs h-8 bg-white dark:bg-gray-800"
-                  >
-                    <option value="not-started">לא התחיל</option>
-                    <option value="in-progress">בתהליך</option>
-                    <option value="in-review">בבדיקה</option>
-                    <option value="completed">הושלם</option>
-                    <option value="on-hold">מושהה</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">עדיפות</label>
-                  <select
-                    value={formData.priority}
-                    onChange={(e) => handleFieldChange('priority', e.target.value)}
-                    className="w-full px-2 py-1.5 border rounded-lg text-xs h-8 bg-white dark:bg-gray-800"
-                  >
-                    <option value="low">נמוכה</option>
-                    <option value="medium">בינונית</option>
-                    <option value="high">גבוהה</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">מחיר</label>
+                  <Label htmlFor="edit-name" className="text-blue-700 dark:text-blue-300 font-medium">שם הפרויקט *</Label>
                   <Input
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => handleFieldChange('price', Number(e.target.value))}
-                    className="text-sm h-8"
+                    id="edit-name"
+                    value={formData.name}
+                    onChange={(e) => handleFieldChange('name', e.target.value)}
+                    placeholder="הכנס שם פרויקט"
+                    required
+                    className="border-blue-200 dark:border-blue-800 focus:border-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">מטבע</label>
-                  <select
-                    value={formData.currency}
-                    onChange={(e) => handleFieldChange('currency', e.target.value)}
-                    className="w-full px-2 py-1.5 border rounded-lg text-xs h-8 bg-white dark:bg-gray-800"
-                  >
-                    <option value="ILS">שקל (₪)</option>
-                    <option value="USD">דולר ($)</option>
-                    <option value="EUR">יורו (€)</option>
-                    <option value="GBP">לירה (£)</option>
-                    <option value="CAD">דולר קנדי (CA$)</option>
-                  </select>
+                  <Label htmlFor="edit-description" className="text-blue-700 dark:text-blue-300 font-medium">תיאור</Label>
+                  <textarea
+                    id="edit-description"
+                    value={formData.description}
+                    onChange={(e) => handleFieldChange('description', e.target.value)}
+                    placeholder="תיאור הפרויקט"
+                    className="w-full px-3 py-2 border border-blue-200 dark:border-blue-800 focus:border-blue-500 rounded-lg text-sm min-h-[80px] resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="edit-status" className="text-blue-700 dark:text-blue-300 font-medium">סטטוס</Label>
+                    <select
+                      id="edit-status"
+                      value={formData.status}
+                      onChange={(e) => handleFieldChange('status', e.target.value)}
+                      className="w-full px-3 py-2 border border-blue-200 dark:border-blue-800 focus:border-blue-500 rounded-lg text-sm"
+                    >
+                      <option value="not-started">לא התחיל</option>
+                      <option value="in-progress">בתהליך</option>
+                      <option value="in-review">בבדיקה</option>
+                      <option value="completed">הושלם</option>
+                      <option value="on-hold">מושהה</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="edit-priority" className="text-blue-700 dark:text-blue-300 font-medium">עדיפות</Label>
+                    <select
+                      id="edit-priority"
+                      value={formData.priority}
+                      onChange={(e) => handleFieldChange('priority', e.target.value)}
+                      className="w-full px-3 py-2 border border-blue-200 dark:border-blue-800 focus:border-blue-500 rounded-lg text-sm"
+                    >
+                      <option value="low">נמוכה</option>
+                      <option value="medium">בינונית</option>
+                      <option value="high">גבוהה</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="edit-price" className="text-blue-700 dark:text-blue-300 font-medium">מחיר</Label>
+                    <Input
+                      id="edit-price"
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => handleFieldChange('price', Number(e.target.value))}
+                      placeholder="0"
+                      min="0"
+                      className="border-blue-200 dark:border-blue-800 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="edit-currency" className="text-blue-700 dark:text-blue-300 font-medium">מטבע</Label>
+                    <select
+                      id="edit-currency"
+                      value={formData.currency}
+                      onChange={(e) => handleFieldChange('currency', e.target.value)}
+                      className="w-full px-3 py-2 border border-blue-200 dark:border-blue-800 focus:border-blue-500 rounded-lg text-sm"
+                    >
+                      <option value="ILS">שקל (₪)</option>
+                      <option value="USD">דולר ($)</option>
+                      <option value="EUR">יורו (€)</option>
+                      <option value="GBP">לירה (£)</option>
+                      <option value="CAD">דולר קנדי (CA$)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="edit-deadline" className="text-blue-700 dark:text-blue-300 font-medium">מועד יעד</Label>
+                  <Input
+                    id="edit-deadline"
+                    type="date"
+                    value={formData.deadline ? new Date(formData.deadline).toISOString().split('T')[0] : ''}
+                    onChange={(e) => handleFieldChange('deadline', e.target.value ? new Date(e.target.value) : undefined)}
+                    className="border-blue-200 dark:border-blue-800 focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="flex gap-6 bg-blue-50/50 dark:bg-blue-950/30 p-3 rounded-lg">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.paid}
+                      onChange={(e) => handleFieldChange('paid', e.target.checked)}
+                      className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300">שולם</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.completed}
+                      onChange={(e) => handleFieldChange('completed', e.target.checked)}
+                      className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300">הושלם</span>
+                  </label>
                 </div>
               </div>
+            </div>
 
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={formData.paid}
-                    onChange={(e) => handleFieldChange('paid', e.target.checked)}
-                    className="rounded"
+            {/* Client Details */}
+            <div className="bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/20 p-6 rounded-xl border border-green-200/30 dark:border-green-800/30">
+              <h3 className="text-lg font-bold text-green-700 dark:text-green-300 mb-4 flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                פרטי לקוח
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="edit-clientName" className="text-green-700 dark:text-green-300 font-medium">שם הלקוח *</Label>
+                  <Input
+                    id="edit-clientName"
+                    value={formData.clientName}
+                    onChange={(e) => handleFieldChange('clientName', e.target.value)}
+                    placeholder="הכנס שם לקוח"
+                    required
+                    className="border-green-200 dark:border-green-800 focus:border-green-500"
                   />
-                  <span className="text-xs">שולם</span>
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={formData.completed}
-                    onChange={(e) => handleFieldChange('completed', e.target.checked)}
-                    className="rounded"
+                </div>
+
+                <div>
+                  <Label htmlFor="edit-email" className="text-green-700 dark:text-green-300 font-medium">אימייל</Label>
+                  <Input
+                    id="edit-email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleFieldChange('email', e.target.value)}
+                    placeholder="email@example.com"
+                    className="border-green-200 dark:border-green-800 focus:border-green-500"
                   />
-                  <span className="text-xs">הושלם</span>
-                </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="edit-phone1" className="text-green-700 dark:text-green-300 font-medium">טלפון ראשי</Label>
+                    <Input
+                      id="edit-phone1"
+                      type="tel"
+                      value={formData.phone1}
+                      onChange={(e) => handleFieldChange('phone1', e.target.value)}
+                      placeholder="+972-50-123-4567"
+                      className="border-green-200 dark:border-green-800 focus:border-green-500"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="edit-phone2" className="text-green-700 dark:text-green-300 font-medium">טלפון נוסף</Label>
+                    <Input
+                      id="edit-phone2"
+                      type="tel"
+                      value={formData.phone2}
+                      onChange={(e) => handleFieldChange('phone2', e.target.value)}
+                      placeholder="+972-50-123-4567"
+                      className="border-green-200 dark:border-green-800 focus:border-green-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="edit-whatsapp1" className="text-green-700 dark:text-green-300 font-medium">וואטסאפ ראשי</Label>
+                    <Input
+                      id="edit-whatsapp1"
+                      type="tel"
+                      value={formData.whatsapp1}
+                      onChange={(e) => handleFieldChange('whatsapp1', e.target.value)}
+                      placeholder="+972-50-123-4567"
+                      className="border-green-200 dark:border-green-800 focus:border-green-500"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="edit-whatsapp2" className="text-green-700 dark:text-green-300 font-medium">וואטסאפ נוסף</Label>
+                    <Input
+                      id="edit-whatsapp2"
+                      type="tel"
+                      value={formData.whatsapp2}
+                      onChange={(e) => handleFieldChange('whatsapp2', e.target.value)}
+                      placeholder="+972-50-123-4567"
+                      className="border-green-200 dark:border-green-800 focus:border-green-500"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Client Info Section */}
-          <div className="bg-white dark:bg-gray-900 p-3 rounded-lg border">
-            <h3 className="text-sm font-semibold mb-3 text-gray-900 dark:text-gray-100">פרטי לקוח</h3>
+          {/* Files & Links Section */}
+          <div className="bg-gradient-to-br from-purple-50/50 to-violet-50/50 dark:from-purple-950/20 dark:to-violet-950/20 p-6 rounded-xl border border-purple-200/30 dark:border-purple-800/30">
+            <h3 className="text-lg font-bold text-purple-700 dark:text-purple-300 mb-4 flex items-center gap-2">
+              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+              קבצים וקישורים
+            </h3>
             
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">שם הלקוח</label>
-                <Input
-                  value={formData.clientName}
-                  onChange={(e) => handleFieldChange('clientName', e.target.value)}
-                  className="text-sm h-8"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">אימייל</label>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleFieldChange('email', e.target.value)}
-                  className="text-sm h-8"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">טלפון ראשי</label>
+                <Label htmlFor="edit-folderPath" className="text-purple-700 dark:text-purple-300 font-medium">נתיב תיקייה</Label>
+                <div className="flex gap-2">
                   <Input
-                    type="tel"
-                    value={formData.phone1}
-                    onChange={(e) => handleFieldChange('phone1', e.target.value)}
-                    className="text-sm h-8"
+                    id="edit-folderPath"
+                    value={formData.folderPath || ''}
+                    onChange={(e) => handleFieldChange('folderPath', e.target.value)}
+                    placeholder="בחר תיקיה..."
+                    className="flex-1 border-purple-200 dark:border-purple-800 focus:border-purple-500"
+                    readOnly
                   />
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">טלפון נוסף</label>
-                  <Input
-                    type="tel"
-                    value={formData.phone2}
-                    onChange={(e) => handleFieldChange('phone2', e.target.value)}
-                    className="text-sm h-8"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">וואטסאפ ראשי</label>
-                  <Input
-                    type="tel"
-                    value={formData.whatsapp1}
-                    onChange={(e) => handleFieldChange('whatsapp1', e.target.value)}
-                    className="text-sm h-8"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">וואטסאפ נוסף</label>
-                  <Input
-                    type="tel"
-                    value={formData.whatsapp2}
-                    onChange={(e) => handleFieldChange('whatsapp2', e.target.value)}
-                    className="text-sm h-8"
-                  />
+                  <Button
+                    type="button"
+                    onClick={handleSelectFolder}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 h-10 flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <FolderOpen className="w-4 h-4" />
+                    בחר תיקיה
+                  </Button>
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">נתיב תיקייה</label>
+                <Label htmlFor="edit-icloudLink" className="text-purple-700 dark:text-purple-300 font-medium">קישור iCloud</Label>
                 <Input
-                  value={formData.folderPath || ''}
-                  onChange={(e) => handleFieldChange('folderPath', e.target.value)}
-                  className="text-sm h-8"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">קישור iCloud</label>
-                <Input
+                  id="edit-icloudLink"
                   value={formData.icloudLink || ''}
                   onChange={(e) => handleFieldChange('icloudLink', e.target.value)}
-                  className="text-sm h-8"
+                  placeholder="https://icloud.com/..."
+                  className="border-purple-200 dark:border-purple-800 focus:border-purple-500"
                 />
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="border-t pt-2 flex gap-2">
-          <Button 
-            onClick={() => onOpenChange(false)}
-            variant="outline"
-            className="flex-1 h-8 text-sm"
-          >
-            ביטול
-          </Button>
-          <Button 
-            onClick={handleSubmit}
-            className="flex-1 h-8 text-sm bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Save className="w-3 h-3 ml-1" />
-            שמור
-          </Button>
-        </div>
+          <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-900/50 dark:to-gray-800/50 p-4 rounded-lg">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className="px-6"
+            >
+              <X className="w-4 h-4 ml-2" />
+              ביטול
+            </Button>
+            <Button type="submit" className="px-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
+              <Save className="w-4 h-4 ml-2" />
+              שמור שינויים
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
