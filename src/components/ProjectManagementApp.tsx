@@ -552,6 +552,22 @@ export const ProjectManagementApp = () => {
   const handleSidebarProjectSelect = (project: Project) => {
     setSelectedProject(project);
     setActiveTab('projects');
+    
+    // גלילה לפרויקט הנבחר לאחר מעבר לטאב
+    setTimeout(() => {
+      const projectElement = document.getElementById(`project-${project.id}`);
+      if (projectElement) {
+        projectElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+        // הוספת אפקט הבהוב
+        projectElement.classList.add('ring-4', 'ring-blue-500/50', 'shadow-2xl');
+        setTimeout(() => {
+          projectElement.classList.remove('ring-4', 'ring-blue-500/50', 'shadow-2xl');
+        }, 3000);
+      }
+    }, 100);
   };
 
   return (
@@ -815,7 +831,7 @@ export const ProjectManagementApp = () => {
                         const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
                         return (
-                          <Card key={project.id} className="card-macos relative group">
+                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group">
                             <CardHeader className="pb-4">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
