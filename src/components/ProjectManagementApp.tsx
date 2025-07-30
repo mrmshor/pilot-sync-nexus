@@ -584,7 +584,7 @@ export const ProjectManagementApp = () => {
 
         {/* Main Content - with proper margins for fixed sidebars */}
         <div className="ml-80 mr-48 min-h-screen">
-          <div className="w-full px-4 py-8">
+          <div className="w-full py-8">
             {/* Header */}
             <header className="text-center mb-12">
               <div className="flex items-center justify-center gap-4 mb-4">
