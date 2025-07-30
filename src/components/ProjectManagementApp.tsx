@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   Search, Edit, Trash2, User, PhoneCall, MessageCircle, Mail, 
   FolderOpen, CheckCircle2, CreditCard, Plus, X, Clock, Filter,
@@ -19,6 +21,7 @@ import { QuickTasksSidebar } from './QuickTasksSidebar';
 import { ProjectTasksModal } from './ProjectTasksModal';
 import { ProjectEditModal } from './ProjectEditModal';
 import { EnhancedDashboard } from './EnhancedDashboard';
+import { AppSidebar } from './AppSidebar';
 
 export const ProjectManagementApp = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -33,11 +36,28 @@ export const ProjectManagementApp = () => {
   const [showTasksModal, setShowTasksModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [preserveScroll, setPreserveScroll] = useState<number | null>(null);
   const [customLogo, setCustomLogo] = useState<string | null>(
     localStorage.getItem('customLogo')
   );
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const { toast } = useToast();
+
+  // שמירת מיקום גלילה
+  const saveScrollPosition = () => {
+    setPreserveScroll(window.scrollY);
+  };
+
+  // שחזור מיקום גלילה
+  useEffect(() => {
+    if (preserveScroll !== null) {
+      const timeoutId = setTimeout(() => {
+        window.scrollTo(0, preserveScroll);
+        setPreserveScroll(null);
+      }, 0);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [preserveScroll, projects]);
 
   // Load sample data
   useEffect(() => {
@@ -125,7 +145,14 @@ export const ProjectManagementApp = () => {
       }
     ];
 
+    console.log('🔄 Before setProjects - current count:', projects.length);
     setProjects(sampleProjects);
+    console.log('✅ Projects set successfully - new count should be:', sampleProjects.length);
+    console.log('📊 Stats calculated:', {
+      total: sampleProjects.length,
+      completed: sampleProjects.filter(p => p.completed).length,
+      inProgress: sampleProjects.filter(p => p.status === 'in-progress').length
+    });
     toast({
       title: "מערכת נטענה בהצלחה",
       description: `נטענו ${sampleProjects.length} פרויקטים`,
@@ -135,7 +162,7 @@ export const ProjectManagementApp = () => {
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
         toast({
           title: "שגיאה",
           description: "גודל הקובץ גדול מדי. אנא בחר קובץ קטן מ-2MB",
@@ -246,7 +273,47 @@ export const ProjectManagementApp = () => {
     return filtered;
   }, [projects, searchTerm, priorityFilter, statusFilter, sortBy, sortOrder]);
 
-  // Utility functions
+  // Contact handlers
+  const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', value: string) => {
+    if (!value) return;
+    
+    try {
+      switch (type) {
+        case 'phone':
+          window.open(`tel:${value}`, '_blank');
+          break;
+        case 'whatsapp':
+          const cleanPhone = value.replace(/[^\d]/g, '');
+          window.open(`https://wa.me/${cleanPhone}`, '_blank');
+          break;
+        case 'email':
+          window.open(`mailto:${value}`, '_blank');
+          break;
+      }
+    } catch (error) {
+      console.error(`Error handling ${type} contact:`, error);
+      toast({
+        title: "שגיאה",
+        description: `לא ניתן לפתוח את ${type}`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const openFolder = (folderPath?: string, icloudLink?: string) => {
+    if (folderPath) {
+      try {
+        window.open(`file://${folderPath}`, '_blank');
+      } catch (error) {
+        if (icloudLink) {
+          window.open(icloudLink, '_blank');
+        }
+      }
+    } else if (icloudLink) {
+      window.open(icloudLink, '_blank');
+    }
+  };
+
   const handleExportCSV = () => {
     try {
       const headers = [
@@ -314,6 +381,7 @@ export const ProjectManagementApp = () => {
   };
 
   const handleUpdateProject = (updatedProject: Project) => {
+    saveScrollPosition();
     setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
     toast({
       title: "פרויקט עודכן בהצלחה",
@@ -361,6 +429,7 @@ export const ProjectManagementApp = () => {
 
   // Project Tasks handlers
   const handleAddProjectTask = (projectId: string, title: string) => {
+    saveScrollPosition();
     const newTask: ProjectTask = {
       id: Date.now().toString(),
       title,
@@ -376,6 +445,7 @@ export const ProjectManagementApp = () => {
   };
 
   const handleToggleProjectTask = (projectId: string, taskId: string) => {
+    saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? {
@@ -395,6 +465,7 @@ export const ProjectManagementApp = () => {
   };
 
   const handleDeleteProjectTask = (projectId: string, taskId: string) => {
+    saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? {
@@ -406,7 +477,9 @@ export const ProjectManagementApp = () => {
     ));
   };
 
+  // Status and Priority handlers for external buttons
   const updateProjectStatus = (projectId: string, newStatus: Project['status']) => {
+    saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? { ...project, status: newStatus }
@@ -419,6 +492,7 @@ export const ProjectManagementApp = () => {
   };
 
   const updateProjectPriority = (projectId: string, newPriority: Project['priority']) => {
+    saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? { ...project, priority: newPriority }
@@ -431,6 +505,7 @@ export const ProjectManagementApp = () => {
   };
 
   const toggleProjectPaid = (projectId: string) => {
+    saveScrollPosition();
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? { ...project, paid: !project.paid }
@@ -480,389 +555,546 @@ export const ProjectManagementApp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
-      {/* Projects Sidebar - Left Side (Compact) */}
-      <div className="w-64 h-screen bg-white/95 backdrop-blur border-r border-gray-200 shadow-lg overflow-y-auto">
-        <div className="p-4">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">
-            פרויקטים ({projects.length})
-          </h3>
-          <div className="space-y-2">
-            {projects.map((project) => (
-              <button
-                key={project.id}
-                onClick={() => handleSidebarProjectSelect(project)}
-                className={`
-                  w-full text-right p-3 rounded-lg transition-all duration-200
-                  ${selectedProject?.id === project.id 
-                    ? 'bg-blue-100 border border-blue-500' 
-                    : 'hover:bg-gray-100'
-                  }
-                  ${project.priority === 'high' ? 'border-r-2 border-red-500' : ''}
-                  ${project.priority === 'medium' ? 'border-r-2 border-yellow-500' : ''}
-                  ${project.priority === 'low' ? 'border-r-2 border-green-500' : ''}
-                `}
-              >
-                <div className="text-sm font-medium text-gray-900 truncate">
-                  {project.name}
-                </div>
-                <div className="text-xs text-gray-500 truncate">
-                  {project.clientName}
-                </div>
-                <div className="flex items-center gap-2 mt-1">
-                  {project.completed && (
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  )}
-                  {project.paid && (
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  )}
-                  <span className="text-xs text-gray-400">
-                    {project.tasks?.length || 0} משימות
-                  </span>
-                </div>
-              </button>
-            ))}
-          </div>
-          {projects.length === 0 && (
-            <div className="text-center text-gray-500 text-sm mt-8">
-              אין פרויקטים במערכת
-            </div>
-          )}
-        </div>
-      </div>
+    <SidebarProvider>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
+        {/* Projects Sidebar - Left Side (Compact) */}
+        <AppSidebar 
+          projects={projects} 
+          onProjectSelect={handleSidebarProjectSelect}
+          selectedProjectId={selectedProject?.id}
+        />
 
-      {/* Main Content */}
-      <div className="flex-1 flex">
-        {/* Main Center Content */}
-        <div className="flex-1 flex items-center justify-center min-h-screen">
-          <div className="container mx-auto px-4 py-8">
-            {/* Header */}
-            <header className="text-center mb-12">
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <div className="relative group">
-                  <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-macos overflow-hidden">
-                    {customLogo ? (
-                      <img 
-                        src={customLogo} 
-                        alt="לוגו מותאם אישית" 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-2xl">🚀</span>
+        {/* Main Content */}
+        <div className="flex-1 flex">
+          {/* Main Center Content */}
+          <div className="flex-1 flex items-center justify-center min-h-screen">
+            <div className="container mx-auto px-4 py-8">
+              {/* Header */}
+              <header className="text-center mb-12">
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <div className="relative group">
+                    <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-macos overflow-hidden">
+                      {customLogo ? (
+                        <img 
+                          src={customLogo} 
+                          alt="לוגו מותאם אישית" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-2xl">🚀</span>
+                      )}
+                    </div>
+                    
+                    {/* Logo upload overlay */}
+                    <div className="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center cursor-pointer">
+                      <label htmlFor="logo-upload" className="cursor-pointer">
+                        <Plus className="h-5 w-5 text-white" />
+                        <input
+                          id="logo-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleLogoUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                    
+                    {/* Remove logo button */}
+                    {customLogo && (
+                      <button
+                        onClick={removeLogo}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     )}
                   </div>
-                  
-                  {/* Logo upload overlay */}
-                  <div className="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center cursor-pointer">
-                    <label htmlFor="logo-upload" className="cursor-pointer">
-                      <Plus className="h-5 w-5 text-white" />
-                      <input
-                        id="logo-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleLogoUpload}
-                        className="hidden"
-                      />
-                    </label>
+                  <div>
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      מערכת ניהול פרויקטים Pro
+                    </h1>
                   </div>
-                  
-                  {/* Remove logo button */}
-                  {customLogo && (
-                    <button
-                      onClick={removeLogo}
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  )}
                 </div>
-                <div>
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    מערכת ניהול פרויקטים Pro
-                  </h1>
-                </div>
-              </div>
-              
-              {/* Action Button - Export + Projects List */}
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <Button
-                  variant="outline"
-                  onClick={handleExportCSV}
-                  className="gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  ייצוא CSV
-                </Button>
                 
-                {/* Projects Dropdown */}
-                <div className="relative">
+                {/* Action Button - Export + Projects List */}
+                <div className="flex items-center justify-center gap-3 mb-6">
                   <Button
                     variant="outline"
-                    onClick={() => setShowProjectsDropdown(!showProjectsDropdown)}
-                    className="gap-2 min-w-[200px] justify-between"
+                    onClick={handleExportCSV}
+                    className="gap-2"
                   >
-                    <div className="flex items-center gap-2">
-                      <List className="w-4 h-4" />
-                      <span>רשימת פרויקטים ({projects.length})</span>
-                    </div>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${showProjectsDropdown ? 'rotate-180' : ''}`} />
+                    <Download className="w-4 h-4" />
+                    ייצוא CSV
                   </Button>
                   
-                  {showProjectsDropdown && (
-                    <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
-                      <div className="p-2">
-                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400 px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-                          בחר פרויקט לפתיחה
-                        </div>
-                        {projects.length > 0 ? (
-                          <div className="space-y-1 mt-2">
-                            {projects.map((project) => (
-                              <button
-                                key={project.id}
-                                onClick={() => handleProjectSelect(project)}
-                                className="w-full text-right px-3 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between group"
-                              >
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
-                                    {project.name}
-                                  </div>
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                    {project.clientName}
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2 ml-2">
-                                  {project.completed && (
-                                    <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                  )}
-                                  {project.paid && (
-                                    <CreditCard className="w-4 h-4 text-blue-500" />
-                                  )}
-                                  <ChevronDown className="w-3 h-3 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 rotate-[-90deg]" />
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                            <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                            <p className="text-sm">אין פרויקטים במערכת</p>
-                          </div>
-                        )}
+                  {/* Projects Dropdown */}
+                  <div className="relative">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowProjectsDropdown(!showProjectsDropdown)}
+                      className="gap-2 min-w-[200px] justify-between"
+                    >
+                      <div className="flex items-center gap-2">
+                        <List className="w-4 h-4" />
+                        <span>רשימת פרויקטים ({projects.length})</span>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </header>
-
-            {/* Navigation */}
-            <div className="flex justify-center mb-8">
-              <div className="glass p-1.5 rounded-xl shadow-medium">
-                <Button
-                  onClick={() => setActiveTab('dashboard')}
-                  variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
-                  className="px-6 py-3 rounded-lg text-sm font-medium"
-                >
-                  <BarChart3 className="w-4 h-4 ml-2" />
-                  לוח בקרה Pro
-                </Button>
-                <Button
-                  onClick={() => setActiveTab('projects')}
-                  variant={activeTab === 'projects' ? 'default' : 'ghost'}
-                  className="px-6 py-3 rounded-lg text-sm font-medium"
-                >
-                  <Users className="w-4 h-4 ml-2" />
-                  פרויקטים מתקדם
-                </Button>
-              </div>
-            </div>
-
-            {/* Content */}
-            <main>
-              {activeTab === 'dashboard' && (
-                <div>
-                  <EnhancedDashboard 
-                    projects={projects} 
-                    stats={{
-                      total: stats.total,
-                      completed: stats.completed,
-                      inProgress: stats.inProgress,
-                      paid: stats.paid,
-                      unpaid: stats.unpaid,
-                      totalRevenue: stats.totalRevenue,
-                      pendingRevenue: stats.pendingRevenue,
-                      completionRate: stats.completionRate,
-                      paymentRate: stats.paymentRate
-                    }}
-                  />
-                </div>
-              )}
-
-              {activeTab === 'projects' && (
-                <div className="space-y-6">
-                  {/* Search and Filters */}
-                  <Card className="card-macos">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col gap-4">
-                        {/* Search Bar */}
-                        <div className="relative w-full max-w-md mx-auto">
-                          <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            placeholder="חיפוש פרויקטים..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pr-10"
-                          />
-                        </div>
-                        
-                        {/* Filters and Actions - Centered */}
-                        <div className="flex flex-wrap items-center justify-center gap-3">
-                          <select
-                            value={priorityFilter}
-                            onChange={(e) => setPriorityFilter(e.target.value)}
-                            className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
-                          >
-                            <option value="all">כל העדיפויות</option>
-                            <option value="high">עדיפות גבוהה</option>
-                            <option value="medium">עדיפות בינונית</option>
-                            <option value="low">עדיפות נמוכה</option>
-                          </select>
-                          
-                          <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
-                          >
-                            <option value="all">כל הסטטוסים</option>
-                            <option value="not-started">לא התחיל</option>
-                            <option value="in-progress">בתהליך</option>
-                            <option value="in-review">בבדיקה</option>
-                            <option value="completed">הושלם</option>
-                            <option value="on-hold">מושהה</option>
-                          </select>
-                          
-                          <select
-                            value={`${sortBy}-${sortOrder}`}
-                            onChange={(e) => {
-                              const [field, order] = e.target.value.split('-');
-                              setSortBy(field as any);
-                              setSortOrder(order as any);
-                            }}
-                            className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
-                          >
-                            <option value="updatedAt-desc">עדכון אחרון ↓</option>
-                            <option value="updatedAt-asc">עדכון אחרון ↑</option>
-                            <option value="createdAt-desc">תאריך יצירה ↓</option>
-                            <option value="createdAt-asc">תאריך יצירה ↑</option>
-                            <option value="name-asc">שם א-ת</option>
-                            <option value="name-desc">שם ת-א</option>
-                            <option value="priority-desc">עדיפות ↓</option>
-                            <option value="priority-asc">עדיפות ↑</option>
-                          </select>
-                          
-                          <Button 
-                            onClick={() => setShowCreateModal(true)} 
-                            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6"
-                          >
-                            <Plus className="w-4 h-4 ml-2" />
-                            פרויקט חדש
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Projects Grid */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {filteredAndSortedProjects.map((project) => (
-                      <Card key={project.id} className="card-macos">
-                        <CardHeader>
-                          <CardTitle className="text-lg">{project.name}</CardTitle>
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">{project.clientName}</span>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${showProjectsDropdown ? 'rotate-180' : ''}`} />
+                    </Button>
+                    
+                    {showProjectsDropdown && (
+                      <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                        <div className="p-2">
+                          <div className="text-xs font-medium text-gray-500 dark:text-gray-400 px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                            בחר פרויקט לפתיחה
                           </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm mb-4">{project.description}</p>
-                          <div className="flex justify-between items-center mb-4">
-                            <Badge variant={getStatusBadgeVariant(project.status)}>
-                              {project.status}
-                            </Badge>
-                            <Badge variant={getPriorityBadgeVariant(project.priority)}>
-                              {project.priority}
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium">
-                              {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
-                            </span>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setSelectedProject(project);
-                                  setShowTasksModal(true);
-                                }}
-                              >
-                                <ListTodo className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setSelectedProject(project);
-                                  setShowEditModal(true);
-                                }}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
+                          {projects.length > 0 ? (
+                            <div className="space-y-1 mt-2">
+                              {projects.map((project) => (
+                                <button
+                                  key={project.id}
+                                  onClick={() => handleProjectSelect(project)}
+                                  className="w-full text-right px-3 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between group"
+                                >
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
+                                      {project.name}
+                                    </div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                      {project.clientName}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2 ml-2">
+                                    {project.completed && (
+                                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                    )}
+                                    {project.paid && (
+                                      <CreditCard className="w-4 h-4 text-blue-500" />
+                                    )}
+                                    <ChevronDown className="w-3 h-3 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 rotate-[-90deg]" />
+                                  </div>
+                                </button>
+                              ))}
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          ) : (
+                            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                              <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                              <p className="text-sm">אין פרויקטים במערכת</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
-            </main>
+              </header>
+
+              {/* Navigation */}
+              <div className="flex justify-center mb-8">
+                <div className="glass p-1.5 rounded-xl shadow-medium">
+                  <Button
+                    onClick={() => setActiveTab('dashboard')}
+                    variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
+                    className="px-6 py-3 rounded-lg text-sm font-medium"
+                  >
+                    <BarChart3 className="w-4 h-4 ml-2" />
+                    לוח בקרה Pro
+                  </Button>
+                  <Button
+                    onClick={() => setActiveTab('projects')}
+                    variant={activeTab === 'projects' ? 'default' : 'ghost'}
+                    className="px-6 py-3 rounded-lg text-sm font-medium"
+                  >
+                    <Users className="w-4 h-4 ml-2" />
+                    פרויקטים מתקדם
+                  </Button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <main>
+                {activeTab === 'dashboard' && (
+                  <div>
+                    <EnhancedDashboard 
+                      projects={projects} 
+                      stats={{
+                        total: stats.total,
+                        completed: stats.completed,
+                        inProgress: stats.inProgress,
+                        paid: stats.paid,
+                        unpaid: stats.unpaid,
+                        totalRevenue: stats.totalRevenue,
+                        pendingRevenue: stats.pendingRevenue,
+                        completionRate: stats.completionRate,
+                        paymentRate: stats.paymentRate
+                      }}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'projects' && (
+                  <div className="space-y-6">
+                    {/* Search and Filters */}
+                    <Card className="card-macos">
+                      <CardContent className="p-6">
+                        <div className="flex flex-col gap-4">
+                          {/* Search Bar */}
+                          <div className="relative w-full max-w-md mx-auto">
+                            <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="חיפוש פרויקטים..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              className="pr-10"
+                            />
+                          </div>
+                          
+                          {/* Filters and Actions - Centered */}
+                          <div className="flex flex-wrap items-center justify-center gap-3">
+                            <select
+                              value={priorityFilter}
+                              onChange={(e) => setPriorityFilter(e.target.value)}
+                              className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
+                            >
+                              <option value="all">כל העדיפויות</option>
+                              <option value="high">עדיפות גבוהה</option>
+                              <option value="medium">עדיפות בינונית</option>
+                              <option value="low">עדיפות נמוכה</option>
+                            </select>
+                            
+                            <select
+                              value={statusFilter}
+                              onChange={(e) => setStatusFilter(e.target.value)}
+                              className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
+                            >
+                              <option value="all">כל הסטטוסים</option>
+                              <option value="not-started">לא התחיל</option>
+                              <option value="in-progress">בתהליך</option>
+                              <option value="in-review">בבדיקה</option>
+                              <option value="completed">הושלם</option>
+                              <option value="on-hold">מושהה</option>
+                            </select>
+                            
+                            <select
+                              value={`${sortBy}-${sortOrder}`}
+                              onChange={(e) => {
+                                const [field, order] = e.target.value.split('-');
+                                setSortBy(field as any);
+                                setSortOrder(order as any);
+                              }}
+                              className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
+                            >
+                              <option value="updatedAt-desc">עדכון אחרון ↓</option>
+                              <option value="updatedAt-asc">עדכון אחרון ↑</option>
+                              <option value="createdAt-desc">תאריך יצירה ↓</option>
+                              <option value="createdAt-asc">תאריך יצירה ↑</option>
+                              <option value="name-asc">שם א-ת</option>
+                              <option value="name-desc">שם ת-א</option>
+                              <option value="priority-desc">עדיפות ↓</option>
+                              <option value="priority-asc">עדיפות ↑</option>
+                            </select>
+                            
+                            <Button 
+                              onClick={() => setShowCreateModal(true)} 
+                              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6"
+                            >
+                              <Plus className="w-4 h-4 ml-2" />
+                              פרויקט חדש
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Projects Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {filteredAndSortedProjects.map((project) => {
+                        const completedTasks = project.tasks.filter(t => t.completed).length;
+                        const totalTasks = project.tasks.length;
+                        const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+                        return (
+                          <Card key={project.id} className="card-macos relative group">
+                            <CardHeader className="pb-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <CardTitle className="text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
+                                    {project.name}
+                                  </CardTitle>
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <User className="w-4 h-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">
+                                      {project.clientName}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                  {/* Interactive Status and Priority Dropdowns - Fixed Size */}
+                                  <StatusDropdown
+                                    value={project.status}
+                                    onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
+                                    className="w-32"
+                                  />
+                                  <PriorityDropdown
+                                    value={project.priority}
+                                    onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
+                                    className="w-32"
+                                  />
+                                </div>
+                              </div>
+
+                              {project.description && (
+                                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                                  {project.description}
+                                </p>
+                              )}
+
+                              {/* Price and Payment Status */}
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="text-sm font-semibold text-green-600">
+                                  {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant={project.paid ? "default" : "outline"}
+                                  onClick={() => toggleProjectPaid(project.id)}
+                                  className={`text-xs h-8 px-3 transition-all duration-200 ${
+                                    project.paid 
+                                      ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
+                                      : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
+                                  }`}
+                                >
+                                  <CreditCard className="w-3 h-3 ml-1" />
+                                  {project.paid ? 'שולם' : 'לא שולם'}
+                                </Button>
+                              </div>
+
+                              {/* Tasks Section - Enhanced with External Controls */}
+                              <div className="space-y-3">
+                                {/* Tasks Header with Title and Button */}
+                                <div className="bg-gradient-to-br from-blue-50/30 to-indigo-50/30 dark:from-blue-950/20 dark:to-indigo-950/20 p-3 rounded-lg border border-blue-100/50 dark:border-blue-800/30">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400">משימות</h3>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => {
+                                        setSelectedProject(project);
+                                        setShowTasksModal(true);
+                                      }}
+                                      className="text-xs h-7 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all duration-200"
+                                    >
+                                      <ListTodo className="w-3 h-3 ml-1" />
+                                      {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : 'הוסף משימות'}
+                                    </Button>
+                                  </div>
+                                  
+                                  {/* Tasks Preview with Sorting */}
+                                  {totalTasks > 0 && (
+                                    <div className="space-y-3">
+                                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                                        <div 
+                                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all"
+                                          style={{ width: `${completionRate}%` }}
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        {[...project.tasks]
+                                          .sort((a, b) => {
+                                            // משימות לא מושלמות ראשונות, אחר כך מושלמות
+                                            if (a.completed !== b.completed) {
+                                              return a.completed ? 1 : -1;
+                                            }
+                                            return 0;
+                                          })
+                                          .slice(0, 3)
+                                          .map((task) => (
+                                          <div key={task.id} className="flex items-center gap-2 text-xs group cursor-pointer hover:bg-white/50 dark:hover:bg-gray-800/50 p-1.5 rounded transition-all">
+                                            <div 
+                                              className={`w-3 h-3 rounded-full border-2 flex items-center justify-center transition-all hover:scale-110 ${
+                                                task.completed 
+                                                  ? 'bg-green-500 border-green-500' 
+                                                  : 'border-gray-400 hover:border-blue-500'
+                                              }`}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleToggleProjectTask(project.id, task.id);
+                                              }}
+                                            >
+                                              {task.completed && <CheckCircle2 className="w-2 h-2 text-white" />}
+                                            </div>
+                                            <span className={`flex-1 truncate transition-all ${
+                                              task.completed 
+                                                ? 'line-through text-gray-500 dark:text-gray-400' 
+                                                : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100'
+                                            }`}>
+                                              {task.title}
+                                            </span>
+                                          </div>
+                                        ))}
+                                        {totalTasks > 3 && (
+                                          <div className="text-xs text-gray-500 text-center pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
+                                            +{totalTasks - 3} משימות נוספות...
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Empty State */}
+                                  {totalTasks === 0 && (
+                                    <div className="text-center py-4">
+                                      <CheckSquare className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        לחץ על הכפתור להוספת משימות
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </CardHeader>
+
+                            <CardContent className="space-y-4">
+                              {/* Contact Actions */}
+                              <div className="grid grid-cols-3 gap-2">
+                                {project.phone1 && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleContactClick('phone', project.phone1)}
+                                    className="flex items-center gap-1 h-8 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200"
+                                  >
+                                    <PhoneCall className="w-3 h-3" />
+                                    <span className="hidden sm:inline">חייג</span>
+                                  </Button>
+                                )}
+                                {project.whatsapp1 && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleContactClick('whatsapp', project.whatsapp1)}
+                                    className="flex items-center gap-1 h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 transition-all duration-200"
+                                  >
+                                    <MessageCircle className="w-3 h-3" />
+                                    <span className="hidden sm:inline">וואטסאפ</span>
+                                  </Button>
+                                )}
+                                {project.email && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleContactClick('email', project.email)}
+                                    className="flex items-center gap-1 h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200"
+                                  >
+                                    <Mail className="w-3 h-3" />
+                                    <span className="hidden sm:inline">מייל</span>
+                                  </Button>
+                                )}
+                              </div>
+
+                              {/* File Actions */}
+                              <div className="flex gap-2">
+                                {(project.folderPath || project.icloudLink) && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => openFolder(project.folderPath, project.icloudLink)}
+                                    className="flex items-center gap-1 h-8 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 transition-all duration-200"
+                                  >
+                                    <FolderOpen className="w-3 h-3" />
+                                    פתח תיקייה
+                                  </Button>
+                                )}
+                              </div>
+
+                              {/* Action Buttons */}
+                              <div className="flex gap-2 pt-2 border-t">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setSelectedProject(project);
+                                    setShowEditModal(true);
+                                  }}
+                                  className="flex items-center gap-1 h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200"
+                                >
+                                  <Edit className="w-3 h-3" />
+                                  ערוך
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDeleteProject(project.id)}
+                                  className="flex items-center gap-1 h-8 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                  מחק
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+
+                    {/* Empty State */}
+                    {filteredAndSortedProjects.length === 0 && (
+                      <Card className="card-macos">
+                        <CardContent className="p-12 text-center">
+                          <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                          <h3 className="text-xl font-semibold mb-2">לא נמצאו פרויקטים</h3>
+                          <p className="text-muted-foreground mb-6">
+                            {searchTerm || priorityFilter !== 'all' || statusFilter !== 'all'
+                              ? 'נסה לשנות את המסננים או החיפוש'
+                              : 'התחל ליצור את הפרויקט הראשון שלך'
+                            }
+                          </p>
+                          <Button onClick={() => setShowCreateModal(true)} className="gradient-primary text-white">
+                            <Plus className="w-4 h-4 ml-2" />
+                            צור פרויקט ראשון
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                )}
+              </main>
+
+              {/* Modals */}
+              <CreateProjectModal
+                open={showCreateModal}
+                onOpenChange={setShowCreateModal}
+                onCreateProject={handleCreateProject}
+              />
+
+              <ProjectTasksModal
+                open={showTasksModal}
+                onOpenChange={setShowTasksModal}
+                project={selectedProject ? projects.find(p => p.id === selectedProject.id) || selectedProject : null}
+                onAddTask={handleAddProjectTask}
+                onToggleTask={handleToggleProjectTask}
+                onDeleteTask={handleDeleteProjectTask}
+              />
+
+              <ProjectEditModal
+                open={showEditModal}
+                onOpenChange={setShowEditModal}
+                project={selectedProject}
+                onUpdateProject={handleUpdateProject}
+              />
+            </div>
+          </div>
+
+          {/* Quick Tasks Sidebar - Right Side */}
+          <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto">
+            <QuickTasksSidebar
+              quickTasks={quickTasks}
+              onAddTask={handleAddQuickTask}
+              onToggleTask={handleToggleQuickTask}
+              onDeleteTask={handleDeleteQuickTask}
+            />
           </div>
         </div>
-
-        {/* Quick Tasks Sidebar - Right Side */}
-        <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg overflow-y-auto">
-          <QuickTasksSidebar
-            quickTasks={quickTasks}
-            onAddTask={handleAddQuickTask}
-            onToggleTask={handleToggleQuickTask}
-            onDeleteTask={handleDeleteQuickTask}
-          />
-        </div>
       </div>
-
-      {/* Modals - Outside the main layout so they can appear on top */}
-      <CreateProjectModal
-        open={showCreateModal}
-        onOpenChange={setShowCreateModal}
-        onCreateProject={handleCreateProject}
-      />
-
-      <ProjectTasksModal
-        open={showTasksModal}
-        onOpenChange={setShowTasksModal}
-        project={selectedProject ? projects.find(p => p.id === selectedProject.id) || selectedProject : null}
-        onAddTask={handleAddProjectTask}
-        onToggleTask={handleToggleProjectTask}
-        onDeleteTask={handleDeleteProjectTask}
-      />
-
-      <ProjectEditModal
-        open={showEditModal}
-        onOpenChange={setShowEditModal}
-        project={selectedProject}
-        onUpdateProject={handleUpdateProject}
-      />
-    </div>
+    </SidebarProvider>
   );
 };
