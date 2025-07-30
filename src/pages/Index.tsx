@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Apple, Rocket, Gauge, Database, Download, BarChart3, Briefcase
+  Apple, Rocket, Gauge, Database, Download, BarChart3, Briefcase, Plus
 } from 'lucide-react';
 import { Project } from '../types';
 import { ExportService } from '../services';
@@ -12,6 +12,7 @@ const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeTab, setActiveTab] = useState('projects');
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Sample data initialization
   useEffect(() => {
@@ -109,6 +110,7 @@ const App: React.FC = () => {
     };
     
     setProjects(prev => [newProject, ...prev]);
+    setShowCreateModal(false);
   };
 
   const handleUpdateProject = (updatedProject: Project) => {
@@ -178,7 +180,15 @@ const App: React.FC = () => {
                 <Download className="h-4 w-4 mr-2" />
                 ייצוא CSV מפורט
               </Button>
-              <CreateProjectModal onCreateProject={handleCreateProject} />
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={() => setShowCreateModal(true)}
+                className="gradient-primary shadow-sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                פרויקט חדש
+              </Button>
             </div>
           </div>
         </div>
@@ -343,6 +353,13 @@ const App: React.FC = () => {
           )}
         </div>
       </main>
+
+      {/* Create Project Modal */}
+      <CreateProjectModal
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        onCreateProject={handleCreateProject}
+      />
     </div>
   );
 };
