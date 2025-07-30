@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { QuickTask } from '@/types';
-import { Plus, X, CheckCircle2, Clock, Trash2 } from 'lucide-react';
+import { Plus, X, CheckCircle2, Clock, Trash2, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface QuickTasksSidebarProps {
@@ -39,6 +39,33 @@ export const QuickTasksSidebar = ({
       title: "משימה נוספה",
       description: `המשימה "${newTaskTitle}" נוספה בהצלחה`,
     });
+  };
+
+  const handleCopyPendingTasks = async () => {
+    if (pendingTasks.length === 0) {
+      toast({
+        title: "אין משימות לעתוק",
+        description: "אין משימות ממתינות בתור",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const tasksText = pendingTasks.map(task => `• ${task.title}`).join('\n');
+    
+    try {
+      await navigator.clipboard.writeText(tasksText);
+      toast({
+        title: "המשימות הועתקו",
+        description: `${pendingTasks.length} משימות הועתקו ללוח`,
+      });
+    } catch (error) {
+      toast({
+        title: "שגיאה בעתיקה",
+        description: "לא ניתן להעתיק את המשימות",
+        variant: "destructive"
+      });
+    }
   };
 
   const pendingTasks = quickTasks.filter(task => !task.completed);
@@ -83,10 +110,21 @@ export const QuickTasksSidebar = ({
       {pendingTasks.length > 0 && (
         <Card className="card-macos">
           <CardHeader className="pb-3">
-            <CardTitle className="text-md flex items-center gap-2">
-              <Clock className="w-4 h-4 text-warning" />
-              משימות ממתינות ({pendingTasks.length})
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-md flex items-center gap-2">
+                <Clock className="w-4 h-4 text-warning" />
+                משימות ממתינות ({pendingTasks.length})
+              </CardTitle>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCopyPendingTasks}
+                className="h-7 px-2 text-xs"
+              >
+                <Copy className="w-3 h-3 ml-1" />
+                העתק ל-Google Tasks
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-2">
             {pendingTasks.map((task) => (
