@@ -42,14 +42,71 @@ export const ProjectManagementApp = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [preserveScroll, setPreserveScroll] = useState<number | null>(null);
-  const [customLogo, setCustomLogo] = useState<string | null>(
-    localStorage.getItem('customLogo')
-  );
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const { toast } = useToast();
 
-  // Keyboard shortcuts for macOS
+  // Load custom logo on startup
   useEffect(() => {
+    const loadCustomLogo = async () => {
+      try {
+        if (Capacitor.isNativePlatform()) {
+          // For native app - use Capacitor Filesystem
+          const logoData = await Filesystem.readFile({
+            path: 'custom-logo.png',
+            directory: Directory.Data,
+            encoding: Encoding.UTF8
+          });
+          setCustomLogo(logoData.data as string);
+        } else {
+          // Fallback to localStorage for web
+          const savedLogo = localStorage.getItem('customLogo');
+          if (savedLogo) {
+            setCustomLogo(savedLogo);
+          }
+        }
+      } catch (error) {
+        // Logo doesn't exist yet - this is normal
+        console.log('No custom logo found, using default');
+      }
+    };
+    
+    loadCustomLogo();
+  // Update favicon when logo changes
+  useEffect(() => {
+    if (customLogo && typeof window !== 'undefined') {
+      const favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+      if (favicon) {
+        favicon.href = customLogo;
+      } else {
+        const newFavicon = document.createElement('link');
+        newFavicon.rel = 'icon';
+        newFavicon.href = customLogo;
+        document.head.appendChild(newFavicon);
+      }
+    }
+  }, [customLogo]);
+  
+  // Update favicon when logo changes
+  useEffect(() => {
+    if (customLogo && typeof window !== 'undefined') {
+      const favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+      if (favicon) {
+        favicon.href = customLogo;
+      } else {
+        const newFavicon = document.createElement('link');
+        newFavicon.rel = 'icon';
+        newFavicon.href = customLogo;
+        document.head.appendChild(newFavicon);
+      }
+      
+      // Update app title with logo status
+      document.title = 'מערכת ניהול פרויקטים Pro • לוגו מותאם';
+      console.log('✅ Custom logo loaded and favicon updated');
+    } else {
+      document.title = 'מערכת ניהול פרויקטים Pro';
+    }
+  }, [customLogo]);
     const handleKeyDown = (event: KeyboardEvent) => {
       // CMD+N for new project
       if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
@@ -193,7 +250,7 @@ export const ProjectManagementApp = () => {
     });
   }, [toast]);
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) { // 2MB limit
@@ -206,22 +263,61 @@ export const ProjectManagementApp = () => {
       }
       
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const result = e.target?.result as string;
         setCustomLogo(result);
-        localStorage.setItem('customLogo', result);
-        toast({
-          title: "הלוגו הועלה בהצלחה",
-          description: "הלוגו החדש נשמר במערכת",
-        });
+        
+        try {
+          if (Capacitor.isNativePlatform()) {
+            // Save to filesystem for native app
+            await Filesystem.writeFile({
+              path: 'custom-logo.png',
+              data: result.split(',')[1], // Remove data:image/png;base64, prefix
+              directory: Directory.Data,
+              encoding: Encoding.UTF8
+            });
+          } else {
+            // Fallback to localStorage for web
+            localStorage.setItem('customLogo', result);
+          }
+          
+          toast({
+            title: "הלוגו הועלה בהצלחה",
+            description: "הלוגו החדש נשמר במערכת לצמיתות",
+          });
+        } catch (error) {
+          console.error('Error saving logo:', error);
+          // Fallback to localStorage even on native
+          localStorage.setItem('customLogo', result);
+          toast({
+            title: "הלוגו הועלה בהצלחה",
+            description: "הלוגו החדש נשמר במערכת",
+          });
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const removeLogo = () => {
+  const removeLogo = async () => {
     setCustomLogo(null);
-    localStorage.removeItem('customLogo');
+    
+    try {
+      if (Capacitor.isNativePlatform()) {
+        // Remove from filesystem for native app
+        await Filesystem.deleteFile({
+          path: 'custom-logo.png',
+          directory: Directory.Data
+        });
+      } else {
+        // Remove from localStorage for web
+        localStorage.removeItem('customLogo');
+      }
+    } catch (error) {
+      // File might not exist, that's ok
+      localStorage.removeItem('customLogo');
+    }
+    
     toast({
       title: "הלוגו הוסר",
       description: "חזרנו ללוגו הברירת מחדל",
