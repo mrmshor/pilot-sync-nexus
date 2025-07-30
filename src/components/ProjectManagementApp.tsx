@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,7 @@ import { QuickTasksSidebar } from './QuickTasksSidebar';
 import { ProjectTasksModal } from './ProjectTasksModal';
 import { ProjectEditModal } from './ProjectEditModal';
 import { EnhancedDashboard } from './EnhancedDashboard';
+import { AppSidebar } from './AppSidebar';
 
 export const ProjectManagementApp = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -545,6 +547,11 @@ export const ProjectManagementApp = () => {
     setSelectedProject(project);
     setShowTasksModal(true);
     setShowProjectsDropdown(false);
+  };
+
+  const handleSidebarProjectSelect = (project: Project) => {
+    setSelectedProject(project);
+    setShowTasksModal(true);
   };
 
   return (
