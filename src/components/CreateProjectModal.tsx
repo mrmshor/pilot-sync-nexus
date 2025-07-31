@@ -52,10 +52,23 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
       }
 
       // Fallback for web browsers - use File System Access API
-      const folderName = await FolderService.selectFolder();
-      if (folderName) {
-        const generatedPath = FolderService.generateFolderPath(formData.name || 'New Project', formData.clientName || 'Client');
-        setFormData(prev => ({ ...prev, folderPath: generatedPath }));
+      const folderResult = await FolderService.selectFolder();
+      if (folderResult) {
+        let folderPath = '';
+        let folderName = '';
+        
+        if (typeof folderResult === 'string') {
+          // Simple string path (from prompt or Electron)
+          folderPath = folderResult;
+          folderName = folderResult.split('/').pop() || folderResult;
+        } else if (folderResult.name) {
+          // Object with name and handle
+          folderName = folderResult.name;
+          // For web browsers, generate a suggested path
+          folderPath = FolderService.generateFolderPath(formData.name || 'New Project', formData.clientName || 'Client');
+        }
+        
+        setFormData(prev => ({ ...prev, folderPath }));
         toast({
           title: "תיקיה נבחרה",
           description: `נבחרה התיקיה: ${folderName}`,

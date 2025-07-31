@@ -26,6 +26,8 @@ import { ProjectTasksModal } from './ProjectTasksModal';
 import { ProjectEditModal } from './ProjectEditModal';
 import { EnhancedDashboard } from './EnhancedDashboard';
 import { AppSidebar } from './AppSidebar';
+import { FolderService } from '@/services/folderService';
+import { ContactService } from '@/services';
 
 export const ProjectManagementApp = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -397,21 +399,20 @@ export const ProjectManagementApp = () => {
   // Optimized data handling for large datasets
   const { visibleData: visibleProjects } = useOptimizedData(filteredAndSortedProjects, 50);
 
-  // Contact handlers
+  // Contact handlers using ContactService
   const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', value: string) => {
     if (!value) return;
     
     try {
       switch (type) {
         case 'phone':
-          window.open(`tel:${value}`, '_blank');
+          ContactService.makePhoneCall(value);
           break;
         case 'whatsapp':
-          const cleanPhone = value.replace(/[^\d]/g, '');
-          window.open(`https://wa.me/${cleanPhone}`, '_blank');
+          ContactService.openWhatsApp(value);
           break;
         case 'email':
-          window.open(`mailto:${value}`, '_blank');
+          ContactService.sendEmail(value);
           break;
       }
     } catch (error) {
@@ -424,81 +425,9 @@ export const ProjectManagementApp = () => {
     }
   };
 
-  // Improved folder opening with file picker for macOS
-  const openFolder = async (folderPath?: string, icloudLink?: string) => {
-    // If running as a Capacitor app (native)
-    if (Capacitor.isNativePlatform()) {
-      try {
-        if (folderPath) {
-          // For native macOS app - reveal in Finder
-          await window.open(`file://${folderPath}`, '_blank');
-          toast({
-            title: "תיקייה נפתחת ב-Finder",
-            description: folderPath,
-          });
-        } else if (icloudLink) {
-          await window.open(icloudLink, '_blank');
-          toast({
-            title: "קישור iCloud נפתח",
-            description: "הקישור נפתח בדפדפן",
-          });
-        } else {
-          // Open file picker for selecting a folder
-          const input = document.createElement('input');
-          input.type = 'file';
-          input.webkitdirectory = true;
-          input.addEventListener('change', (e) => {
-            const files = (e.target as HTMLInputElement).files;
-            if (files && files.length > 0) {
-              const folderPath = files[0].webkitRelativePath.split('/')[0];
-              toast({
-                title: "תיקייה נבחרה",
-                description: `נבחרה תיקייה: ${folderPath}`,
-              });
-            }
-          });
-          input.click();
-        }
-      } catch (error) {
-        console.error('Error with Capacitor folder operation:', error);
-        toast({
-          title: "שגיאה",
-          description: "לא ניתן לפתוח את התיקייה",
-          variant: "destructive"
-        });
-      }
-    } else {
-      // Web fallback
-      if (folderPath) {
-        try {
-          window.open(`file://${folderPath}`, '_blank');
-          toast({
-            title: "תיקייה נפתחת",
-            description: "התיקייה נפתחת ב-Finder",
-          });
-        } catch (error) {
-          if (icloudLink) {
-            window.open(icloudLink, '_blank');
-            toast({
-              title: "קישור iCloud נפתח",
-              description: "הקישור נפתח בדפדפן",
-            });
-          } else {
-            toast({
-              title: "שגיאה",
-              description: "לא ניתן לפתוח את התיקייה. נסה לבחור תיקייה חדשה.",
-              variant: "destructive"
-            });
-          }
-        }
-      } else if (icloudLink) {
-        window.open(icloudLink, '_blank');
-        toast({
-          title: "קישור iCloud נפתח",
-          description: "הקישור נפתח בדפדפן",
-        });
-      }
-    }
+  // Use FolderService for opening folders
+  const openFolder = (folderPath?: string, icloudLink?: string) => {
+    FolderService.openFolder(folderPath, icloudLink);
   };
 
   const handleExportCSV = () => {
@@ -885,7 +814,7 @@ export const ProjectManagementApp = () => {
                             <select
                               value={priorityFilter}
                               onChange={(e) => setPriorityFilter(e.target.value)}
-                              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white/80 backdrop-blur focus:outline-none focus:ring-2 focus:ring-blue-500/50 hover:border-blue-300 transition-colors"
+                              className="px-3 py-2 border border-input rounded-md text-sm bg-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
                             >
                               <option value="all">כל העדיפויות</option>
                               <option value="high">עדיפות גבוהה</option>
@@ -896,7 +825,7 @@ export const ProjectManagementApp = () => {
                             <select
                               value={statusFilter}
                               onChange={(e) => setStatusFilter(e.target.value)}
-                              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white/80 backdrop-blur focus:outline-none focus:ring-2 focus:ring-blue-500/50 hover:border-blue-300 transition-colors"
+                              className="px-3 py-2 border border-input rounded-md text-sm bg-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
                             >
                               <option value="all">כל הסטטוסים</option>
                               <option value="not-started">לא התחיל</option>
@@ -913,7 +842,7 @@ export const ProjectManagementApp = () => {
                                 setSortBy(field as any);
                                 setSortOrder(order as any);
                               }}
-                              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white/80 backdrop-blur focus:outline-none focus:ring-2 focus:ring-blue-500/50 hover:border-blue-300 transition-colors"
+                              className="px-3 py-2 border border-input rounded-md text-sm bg-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
                             >
                               <option value="updatedAt-desc">עדכון אחרון ↓</option>
                               <option value="updatedAt-asc">עדכון אחרון ↑</option>
