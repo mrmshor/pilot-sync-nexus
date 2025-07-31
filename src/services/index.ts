@@ -65,21 +65,59 @@ export const FolderService = {
 };
 
 export const ContactService = {
-  cleanPhoneNumber: (phone: string): string => phone.replace(/[^\d]/g, ''),
+  cleanPhoneNumber: (phone: string): string => phone.replace(/[^\d+]/g, ''),
+  
+  formatPhoneForInternational: (phone: string, defaultCountryCode: string = '972'): string => {
+    if (!phone) return '';
+    
+    // נקה את המספר (שמור רק ספרות ו-+)
+    let cleaned = phone.replace(/[^\d+]/g, '');
+    
+    // אם המספר מתחיל ב-+, השאר אותו כמו שהוא
+    if (cleaned.startsWith('+')) {
+      return cleaned;
+    }
+    
+    // אם המספר מתחיל ב-0 (פורמט מקומי ישראלי), החלף ל-972
+    if (cleaned.startsWith('0')) {
+      return defaultCountryCode + cleaned.slice(1);
+    }
+    
+    // אם המספר כבר מתחיל בקידומת מדינה, השאר אותו
+    if (cleaned.startsWith('972') || cleaned.startsWith('1') || cleaned.length > 10) {
+      return cleaned;
+    }
+    
+    // אחרת, הוסף את קידומת ברירת המחדל
+    return defaultCountryCode + cleaned;
+  },
   
   formatPhoneForDisplay: (phone: string): string => {
+    if (!phone) return '';
     const cleaned = phone.replace(/[^\d]/g, '');
     if (cleaned.startsWith('972')) {
-      return `+${cleaned.substring(0, 3)}-${cleaned.substring(3, 5)}-${cleaned.substring(5, 8)}-${cleaned.substring(8)}`;
+      const withoutCountry = cleaned.substring(3);
+      return `+972-${withoutCountry.substring(0, 2)}-${withoutCountry.substring(2, 5)}-${withoutCountry.substring(5)}`;
     }
     return phone;
+  },
+  
+  validatePhoneNumber: (phone: string): boolean => {
+    if (!phone) return false;
+    const cleaned = phone.replace(/[^\d+]/g, '');
+    // בדיקה בסיסית - לפחות 7 ספרות אחרי הניקוי
+    return cleaned.length >= 7;
   },
   
   makePhoneCall: (phone: string): void => {
     if (!phone) return;
     try {
-      const cleaned = phone.replace(/[^\d]/g, '');
-      window.open(`tel:+${cleaned}`, '_blank');
+      const formatted = ContactService.formatPhoneForInternational(phone);
+      if (!ContactService.validatePhoneNumber(formatted)) {
+        console.warn('Invalid phone number:', phone);
+        return;
+      }
+      window.open(`tel:+${formatted}`, '_blank');
     } catch (error) {
       console.error('Error making phone call:', error);
     }
@@ -88,8 +126,14 @@ export const ContactService = {
   openWhatsApp: (phone: string): void => {
     if (!phone) return;
     try {
-      const cleaned = phone.replace(/[^\d]/g, '');
-      window.open(`https://wa.me/${cleaned}`, '_blank');
+      const formatted = ContactService.formatPhoneForInternational(phone);
+      if (!ContactService.validatePhoneNumber(formatted)) {
+        console.warn('Invalid phone number for WhatsApp:', phone);
+        return;
+      }
+      const whatsappUrl = `https://wa.me/${formatted}`;
+      console.log('Opening WhatsApp with URL:', whatsappUrl);
+      window.open(whatsappUrl, '_blank');
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
     }
@@ -98,6 +142,10 @@ export const ContactService = {
   sendEmail: (email: string): void => {
     if (!email) return;
     try {
+      if (!email.includes('@')) {
+        console.warn('Invalid email address:', email);
+        return;
+      }
       window.open(`mailto:${email}`, '_blank');
     } catch (error) {
       console.error('Error sending email:', error);

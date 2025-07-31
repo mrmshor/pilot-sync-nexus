@@ -17,6 +17,7 @@ import {
   FileText, ArrowUpDown, ListTodo, ChevronDown, List
 } from 'lucide-react';
 import { Project, ProjectTask, QuickTask } from '@/types';
+import { ContactService } from '@/services';
 import { useToast } from '@/hooks/use-toast';
 import { CreateProjectModal } from './CreateProjectModal';
 import { StatusDropdown } from './StatusDropdown';
@@ -404,22 +405,21 @@ export const ProjectManagementApp = () => {
     try {
       switch (type) {
         case 'phone':
-          window.open(`tel:${value}`, '_blank');
+          ContactService.makePhoneCall(value);
           break;
         case 'whatsapp':
-          const cleanPhone = value.replace(/[^\d]/g, '');
-          window.open(`https://wa.me/${cleanPhone}`, '_blank');
+          ContactService.openWhatsApp(value);
           break;
         case 'email':
-          window.open(`mailto:${value}`, '_blank');
+          ContactService.sendEmail(value);
           break;
       }
     } catch (error) {
       console.error(`Error handling ${type} contact:`, error);
       toast({
         title: "שגיאה",
-        description: `לא ניתן לפתוח את ${type}`,
-        variant: "destructive"
+        description: `שגיאה בפתיחת ${type === 'whatsapp' ? 'וואטסאפ' : type === 'email' ? 'אימייל' : 'טלפון'}`,
+        variant: "destructive",
       });
     }
   };
