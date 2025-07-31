@@ -62,6 +62,11 @@
       "http": {
         "all": true,
         "request": true
+      },
+      "protocol": {
+        "all": true,
+        "asset": true,
+        "assetScope": ["**"]
       }
     },
     "bundle": {
