@@ -3,7 +3,8 @@
 
 use tauri::Manager;
 use std::fs;
-use std::path::Path;
+
+mod commands;
 
 #[tauri::command]
 fn save_project_data(data: String, filename: String) -> Result<String, String> {
@@ -53,7 +54,9 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             save_project_data,
             load_project_data,
-            get_app_data_dir
+            get_app_data_dir,
+            commands::show_item_in_folder,
+            commands::open_folder_native
         ])
         .setup(|app| {
             // Create app data directory on startup
