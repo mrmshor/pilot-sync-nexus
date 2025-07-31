@@ -70,44 +70,24 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
     return filtered;
   }, [projects, searchTerm, priorityFilter, statusFilter, sortBy, sortOrder]);
 
-  const handleContactClick = async (type: 'phone' | 'whatsapp' | 'email', contact: string) => {
-    console.log('🔍 ProjectsList handleContactClick:', { type, contact });
+  const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', contact: string) => {
+    if (!contact) return;
     
-    if (!contact?.trim()) {
-      console.warn('⚠️ Empty contact value:', { type, contact });
-      alert(`לא הוגדר ${type === 'phone' ? 'מספר טלפון' : type === 'whatsapp' ? 'מספר וואטסאפ' : 'כתובת מייל'}`);
-      return;
-    }
-    
-    try {
-      switch (type) {
-        case 'phone':
-          console.log('📞 Making phone call:', contact);
-          FolderService.makePhoneCall(contact);
-          break;
-        case 'whatsapp':
-          console.log('📱 Opening WhatsApp:', contact);
-          await FolderService.openWhatsApp(contact);
-          break;
-        case 'email':
-          console.log('📧 Sending email:', contact);
-          FolderService.sendEmail(contact);
-          break;
-      }
-    } catch (error) {
-      console.error(`❌ Error with ${type}:`, error);
-      alert(`שגיאה בפתיחת ${type}`);
+    switch (type) {
+      case 'phone':
+        FolderService.makePhoneCall(contact);
+        break;
+      case 'whatsapp':
+        FolderService.openWhatsApp(contact);
+        break;
+      case 'email':
+        FolderService.sendEmail(contact);
+        break;
     }
   };
 
-  const openFolder = async (folderPath?: string, icloudLink?: string) => {
-    console.log('🗂️ ProjectsList openFolder called:', { folderPath, icloudLink });
-    try {
-      await FolderService.openFolder(folderPath, icloudLink);
-    } catch (error) {
-      console.error('❌ Error opening folder:', error);
-      alert('שגיאה בפתיחת התיקיה');
-    }
+  const openFolder = (folderPath: string, icloudLink?: string) => {
+    FolderService.openFolder(folderPath, icloudLink);
   };
 
   const addTaskToProject = (projectId: string) => {
@@ -421,7 +401,6 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               {/* Contact Actions */}
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
                 <div className="flex flex-wrap gap-2">
-                  {/* Phone buttons */}
                   {project.phone1 && (
                     <Button 
                       variant="outline" 
@@ -431,29 +410,11 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         handleContactClick('phone', project.phone1);
                       }}
                       className="text-xs hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200"
-                      title={`חייג: ${project.phone1}`}
                     >
                       <PhoneCall className="h-3 w-3 mr-1" />
-                      חייג 1
+                      חייג
                     </Button>
                   )}
-                  {project.phone2 && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleContactClick('phone', project.phone2);
-                      }}
-                      className="text-xs hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200"
-                      title={`חייג: ${project.phone2}`}
-                    >
-                      <PhoneCall className="h-3 w-3 mr-1" />
-                      חייג 2
-                    </Button>
-                  )}
-                  
-                  {/* WhatsApp buttons */}
                   {project.whatsapp1 && (
                     <Button 
                       variant="outline" 
@@ -463,29 +424,11 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         handleContactClick('whatsapp', project.whatsapp1);
                       }}
                       className="text-xs text-green-600 hover:bg-green-50 hover:border-green-300 transition-all duration-200"
-                      title={`וואטסאפ: ${project.whatsapp1}`}
                     >
                       <MessageCircle className="h-3 w-3 mr-1" />
-                      וואטסאפ 1
+                      וואטסאפ
                     </Button>
                   )}
-                  {project.whatsapp2 && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleContactClick('whatsapp', project.whatsapp2);
-                      }}
-                      className="text-xs text-green-500 hover:bg-green-50 hover:border-green-300 transition-all duration-200"
-                      title={`וואטסאפ: ${project.whatsapp2}`}
-                    >
-                      <MessageCircle className="h-3 w-3 mr-1" />
-                      וואטסאפ 2
-                    </Button>
-                  )}
-                  
-                  {/* Email button */}
                   {project.email && (
                     <Button 
                       variant="outline" 
@@ -495,21 +438,18 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         handleContactClick('email', project.email);
                       }}
                       className="text-xs hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all duration-200"
-                      title={`מייל: ${project.email}`}
                     >
                       <Mail className="h-3 w-3 mr-1" />
                       מייל
                     </Button>
                   )}
-                  
-                  {/* Folder button */}
                   {(project.folderPath || project.icloudLink) && (
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        openFolder(project.folderPath, project.icloudLink);
+                        openFolder(project.folderPath || '', project.icloudLink);
                       }}
                       className="text-xs hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
                       title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}

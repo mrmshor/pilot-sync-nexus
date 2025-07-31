@@ -398,17 +398,12 @@ export const ProjectManagementApp = () => {
   // Optimized data handling for large datasets
   const { visibleData: visibleProjects } = useOptimizedData(filteredAndSortedProjects, 50);
 
-  // Contact handlers using FolderService
-  const handleContactClick = async (type: 'phone' | 'whatsapp' | 'email', value: string) => {
-    console.log('🔍 ProjectManagementApp handleContactClick נקרא:', { type, value });
+  // Contact handlers using ContactService
+  const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', value: string) => {
+    console.log('🔍 handleContactClick נקרא:', { type, value });
     
-    if (!value?.trim()) {
+    if (!value) {
       console.warn('⚠️ לא נמצא ערך:', { type, value });
-      toast({
-        title: "שגיאה",
-        description: `לא הוגדר ${type === 'phone' ? 'מספר טלפון' : type === 'whatsapp' ? 'מספר וואטסאפ' : 'כתובת מייל'}`,
-        variant: "destructive"
-      });
       return;
     }
     
@@ -416,28 +411,14 @@ export const ProjectManagementApp = () => {
       console.log('🚀 מפעיל פעולה:', type);
       switch (type) {
         case 'phone':
-          console.log('📞 Making phone call:', value);
           FolderService.makePhoneCall(value);
-          toast({
-            title: "פותח טלפון",
-            description: `מתחבר ל-${value}`,
-          });
           break;
         case 'whatsapp':
           console.log('📱 קורא ל-FolderService.openWhatsApp עם:', value);
-          await FolderService.openWhatsApp(value);
-          toast({
-            title: "פותח וואטסאפ",
-            description: `מתחבר ל-${value}`,
-          });
+          FolderService.openWhatsApp(value);
           break;
         case 'email':
-          console.log('📧 Sending email:', value);
           FolderService.sendEmail(value);
-          toast({
-            title: "פותח מייל",
-            description: `שולח מייל ל-${value}`,
-          });
           break;
       }
     } catch (error) {
@@ -451,18 +432,8 @@ export const ProjectManagementApp = () => {
   };
 
   // Use FolderService for opening folders
-  const openFolder = async (folderPath?: string, icloudLink?: string) => {
-    console.log('🗂️ ProjectManagementApp openFolder called:', { folderPath, icloudLink });
-    try {
-      await FolderService.openFolder(folderPath, icloudLink);
-    } catch (error) {
-      console.error('❌ Error opening folder:', error);
-      toast({
-        title: "שגיאה",
-        description: "לא ניתן לפתוח את התיקיה",
-        variant: "destructive"
-      });
-    }
+  const openFolder = (folderPath?: string, icloudLink?: string) => {
+    FolderService.openFolder(folderPath, icloudLink);
   };
 
   const handleExportCSV = () => {
