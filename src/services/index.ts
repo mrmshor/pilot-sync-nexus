@@ -1,5 +1,10 @@
 import { Project, QuickTask } from '../types';
 
+// Helper function to detect if running in Tauri
+const isTauriApp = (): boolean => {
+  return typeof window !== 'undefined' && '__TAURI__' in window;
+};
+
 export const FolderService = {
   // פתיחת Finder לבחירת תיקיה חדשה
   selectFolder: async (): Promise<string | null> => {
@@ -109,7 +114,7 @@ export const ContactService = {
     return cleaned.length >= 7;
   },
   
-  makePhoneCall: (phone: string): void => {
+  makePhoneCall: async (phone: string): Promise<void> => {
     if (!phone) return;
     try {
       const formatted = ContactService.formatPhoneForInternational(phone);
@@ -117,13 +122,20 @@ export const ContactService = {
         console.warn('Invalid phone number:', phone);
         return;
       }
-      window.open(`tel:+${formatted}`, '_blank');
+      const telUrl = `tel:+${formatted}`;
+      
+      if (isTauriApp()) {
+        const { open } = await import('@tauri-apps/api/shell');
+        await open(telUrl);
+      } else {
+        window.open(telUrl, '_blank');
+      }
     } catch (error) {
       console.error('Error making phone call:', error);
     }
   },
   
-  openWhatsApp: (phone: string): void => {
+  openWhatsApp: async (phone: string): Promise<void> => {
     if (!phone) return;
     try {
       const formatted = ContactService.formatPhoneForInternational(phone);
@@ -133,20 +145,35 @@ export const ContactService = {
       }
       const whatsappUrl = `https://wa.me/${formatted}`;
       console.log('Opening WhatsApp with URL:', whatsappUrl);
-      window.open(whatsappUrl, '_blank');
+      
+      if (isTauriApp()) {
+        // Use Tauri's shell API for opening external URLs
+        const { open } = await import('@tauri-apps/api/shell');
+        await open(whatsappUrl);
+      } else {
+        // Fallback to window.open for web/preview
+        window.open(whatsappUrl, '_blank');
+      }
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
     }
   },
   
-  sendEmail: (email: string): void => {
+  sendEmail: async (email: string): Promise<void> => {
     if (!email) return;
     try {
       if (!email.includes('@')) {
         console.warn('Invalid email address:', email);
         return;
       }
-      window.open(`mailto:${email}`, '_blank');
+      const mailtoUrl = `mailto:${email}`;
+      
+      if (isTauriApp()) {
+        const { open } = await import('@tauri-apps/api/shell');
+        await open(mailtoUrl);
+      } else {
+        window.open(mailtoUrl, '_blank');
+      }
     } catch (error) {
       console.error('Error sending email:', error);
     }
