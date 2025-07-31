@@ -885,7 +885,7 @@ export const ProjectManagementApp = () => {
                             <select
                               value={priorityFilter}
                               onChange={(e) => setPriorityFilter(e.target.value)}
-                              className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
+                              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white/80 backdrop-blur focus:outline-none focus:ring-2 focus:ring-blue-500/50 hover:border-blue-300 transition-colors"
                             >
                               <option value="all">כל העדיפויות</option>
                               <option value="high">עדיפות גבוהה</option>
@@ -896,7 +896,7 @@ export const ProjectManagementApp = () => {
                             <select
                               value={statusFilter}
                               onChange={(e) => setStatusFilter(e.target.value)}
-                              className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
+                              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white/80 backdrop-blur focus:outline-none focus:ring-2 focus:ring-blue-500/50 hover:border-blue-300 transition-colors"
                             >
                               <option value="all">כל הסטטוסים</option>
                               <option value="not-started">לא התחיל</option>
@@ -913,7 +913,7 @@ export const ProjectManagementApp = () => {
                                 setSortBy(field as any);
                                 setSortOrder(order as any);
                               }}
-                              className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
+                              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white/80 backdrop-blur focus:outline-none focus:ring-2 focus:ring-blue-500/50 hover:border-blue-300 transition-colors"
                             >
                               <option value="updatedAt-desc">עדכון אחרון ↓</option>
                               <option value="updatedAt-asc">עדכון אחרון ↑</option>
@@ -927,7 +927,9 @@ export const ProjectManagementApp = () => {
                             
                             <Button 
                               onClick={() => setShowCreateModal(true)} 
-                              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6"
+                              variant="default"
+                              size="default"
+                              className="gradient-primary shadow-sm hover:shadow-md transition-all duration-300 px-6"
                               title="צור פרויקט חדש (⌘N)"
                             >
                               <Plus className="w-4 h-4 ml-2" />

@@ -44,16 +44,43 @@ export const FolderService = {
   },
 
   openFolder: (folderPath?: string, icloudLink?: string) => {
+    console.log('🗂️ מנסה לפתוח תיקיה:', { folderPath, icloudLink });
+    
+    if (!folderPath && !icloudLink) {
+      console.warn('⚠️ לא נמצא נתיב תיקיה או קישור iCloud');
+      alert('אין נתיב תיקיה מוגדר לפרויקט זה');
+      return;
+    }
+
+    // Try opening folder path first
     if (folderPath) {
       try {
-        window.open(`file://${folderPath}`, '_blank');
+        // For desktop apps - try different protocols
+        if (window.electronAPI && (window.electronAPI as any).openFolder) {
+          (window.electronAPI as any).openFolder(folderPath);
+          console.log('✅ נפתח באמצעות Electron API');
+          return;
+        }
+        
+        // For web browsers - try file protocol
+        const fileUrl = folderPath.startsWith('file://') ? folderPath : `file://${folderPath}`;
+        console.log('🌐 מנסה לפתוח ב-file protocol:', fileUrl);
+        window.open(fileUrl, '_blank');
+        
       } catch (error) {
-        console.error('Error opening folder:', error);
+        console.error('❌ שגיאה בפתיחת תיקיה:', error);
+        
+        // Fallback to iCloud if available
         if (icloudLink) {
+          console.log('🔄 מעבר לקישור iCloud');
           window.open(icloudLink, '_blank');
+        } else {
+          alert(`לא ניתן לפתוח את התיקיה: ${folderPath}\nנסה לפתוח אותה באופן ידני`);
         }
       }
     } else if (icloudLink) {
+      // Only iCloud link available
+      console.log('☁️ פותח קישור iCloud');
       window.open(icloudLink, '_blank');
     }
   },

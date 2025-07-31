@@ -76,31 +76,78 @@ export const ContactService = {
   },
   
   makePhoneCall: (phone: string): void => {
-    if (!phone) return;
+    if (!phone) {
+      console.warn('⚠️ לא נמצא מספר טלפון');
+      return;
+    }
+    
     try {
-      const cleaned = phone.replace(/[^\d]/g, '');
-      window.open(`tel:+${cleaned}`, '_blank');
+      console.log('📞 מתחיל שיחה למספר:', phone);
+      const cleaned = phone.replace(/[^\d+]/g, '');
+      const phoneUrl = cleaned.startsWith('+') ? `tel:${cleaned}` : `tel:+${cleaned}`;
+      
+      // Create a temporary link for better compatibility
+      const link = document.createElement('a');
+      link.href = phoneUrl;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      console.log('✅ בקשת שיחה נשלחה');
     } catch (error) {
-      console.error('Error making phone call:', error);
+      console.error('❌ שגיאה בביצוע שיחה:', error);
+      alert(`שגיאה בביצוע שיחה למספר: ${phone}`);
     }
   },
   
   openWhatsApp: (phone: string): void => {
-    if (!phone) return;
+    if (!phone) {
+      console.warn('⚠️ לא נמצא מספר וואטסאפ');
+      return;
+    }
+    
     try {
+      console.log('💬 פותח וואטסאפ למספר:', phone);
       const cleaned = phone.replace(/[^\d]/g, '');
-      window.open(`https://wa.me/${cleaned}`, '_blank');
+      const whatsappUrl = `https://wa.me/${cleaned}`;
+      
+      // Open in new tab/window
+      const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      if (!newWindow) {
+        // Fallback if popup blocked
+        window.location.href = whatsappUrl;
+      }
+      
+      console.log('✅ וואטסאפ נפתח');
     } catch (error) {
-      console.error('Error opening WhatsApp:', error);
+      console.error('❌ שגיאה בפתיחת וואטסאפ:', error);
+      alert(`שגיאה בפתיחת וואטסאפ למספר: ${phone}`);
     }
   },
   
   sendEmail: (email: string): void => {
-    if (!email) return;
+    if (!email) {
+      console.warn('⚠️ לא נמצא כתובת אימייל');
+      return;
+    }
+    
     try {
-      window.open(`mailto:${email}`, '_blank');
+      console.log('📧 פותח אימייל לכתובת:', email);
+      const mailtoUrl = `mailto:${email}`;
+      
+      // Create a temporary link for better compatibility
+      const link = document.createElement('a');
+      link.href = mailtoUrl;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      console.log('✅ אימייל נפתח');
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error('❌ שגיאה בפתיחת אימייל:', error);
+      alert(`שגיאה בפתיחת אימייל לכתובת: ${email}`);
     }
   }
 };
