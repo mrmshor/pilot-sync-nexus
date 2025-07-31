@@ -128,27 +128,9 @@ export const FolderService = {
     }
   },
 
-  makePhoneCall: async (phone: string): Promise<void> => {
-    if (!phone) return;
-    
-    try {
-      console.log('📞 מתחיל שיחה:', phone);
-      const cleaned = phone.replace(/[^\d+]/g, '');
-      const telUrl = `tel:${cleaned}`;
-      
-      // Tauri v2 Opener Plugin
-      if ((window as any).__TAURI__) {
-        console.log('🖥️ זוהה Tauri, משתמש ב-opener plugin לטלפון');
-        await openPath(telUrl);
-        console.log('✅ שיחה התחילה באמצעות Tauri');
-        return;
-      }
-      
-      // Fallback for other environments
-      window.open(telUrl, '_blank');
-      console.log('✅ שיחה התחילה');
-    } catch (error) {
-      console.error('❌ שגיאה בשיחה:', error);
+  makePhoneCall: (phone?: string) => {
+    if (phone) {
+      window.open(`tel:${phone}`);
     }
   },
   
@@ -186,35 +168,9 @@ export const FolderService = {
     }
   },
   
-  sendEmail: async (email: string): Promise<void> => {
-    if (!email) {
-      console.warn('⚠️ לא נמצא כתובת אימייל');
-      return;
-    }
-    
-    try {
-      console.log('📧 פותח אימייל לכתובת:', email);
-      const mailtoUrl = `mailto:${email}`;
-      
-      // Tauri v2 Opener Plugin
-      if ((window as any).__TAURI__) {
-        console.log('🖥️ זוהה Tauri, משתמש ב-opener plugin למייל');
-        await openPath(mailtoUrl);
-        console.log('✅ אימייל נפתח באמצעות Tauri');
-        return;
-      }
-      
-      // Fallback for other environments
-      const link = document.createElement('a');
-      link.href = mailtoUrl;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      console.log('✅ אימייל נפתח');
-    } catch (error) {
-      console.error('❌ שגיאה בפתיחת אימייל:', error);
+  sendEmail: (email?: string) => {
+    if (email) {
+      window.open(`mailto:${email}`);
     }
   },
 
