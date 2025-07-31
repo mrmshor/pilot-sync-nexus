@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 מתקין מערכת ניהול פרויקטים Pro למק..."
+echo "🚀 מתקין אפליקציית שולחן נטיבית למק..."
 
 # בדיקת דרישות
 if ! command -v node &> /dev/null; then
@@ -33,9 +33,12 @@ npm install
 echo "🔨 בונה אפליקציה..."
 npm run build
 
-echo "📱 מכין אפליקציה נטיבית..."
+echo "📱 מכין אפליקציה נטיבית לשולחן..."
 npx cap add ios
 npx cap sync ios
+
+# הגדרות נוספות לאפליקציית שולחן
+echo "⚙️ מגדיר אפליקציית שולחן נטיבית..."
 
 echo "🍎 פותח ב-Xcode להתקנה סופית..."
 npx cap open ios
@@ -45,9 +48,11 @@ echo "🎯 כמעט סיימנו!"
 echo ""
 echo "בXcode:"
 echo "1. בחר Target: Mac (Designed for iPad)"
-echo "2. בחר Destination: My Mac"
-echo "3. לחץ Play (▶️) או Cmd+R"
+echo "2. בחר Destination: My Mac (Mac Catalyst)"
+echo "3. וודא שזה NOT Simulator"
+echo "4. לחץ Play (▶️) או Cmd+R"
 echo ""
-echo "האפליקציה תותקן אוטומטית! 🎉"
+echo "🖥️ האפליקציה תותקן כאפליקציית שולחן מלאה! 🎉"
 echo ""
-echo "💡 טיפ: אם יש שגיאת חתימה, בSignin & Capabilities שנה ל-'Sign to Run Locally'"
+echo "💡 טיפ: אם יש שגיאת חתימה, בSigning & Capabilities שנה ל-'Sign to Run Locally'"
+echo "📁 הנתונים יישמרו מקומית במחשב שלך (לא באינטרנט)"

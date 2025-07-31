@@ -1,4 +1,4 @@
-name: Build macOS App
+name: Build Native Mac Desktop App
 
 on:
   push:
@@ -22,13 +22,22 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Build web application
+    - name: Build offline desktop application
       run: npm run build
       
-    - name: Add iOS platform for Mac desktop app
+    - name: Setup native Mac desktop app
       run: |
         npx cap add ios
         npx cap sync ios
+        
+        # Configure for native desktop app (not web)
+        echo "Configuring native Mac desktop application..."
+        
+        # Configure Info.plist for desktop app
+        /usr/libexec/PlistBuddy -c "Set :LSUIElement false" ios/App/App/Info.plist || true
+        /usr/libexec/PlistBuddy -c "Set :LSApplicationCategoryType public.app-category.productivity" ios/App/App/Info.plist || true
+        /usr/libexec/PlistBuddy -c "Set :NSSupportsAutomaticTermination true" ios/App/App/Info.plist || true
+        /usr/libexec/PlistBuddy -c "Set :NSSupportsSuddenTermination true" ios/App/App/Info.plist || true
         
     - name: Create export options plist
       run: |

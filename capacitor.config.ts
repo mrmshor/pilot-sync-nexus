@@ -1,13 +1,21 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.c31801b6534f41cd9c671e50db5bd43a',
+  appId: 'com.mrmshor.projectmanager.pro',
   appName: 'מערכת ניהול פרויקטים Pro',
   webDir: 'dist',
+  bundledWebRuntime: false,
   plugins: {
     SplashScreen: {
       launchShowDuration: 0
+    },
+    Filesystem: {
+      iosDatabaseLocation: 'Library/NoCloud'
     }
+  },
+  ios: {
+    scheme: 'ProjectManagerPro',
+    path: 'ios'
   }
 };
 
