@@ -83,37 +83,99 @@ export const FolderService = {
   },
 
   openFolder: async (folderPath?: string, icloudLink?: string) => {
+    console.log('🗂️ מנסה לפתוח תיקיה:', { folderPath, icloudLink });
+    
     // אם יש קישור iCloud - פתח אותו
     if (icloudLink?.trim()) {
+      console.log('🔗 פותח קישור iCloud');
       window.open(icloudLink, '_blank');
       return;
     }
 
     // אם יש נתיב תיקיה - פתח ישירות
     if (folderPath?.trim()) {
+      console.log('📁 מנסה לפתוח תיקיה:', folderPath);
+      
       // קישורי רשת
       if (folderPath.startsWith('http')) {
+        console.log('🌐 פותח קישור רשת');
         window.open(folderPath, '_blank');
         return;
       }
       
       // Tauri - פתיחה ישירה
       if ((window as any).__TAURI__) {
+        console.log('🖥️ משתמש ב-Tauri');
         try {
           await openPath(folderPath);
+          console.log('✅ Tauri הצליח!');
           return;
         } catch (error) {
-          // שקט
+          console.error('❌ Tauri נכשל:', error);
         }
       }
       
-      // דפדפן - פתיחה ישירה
+      // Electron - אם זמין
+      if ((window as any).electronAPI?.openFolder) {
+        console.log('🖥️ משתמש ב-Electron');
+        try {
+          await (window as any).electronAPI.openFolder(folderPath);
+          console.log('✅ Electron הצליח!');
+          return;
+        } catch (error) {
+          console.error('❌ Electron נכשל:', error);
+        }
+      }
+      
+      // דפדפן - כל הדרכים האפשריות
+      console.log('🌐 משתמש בדפדפן');
+      
+      // דרך 1: file:// רגיל
       try {
         const fileUrl = folderPath.startsWith('/') ? `file://${folderPath}` : `file:///${folderPath.replace(/\\/g, '/')}`;
+        console.log('📂 מנסה:', fileUrl);
         window.open(fileUrl, '_blank');
+        console.log('✅ file:// הושלם');
       } catch (error) {
-        // שקט
+        console.error('❌ file:// נכשל:', error);
       }
+      
+      // דרך 2: Windows format
+      try {
+        const winUrl = `file:///${folderPath.replace(/\\/g, '/')}`;
+        console.log('🪟 מנסה Windows:', winUrl);
+        window.open(winUrl, '_blank');
+        console.log('✅ Windows format הושלם');
+      } catch (error) {
+        console.error('❌ Windows format נכשל:', error);
+      }
+      
+      // דרך 3: location.href ישיר
+      try {
+        console.log('↗️ מנסה location.href');
+        window.location.href = `file://${folderPath}`;
+        console.log('✅ location.href הושלם');
+      } catch (error) {
+        console.error('❌ location.href נכשל:', error);
+      }
+      
+      // דרך 4: anchor tag
+      try {
+        console.log('🔗 מנסה anchor tag');
+        const link = document.createElement('a');
+        link.href = `file://${folderPath}`;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        console.log('✅ anchor tag הושלם');
+      } catch (error) {
+        console.error('❌ anchor tag נכשל:', error);
+      }
+      
+      console.log('🏁 סיים את כל הניסיונות');
+    } else {
+      console.log('⚠️ אין נתיב תיקיה לפתוח');
     }
   },
 
