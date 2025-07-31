@@ -2,212 +2,171 @@ import { open as tauriOpen } from '@tauri-apps/plugin-dialog';
 import { openPath } from '@tauri-apps/plugin-opener';
 
 export const FolderService = {
-  selectFolder: async () => {
-    console.log('🗂️ מתחיל בחירת תיקיה...');
+  /**
+   * בחירת תיקיה במחשב
+   */
+  selectFolder: async (): Promise<string | null> => {
+    console.log('🗂️ מתחיל בחירת תיקיה');
     
     try {
-      // Priority 1: Tauri Desktop App
+      // אם זה Tauri
       if ((window as any).__TAURI__) {
-        console.log('🖥️ זוהה Tauri - משתמש ב-dialog plugin');
-        try {
-          const folderPath = await tauriOpen({
-            multiple: false,
-            directory: true,
-            title: 'בחר תיקיה לפרויקט'
-          });
-          
-          if (folderPath) {
-            console.log('✅ תיקיה נבחרה:', folderPath);
-            return folderPath;
-          }
-          return null;
-        } catch (tauriError) {
-          console.error('❌ שגיאה ב-Tauri dialog:', tauriError);
-          const manualPath = prompt('הכנס נתיב תיקיה:');
-          return manualPath;
-        }
+        console.log('🖥️ משתמש ב-Tauri');
+        const folderPath = await tauriOpen({
+          multiple: false,
+          directory: true,
+          title: 'בחר תיקיה לפרויקט'
+        });
+        console.log('✅ תיקיה נבחרה:', folderPath);
+        return folderPath || null;
       }
 
-      // Priority 2: File System Access API - ננסה תמיד
+      // אם זה דפדפן מודרני עם File System Access API
       if ('showDirectoryPicker' in window) {
         console.log('🌐 משתמש ב-File System Access API');
-        try {
-          const dirHandle = await (window as any).showDirectoryPicker();
-          console.log('✅ תיקיה נבחרה דרך File System API:', dirHandle.name);
-          return { name: dirHandle.name, handle: dirHandle };
-        } catch (error) {
-          console.log('ℹ️ File System API נכשל (רגיל ב-iframe):', error.name);
-          // זה רגיל - נמשיך לאפשרויות הבאות
-        }
+        const dirHandle = await (window as any).showDirectoryPicker();
+        console.log('✅ תיקיה נבחרה:', dirHandle.name);
+        return dirHandle.name;
       }
 
-      // Priority 3: webkitdirectory fallback
-      console.log('📁 משתמש ב-webkitdirectory fallback');
-      return new Promise<any>((resolve) => {
+      // אם זה דפדפן רגיל
+      console.log('📁 משתמש ב-webkitdirectory');
+      return new Promise((resolve) => {
         const input = document.createElement('input');
         input.type = 'file';
         input.webkitdirectory = true;
         input.style.display = 'none';
 
-        input.addEventListener('change', (e) => {
+        input.onchange = (e) => {
           const files = (e.target as HTMLInputElement).files;
           if (files && files.length > 0) {
             const folderName = files[0].webkitRelativePath.split('/')[0];
-            console.log('✅ תיקיה נבחרה דרך webkitdirectory:', folderName);
-            resolve({ name: folderName, handle: null });
+            console.log('✅ תיקיה נבחרה:', folderName);
+            resolve(folderName);
           } else {
             resolve(null);
           }
-        });
+        };
 
-        input.addEventListener('cancel', () => {
-          console.log('ℹ️ בחירת תיקיה בוטלה');
-          resolve(null);
-        });
+        input.oncancel = () => resolve(null);
         
         document.body.appendChild(input);
         input.click();
         document.body.removeChild(input);
       });
     } catch (error) {
-      console.error('❌ שגיאה כללית בבחירת תיקיה:', error);
-      // אפשרות אחרונה - הכנסה ידנית
-      const path = prompt(`בחירה אוטומטית נכשלה.
-      
-הכנס נתיב תיקיה או קישור:
-• נתיב מקומי: C:\\Projects\\...
-• קישור iCloud: https://...
-• או השאר ריק לביטול`);
-      return path?.trim() || null;
+      console.error('❌ שגיאה בבחירת תיקיה:', error);
+      return null;
     }
   },
 
-  openFolder: async (folderPath?: string, icloudLink?: string) => {
+  /**
+   * פתיחת תיקיה במחשב
+   */
+  openFolder: async (folderPath?: string, icloudLink?: string): Promise<void> => {
     console.log('🗂️ מנסה לפתוח תיקיה:', { folderPath, icloudLink });
     
-    // אם יש קישור iCloud - פתח אותו
+    // אם יש קישור iCloud
     if (icloudLink?.trim()) {
       console.log('🔗 פותח קישור iCloud');
       window.open(icloudLink, '_blank');
       return;
     }
 
-    // אם יש נתיב תיקיה - פתח ישירות
-    if (folderPath?.trim()) {
-      console.log('📁 מנסה לפתוח תיקיה:', folderPath);
-      
-      // קישורי רשת
-      if (folderPath.startsWith('http')) {
-        console.log('🌐 פותח קישור רשת');
-        window.open(folderPath, '_blank');
+    // אם אין נתיב תיקיה
+    if (!folderPath?.trim()) {
+      console.log('⚠️ אין נתיב תיקיה');
+      return;
+    }
+
+    console.log('📁 מנסה לפתוח:', folderPath);
+
+    // אם זה קישור רשת
+    if (folderPath.startsWith('http')) {
+      console.log('🌐 פותח קישור רשת');
+      window.open(folderPath, '_blank');
+      return;
+    }
+
+    // אם זה Tauri
+    if ((window as any).__TAURI__) {
+      console.log('🖥️ משתמש ב-Tauri');
+      try {
+        await openPath(folderPath);
+        console.log('✅ Tauri הצליח');
         return;
-      }
-      
-      // Tauri - פתיחה ישירה
-      if ((window as any).__TAURI__) {
-        console.log('🖥️ משתמש ב-Tauri');
-        try {
-          await openPath(folderPath);
-          console.log('✅ Tauri הצליח!');
-          return;
-        } catch (error) {
-          console.error('❌ Tauri נכשל:', error);
-        }
-      }
-      
-      // Electron - אם זמין
-      if ((window as any).electronAPI?.openFolder) {
-        console.log('🖥️ משתמש ב-Electron');
-        try {
-          await (window as any).electronAPI.openFolder(folderPath);
-          console.log('✅ Electron הצליח!');
-          return;
-        } catch (error) {
-          console.error('❌ Electron נכשל:', error);
-        }
-      }
-      
-      // דפדפן - כל הדרכים האפשריות
-      console.log('🌐 משתמש בדפדפן');
-      
-      // דרך 1: file:// רגיל
-      try {
-        const fileUrl = folderPath.startsWith('/') ? `file://${folderPath}` : `file:///${folderPath.replace(/\\/g, '/')}`;
-        console.log('📂 מנסה:', fileUrl);
-        window.open(fileUrl, '_blank');
-        console.log('✅ file:// הושלם');
       } catch (error) {
-        console.error('❌ file:// נכשל:', error);
+        console.error('❌ Tauri נכשל:', error);
       }
-      
-      // דרך 2: Windows format
+    }
+
+    // אם זה Electron
+    if ((window as any).electronAPI?.openFolder) {
+      console.log('🖥️ משתמש ב-Electron');
       try {
-        const winUrl = `file:///${folderPath.replace(/\\/g, '/')}`;
-        console.log('🪟 מנסה Windows:', winUrl);
-        window.open(winUrl, '_blank');
-        console.log('✅ Windows format הושלם');
+        await (window as any).electronAPI.openFolder(folderPath);
+        console.log('✅ Electron הצליח');
+        return;
       } catch (error) {
-        console.error('❌ Windows format נכשל:', error);
+        console.error('❌ Electron נכשל:', error);
       }
-      
-      // דרך 3: location.href ישיר
-      try {
-        console.log('↗️ מנסה location.href');
-        window.location.href = `file://${folderPath}`;
-        console.log('✅ location.href הושלם');
-      } catch (error) {
-        console.error('❌ location.href נכשל:', error);
-      }
-      
-      // דרך 4: anchor tag
-      try {
-        console.log('🔗 מנסה anchor tag');
+    }
+
+    // דפדפן רגיל - ניסיונות שונים
+    console.log('🌐 משתמש בדפדפן');
+    
+    const attempts = [
+      () => {
+        const url = folderPath.startsWith('/') ? `file://${folderPath}` : `file:///${folderPath.replace(/\\/g, '/')}`;
+        window.open(url, '_blank');
+      },
+      () => {
+        window.open(`file:///${folderPath.replace(/\\/g, '/')}`, '_blank');
+      },
+      () => {
         const link = document.createElement('a');
         link.href = `file://${folderPath}`;
         link.target = '_blank';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        console.log('✅ anchor tag הושלם');
-      } catch (error) {
-        console.error('❌ anchor tag נכשל:', error);
       }
-      
-      console.log('🏁 סיים את כל הניסיונות');
-    } else {
-      console.log('⚠️ אין נתיב תיקיה לפתוח');
+    ];
+
+    for (let i = 0; i < attempts.length; i++) {
+      try {
+        console.log(`📂 ניסיון ${i + 1}`);
+        attempts[i]();
+        console.log(`✅ ניסיון ${i + 1} הושלם`);
+        break;
+      } catch (error) {
+        console.error(`❌ ניסיון ${i + 1} נכשל:`, error);
+      }
     }
   },
 
-  makePhoneCall: (phone?: string) => {
-    console.log('📞 makePhoneCall called with:', phone);
-    if (phone) {
-      console.log('📞 Opening tel:', `tel:${phone}`);
-      window.open(`tel:${phone}`);
-    } else {
-      console.log('❌ No phone number provided');
-    }
-  },
-  
+  /**
+   * פתיחת וואטסאפ
+   */
   openWhatsApp: async (phone: string): Promise<void> => {
-    console.log('🟢 openWhatsApp called with:', phone);
+    console.log('🟢 פותח וואטסאפ עם מספר:', phone);
+    
     if (!phone?.trim()) {
-      console.log('❌ No WhatsApp number provided');
+      console.error('❌ אין מספר וואטסאפ');
       alert('נא להזין מספר וואטסאפ');
       return;
     }
-    
+
     try {
-      // ניקוי פשוט - רק ספרות
+      // ניקוי המספר - רק ספרות
       const cleanNumber = phone.replace(/\D/g, '');
-      console.log('🟢 Cleaned number:', cleanNumber);
-      
-      // ווlidation בסיסית
+      console.log('🔢 מספר נקי:', cleanNumber);
+
       if (cleanNumber.length < 9) {
         alert(`מספר טלפון קצר מדי: ${phone}`);
         return;
       }
-      
+
       // פורמט למספר ישראלי
       let formattedNumber = cleanNumber;
       if (cleanNumber.startsWith('0')) {
@@ -215,36 +174,79 @@ export const FolderService = {
       } else if (!cleanNumber.startsWith('972')) {
         formattedNumber = '972' + cleanNumber;
       }
-      
+
       const whatsappUrl = `https://wa.me/${formattedNumber}`;
-      console.log('🟢 Opening WhatsApp URL:', whatsappUrl);
+      console.log('🟢 פותח:', whatsappUrl);
       
       window.open(whatsappUrl, '_blank');
+      console.log('✅ וואטסאפ נפתח בהצלחה');
     } catch (error) {
       console.error('❌ שגיאה בוואטסאפ:', error);
       alert('שגיאה בפתיחת וואטסאפ');
     }
   },
-  
-  sendEmail: (email?: string) => {
-    console.log('📧 sendEmail called with:', email);
-    if (email) {
-      console.log('📧 Opening mailto:', `mailto:${email}`);
-      window.open(`mailto:${email}`);
-    } else {
-      console.log('❌ No email provided');
+
+  /**
+   * ביצוע שיחת טלפון
+   */
+  makePhoneCall: (phone?: string): void => {
+    console.log('📞 מתחיל שיחה למספר:', phone);
+    
+    if (!phone?.trim()) {
+      console.error('❌ אין מספר טלפון');
+      return;
+    }
+
+    try {
+      const telUrl = `tel:${phone}`;
+      console.log('📞 פותח:', telUrl);
+      window.open(telUrl);
+      console.log('✅ שיחה התחילה');
+    } catch (error) {
+      console.error('❌ שגיאה בשיחה:', error);
     }
   },
 
-  generateFolderPath: (projectName: string, clientName: string) => {
-    const sanitizedProject = projectName.replace(/[^א-ת\w\s]/g, '').trim();
-    const sanitizedClient = clientName.replace(/[^א-ת\w\s]/g, '').trim();
-    return `/Users/${Intl.DateTimeFormat().resolvedOptions().timeZone}/Projects/${sanitizedClient}/${sanitizedProject}`;
+  /**
+   * שליחת אימייל
+   */
+  sendEmail: (email?: string): void => {
+    console.log('📧 שולח אימייל ל:', email);
+    
+    if (!email?.trim()) {
+      console.error('❌ אין כתובת אימייל');
+      return;
+    }
+
+    try {
+      const mailtoUrl = `mailto:${email}`;
+      console.log('📧 פותח:', mailtoUrl);
+      window.open(mailtoUrl);
+      console.log('✅ אימייל נפתח');
+    } catch (error) {
+      console.error('❌ שגיאה באימייל:', error);
+    }
   },
 
-  // Contact service functions - moved here to consolidate
-  cleanPhoneNumber: (phone: string): string => phone.replace(/[^\d]/g, ''),
-  
+  /**
+   * יצירת נתיב תיקיה
+   */
+  generateFolderPath: (projectName: string, clientName: string): string => {
+    const sanitizedProject = projectName.replace(/[^א-ת\w\s]/g, '').trim();
+    const sanitizedClient = clientName.replace(/[^א-ת\w\s]/g, '').trim();
+    return `/Users/Desktop/Projects/${sanitizedClient}/${sanitizedProject}`;
+  },
+
+  /**
+   * ניקוי מספר טלפון
+   */
+  cleanPhoneNumber: (phone: string): string => {
+    return phone.replace(/[^\d]/g, '');
+  },
+
+  /**
+   * פורמט מספר טלפון לתצוגה
+   */
   formatPhoneForDisplay: (phone: string): string => {
     const cleaned = phone.replace(/[^\d]/g, '');
     if (cleaned.startsWith('972')) {

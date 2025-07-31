@@ -44,16 +44,7 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
       console.log('🗂️ CreateProjectModal: תוצאה מ-FolderService:', folderResult);
       
       if (folderResult) {
-        let folderPath = '';
-        
-        if (typeof folderResult === 'string') {
-          folderPath = folderResult;
-        } else if (folderResult.name) {
-          folderPath = FolderService.generateFolderPath(
-            formData.name || 'New Project', 
-            formData.clientName || 'Client'
-          );
-        }
+        const folderPath = folderResult;
         
         console.log('✅ CreateProjectModal: מגדיר נתיב:', folderPath);
         setFormData(prev => ({ ...prev, folderPath }));
