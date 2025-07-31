@@ -75,24 +75,28 @@ export const ContactService = {
     return phone;
   },
   
-  makePhoneCall: (phone: string): void => {
+  makePhoneCall: async (phone: string): Promise<void> => {
     if (!phone) return;
     
     try {
       console.log('📞 מתחיל שיחה:', phone);
       const cleaned = phone.replace(/[^\d+]/g, '');
+      const telUrl = `tel:${cleaned}`;
       
-      // For desktop app - use system default app
-      if ((window as any).__TAURI__ && (window as any).__TAURI__.shell) {
-        (window as any).__TAURI__.shell.open(`tel:${cleaned}`);
-      } else {
-        window.open(`tel:${cleaned}`, '_blank');
+      // For Tauri desktop app - use shell API
+      if ((window as any).__TAURI__) {
+        console.log('🖥️ זוהה Tauri, משתמש ב-shell API לטלפון');
+        const { shell } = (window as any).__TAURI__;
+        await shell.open(telUrl);
+        console.log('✅ שיחה התחילה באמצעות Tauri');
+        return;
       }
       
+      // Fallback for other environments
+      window.open(telUrl, '_blank');
       console.log('✅ שיחה התחילה');
     } catch (error) {
       console.error('❌ שגיאה בשיחה:', error);
-      alert(`שגיאה בביצוע שיחה למספר: ${phone}`);
     }
   },
   
@@ -140,7 +144,7 @@ export const ContactService = {
     }
   },
   
-  sendEmail: (email: string): void => {
+  sendEmail: async (email: string): Promise<void> => {
     if (!email) {
       console.warn('⚠️ לא נמצא כתובת אימייל');
       return;
@@ -150,7 +154,16 @@ export const ContactService = {
       console.log('📧 פותח אימייל לכתובת:', email);
       const mailtoUrl = `mailto:${email}`;
       
-      // Create a temporary link for better compatibility
+      // For Tauri desktop app - use shell API
+      if ((window as any).__TAURI__) {
+        console.log('🖥️ זוהה Tauri, משתמש ב-shell API למייל');
+        const { shell } = (window as any).__TAURI__;
+        await shell.open(mailtoUrl);
+        console.log('✅ אימייל נפתח באמצעות Tauri');
+        return;
+      }
+      
+      // Fallback for other environments
       const link = document.createElement('a');
       link.href = mailtoUrl;
       link.style.display = 'none';
@@ -161,7 +174,6 @@ export const ContactService = {
       console.log('✅ אימייל נפתח');
     } catch (error) {
       console.error('❌ שגיאה בפתיחת אימייל:', error);
-      alert(`שגיאה בפתיחת אימייל לכתובת: ${email}`);
     }
   }
 };
