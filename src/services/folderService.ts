@@ -3,12 +3,12 @@ import { openPath } from '@tauri-apps/plugin-opener';
 
 export const FolderService = {
   selectFolder: async () => {
+    console.log('🗂️ מתחיל בחירת תיקיה...');
+    
     try {
-      console.log('🗂️ מתחיל בחירת תיקיה...');
-      
-      // Priority 1: Tauri v2 Dialog Plugin
+      // Priority 1: Tauri Desktop App
       if ((window as any).__TAURI__) {
-        console.log('🖥️ זוהה Tauri, משתמש ב-dialog plugin');
+        console.log('🖥️ זוהה Tauri - משתמש ב-dialog plugin');
         try {
           const folderPath = await tauriOpen({
             multiple: false,
@@ -20,57 +20,45 @@ export const FolderService = {
             console.log('✅ תיקיה נבחרה:', folderPath);
             return folderPath;
           }
-          console.log('❌ לא נבחרה תיקיה');
           return null;
         } catch (tauriError) {
           console.error('❌ שגיאה ב-Tauri dialog:', tauriError);
-          
-          // Fallback to manual input for Tauri
-          const manualPath = prompt('בחירת תיקיה נכשלה. הכנס נתיב מלא:');
+          const manualPath = prompt('הכנס נתיב תיקיה:');
           return manualPath;
         }
       }
 
-      // Priority 2: Modern browser with File System Access API
-      if ('showDirectoryPicker' in window) {
+      // Priority 2: Browser with File System Access API (only if not in iframe)
+      if ('showDirectoryPicker' in window && window.top === window.self) {
         console.log('🌐 משתמש ב-File System Access API');
         try {
           const dirHandle = await (window as any).showDirectoryPicker();
           return { name: dirHandle.name, handle: dirHandle };
-        } catch (browserError) {
-          console.error('❌ שגיאה ב-showDirectoryPicker:', browserError);
-          // Continue to fallback
+        } catch (error) {
+          console.error('❌ שגיאה ב-showDirectoryPicker:', error);
+          // Fall through to manual input
         }
       }
 
-      // Priority 3: Fallback for older browsers
-      console.log('📁 משתמש ב-webkitdirectory fallback');
-      return new Promise<any>((resolve) => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.webkitdirectory = true;
-        input.style.display = 'none';
+      // Priority 3: Manual input (works everywhere including iframe)
+      console.log('📝 משתמש בהכנסה ידנית');
+      const folderPath = prompt(`בחר אחת מהאפשרויות:
 
-        input.addEventListener('change', (e) => {
-          const files = (e.target as HTMLInputElement).files;
-          if (files && files.length > 0) {
-            const folderName = files[0].webkitRelativePath.split('/')[0];
-            console.log('✅ תיקיה נבחרה דרך webkitdirectory:', folderName);
-            resolve({ name: folderName, handle: null });
-          } else {
-            resolve(null);
-          }
-        });
+1️⃣ הכנס נתיב מלא (C:\\Users\\...)
+2️⃣ הכנס קישור iCloud 
+3️⃣ השאר ריק ותוכל להוסיף מאוחר יותר
 
-        input.addEventListener('cancel', () => resolve(null));
-        document.body.appendChild(input);
-        input.click();
-        document.body.removeChild(input);
-      });
+נתיב תיקיה:`);
+      
+      if (folderPath && folderPath.trim()) {
+        console.log('✅ נתיב הוכנס ידנית:', folderPath);
+        return folderPath.trim();
+      }
+      
+      return null;
     } catch (error) {
       console.error('❌ שגיאה כללית בבחירת תיקיה:', error);
-      const path = prompt('בחירת תיקיה נכשלה. הכנס נתיב מלא:');
-      return path;
+      return null;
     }
   },
 
