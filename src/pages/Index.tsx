@@ -3,7 +3,7 @@ import {
   Apple, Rocket, Gauge, Database, Download, BarChart3, Briefcase, Plus, X, List, ChevronDown
 } from 'lucide-react';
 import { Project } from '../types';
-import { ExportService } from '../services';
+import { FolderService } from '../services/folderService';
 import { Button } from '../components/ui/button';
 import { CreateProjectModal } from '../components/CreateProjectModal';
 import { ProjectsList } from '../components/ProjectsList';
@@ -222,7 +222,32 @@ const App: React.FC = () => {
   };
 
   const handleExportCSV = () => {
-    ExportService.exportProjectsAdvanced(projects, 'csv');
+    // Simple CSV export implementation
+    const headers = [
+      'שם פרויקט', 'תיאור', 'שם לקוח', 'טלפון', 'אימייל', 
+      'סטטוס', 'עדיפות', 'מחיר', 'תאריך יצירה'
+    ];
+
+    const csvData = projects.map(project => [
+      project.name, project.description, project.clientName,
+      project.phone1, project.email, project.status, project.priority, 
+      project.price, project.createdAt.toLocaleDateString('he-IL')
+    ]);
+
+    const csv = [headers, ...csvData]
+      .map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv; charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `פרויקטים-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
     alert('ייצוא CSV הושלם בהצלחה עם עמודות מפורטות במיוחד עבור macOS! 🍎');
   };
 
