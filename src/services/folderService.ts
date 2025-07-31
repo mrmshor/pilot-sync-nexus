@@ -21,19 +21,48 @@ export const FolderService = {
         return folderPath || null;
       }
 
-      // בדפדפן Lovable - נתן למשתמש להקליד נתיב
-      console.log('🌐 סביבת דפדפן - דורש הקלדה ידנית');
+      // בדפדפן Lovable - ננסה File System API קודם
+      console.log('🌐 סביבת דפדפן - מנסה File System API');
       
-      return new Promise((resolve) => {
-        const folderPath = prompt('הזן נתיב תיקיה (לדוגמה: /Users/Desktop/Projects/פרויקט חדש)');
-        
-        if (folderPath && folderPath.trim()) {
-          console.log('✅ נתיב תיקיה הוזן:', folderPath);
-          resolve(folderPath.trim());
-        } else {
-          console.log('ℹ️ לא הוזן נתיב תיקיה');
-          resolve(null);
+      // אם יש File System Access API - ננסה להשתמש בו
+      if ('showDirectoryPicker' in window) {
+        try {
+          const dirHandle = await (window as any).showDirectoryPicker();
+          console.log('✅ תיקיה נבחרה באמצעות File System API:', dirHandle.name);
+          return dirHandle.name;
+        } catch (error: any) {
+          console.log('ℹ️ File System API נכשל:', error.message);
+          // אם המשתמש ביטל, נחזיר null
+          if (error.name === 'AbortError') {
+            return null;
+          }
         }
+      }
+
+      // חלופה - webkitdirectory
+      console.log('📁 משתמש ב-webkitdirectory');
+      return new Promise((resolve) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.webkitdirectory = true;
+        input.style.display = 'none';
+
+        input.onchange = (e) => {
+          const files = (e.target as HTMLInputElement).files;
+          if (files && files.length > 0) {
+            const folderName = files[0].webkitRelativePath.split('/')[0];
+            console.log('✅ תיקיה נבחרה:', folderName);
+            resolve(folderName);
+          } else {
+            resolve(null);
+          }
+        };
+
+        input.oncancel = () => resolve(null);
+        
+        document.body.appendChild(input);
+        input.click();
+        document.body.removeChild(input);
       });
       
     } catch (error) {
