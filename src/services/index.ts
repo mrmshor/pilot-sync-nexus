@@ -76,27 +76,22 @@ export const ContactService = {
   },
   
   makePhoneCall: (phone: string): void => {
-    if (!phone) {
-      console.warn('⚠️ לא נמצא מספר טלפון');
-      return;
-    }
+    if (!phone) return;
     
     try {
-      console.log('📞 מתחיל שיחה למספר:', phone);
+      console.log('📞 מתחיל שיחה:', phone);
       const cleaned = phone.replace(/[^\d+]/g, '');
-      const phoneUrl = cleaned.startsWith('+') ? `tel:${cleaned}` : `tel:+${cleaned}`;
       
-      // Create a temporary link for better compatibility
-      const link = document.createElement('a');
-      link.href = phoneUrl;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // For desktop app - use system default app
+      if ((window as any).__TAURI__ && (window as any).__TAURI__.shell) {
+        (window as any).__TAURI__.shell.open(`tel:${cleaned}`);
+      } else {
+        window.open(`tel:${cleaned}`, '_blank');
+      }
       
-      console.log('✅ בקשת שיחה נשלחה');
+      console.log('✅ שיחה התחילה');
     } catch (error) {
-      console.error('❌ שגיאה בביצוע שיחה:', error);
+      console.error('❌ שגיאה בשיחה:', error);
       alert(`שגיאה בביצוע שיחה למספר: ${phone}`);
     }
   },

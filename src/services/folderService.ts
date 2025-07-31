@@ -46,75 +46,41 @@ export const FolderService = {
   },
 
   openFolder: (folderPath?: string, icloudLink?: string) => {
-    console.log('🗂️ מנסה לפתוח תיקיה:', { folderPath, icloudLink });
+    console.log('🗂️ פותח תיקיה במחשב שולחני:', { folderPath, icloudLink });
     
     if (!folderPath && !icloudLink) {
-      console.warn('⚠️ לא נמצא נתיב תיקיה או קישור iCloud');
       alert('אין נתיב תיקיה מוגדר לפרויקט זה');
       return;
     }
 
-    // Try opening folder path first
     if (folderPath) {
       try {
-        // For desktop apps with Tauri/Electron - try different protocols
+        // For Tauri desktop app - use shell API
         if ((window as any).__TAURI__ && (window as any).__TAURI__.shell) {
-          // Tauri app
           (window as any).__TAURI__.shell.open(folderPath);
-          console.log('✅ נפתח באמצעות Tauri API');
+          console.log('✅ תיקיה נפתחה ב-Finder');
           return;
         }
         
+        // Fallback for other desktop environments
         if (window.electronAPI && (window.electronAPI as any).openFolder) {
-          // Electron app
           (window.electronAPI as any).openFolder(folderPath);
-          console.log('✅ נפתח באמצעות Electron API');
+          console.log('✅ תיקיה נפתחה באמצעות Electron');
           return;
         }
         
-        // Special case for web browsers - if path looks like a generated path, explain to user
-        if (folderPath.includes('/Users/') && folderPath.includes('/Projects/')) {
-          alert(`זהו נתיב מודה שנוצר אוטומטית: ${folderPath}\n\nבדפדפן לא ניתן לפתוח תיקיות מקומיות מסיבות אבטחה.\nאנא פתח את התיקיה באופן ידני ב-Finder או השתמש בקישור iCloud אם קיים.`);
-          return;
-        }
-        
-        // For macOS - try to use the system command (works only in native apps)
-        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-        if (isMac) {
-          // Try using a custom URL scheme that might be handled by the system
-          const finderUrl = `x-apple.systemevents://finder?path=${encodeURIComponent(folderPath)}`;
-          window.location.href = finderUrl;
-          console.log('🍎 מנסה לפתוח ב-Finder:', finderUrl);
-          return;
-        }
-        
-        // Fallback: try file protocol (might not work in most browsers due to security)
-        const fileUrl = folderPath.startsWith('file://') ? folderPath : `file://${folderPath}`;
-        console.log('🌐 מנסה לפתוח ב-file protocol:', fileUrl);
-        window.open(fileUrl, '_blank');
+        // Last resort - try system open
+        window.open(`file://${folderPath}`, '_blank');
         
       } catch (error) {
         console.error('❌ שגיאה בפתיחת תיקיה:', error);
-        
-        // Fallback to iCloud if available
         if (icloudLink) {
-          console.log('🔄 מעבר לקישור iCloud');
           window.open(icloudLink, '_blank');
         } else {
-          // Show user the path so they can open it manually
-          const userChoice = confirm(`לא ניתן לפתוח את התיקיה אוטומטית.\nנתיב התיקיה: ${folderPath}\n\nהאם ברצונך להעתיק את הנתיב ללוח?`);
-          if (userChoice) {
-            navigator.clipboard.writeText(folderPath).then(() => {
-              alert('הנתיב הועתק ללוח. תוכל להדביק אותו ב-Finder.');
-            }).catch(() => {
-              alert(`נתיב התיקיה: ${folderPath}\nהעתק את הנתיב ופתח אותו ב-Finder באופן ידני.`);
-            });
-          }
+          alert(`שגיאה בפתיחת התיקיה: ${folderPath}`);
         }
       }
     } else if (icloudLink) {
-      // Only iCloud link available
-      console.log('☁️ פותח קישור iCloud');
       window.open(icloudLink, '_blank');
     }
   },
