@@ -38,33 +38,46 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
 
   const handleSelectFolder = async () => {
     try {
-      console.log('🗂️ CreateProjectModal: מתחיל בחירת תיקיה');
-      
-      const folderResult = await FolderService.selectFolder();
-      console.log('🗂️ CreateProjectModal: תוצאה מ-FolderService:', folderResult);
-      
-      if (folderResult) {
-        const folderPath = folderResult;
-        
-        console.log('✅ CreateProjectModal: מגדיר נתיב:', folderPath);
-        setFormData(prev => ({ ...prev, folderPath }));
-        
-        toast({
-          title: "תיקיה נבחרה",
-          description: `נבחרה: ${folderPath}`,
+      // For Tauri desktop app - use Tauri dialog API  
+      if ((window as any).__TAURI__) {
+        const { dialog } = (window as any).__TAURI__;
+        const selected = await dialog.open({
+          directory: true,
+          multiple: false,
         });
-      } else {
-        console.log('ℹ️ CreateProjectModal: לא נבחרה תיקיה');
+        
+        if (selected && typeof selected === 'string') {
+          setFormData(prev => ({ ...prev, folderPath: selected }));
+          toast({
+            title: "תיקיה נבחרה",
+            description: `נבחרה התיקיה: ${selected}`,
+          });
+        }
+        return;
+      }
+
+      // Fallback for other environments
+      const folderResult = await FolderService.selectFolder();
+      if (folderResult) {
+        let folderPath = '';
+        
+        if (typeof folderResult === 'string') {
+          folderPath = folderResult;
+        } else if (folderResult.name) {
+          folderPath = FolderService.generateFolderPath(formData.name || 'New Project', formData.clientName || 'Client');
+        }
+        
+        setFormData(prev => ({ ...prev, folderPath }));
         toast({
-          title: "ביטול",
-          description: "לא נבחרה תיקיה",
+          title: "תיקיה נבחרה", 
+          description: `נבחרה התיקיה: ${folderPath}`,
         });
       }
     } catch (error) {
-      console.error('❌ CreateProjectModal: שגיאה בבחירת תיקיה:', error);
+      console.error('Error selecting folder:', error);
       toast({
         title: "שגיאה",
-        description: "לא ניתן לבחור תיקיה. נסה שוב או הכנס נתיב ידנית.",
+        description: "לא ניתן לבחור תיקיה",
         variant: "destructive"
       });
     }

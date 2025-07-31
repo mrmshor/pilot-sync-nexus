@@ -42,31 +42,7 @@
       },
       "shell": {
         "all": false,
-        "open": true,
-        "scope": [
-          {
-            "name": "sh",
-            "cmd": "sh",
-            "args": ["-c", { "validator": "\\S+" }]
-          },
-          {
-            "name": "open",
-            "cmd": "open",
-            "args": [{ "validator": "\\S+" }]
-          }
-        ]
-      },
-      "globalShortcut": {
-        "all": false
-      },
-      "http": {
-        "all": true,
-        "request": true
-      },
-      "protocol": {
-        "all": true,
-        "asset": true,
-        "assetScope": ["**"]
+        "open": true
       }
     },
     "bundle": {

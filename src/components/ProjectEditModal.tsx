@@ -34,30 +34,31 @@ export const ProjectEditModal = ({
 
   const handleSelectFolder = async () => {
     try {
-      console.log('🗂️ ProjectEditModal: מתחיל בחירת תיקיה');
-      
-      const folderResult = await FolderService.selectFolder();
-      console.log('🗂️ ProjectEditModal: תוצאה מ-FolderService:', folderResult);
-      
-      if (folderResult) {
-        const folderPath = folderResult;
-        
-        console.log('✅ ProjectEditModal: מגדיר נתיב:', folderPath);
-        setFormData(prev => prev ? ({ ...prev, folderPath }) : null);
-        
+      // For desktop applications - use native directory picker
+      if (window.electronAPI && window.electronAPI.selectFolder) {
+        const folderPath = await window.electronAPI.selectFolder();
+        if (folderPath) {
+          setFormData(prev => prev ? ({ ...prev, folderPath }) : null);
+          toast({
+            title: "תיקיה נבחרה",
+            description: `נבחרה התיקיה: ${folderPath}`,
+          });
+        }
+        return;
+      }
+
+      // Fallback for web browsers - use File System Access API
+      const folderName = await FolderService.selectFolder();
+      if (folderName) {
+        const generatedPath = FolderService.generateFolderPath(formData.name || 'Project', formData.clientName || 'Client');
+        setFormData(prev => prev ? ({ ...prev, folderPath: generatedPath }) : null);
         toast({
           title: "תיקיה נבחרה",
-          description: `נבחרה: ${folderPath}`,
-        });
-      } else {
-        console.log('ℹ️ ProjectEditModal: לא נבחרה תיקיה');
-        toast({
-          title: "ביטול",
-          description: "לא נבחרה תיקיה",
+          description: `נבחרה התיקיה: ${folderName}`,
         });
       }
     } catch (error) {
-      console.error('❌ ProjectEditModal שגיאה בבחירת תיקיה:', error);
+      console.error('Error selecting folder:', error);
       toast({
         title: "שגיאה",
         description: "לא ניתן לבחור תיקיה",
