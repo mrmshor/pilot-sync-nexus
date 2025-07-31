@@ -73,11 +73,14 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
   const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', contact: string) => {
     if (!contact) return;
     
+    console.log(`🔍 ContactClick - Type: ${type}, Contact: "${contact}"`);
+    
     switch (type) {
       case 'phone':
         ContactService.makePhoneCall(contact);
         break;
       case 'whatsapp':
+        console.log('📱 Calling ContactService.openWhatsApp with:', contact);
         ContactService.openWhatsApp(contact);
         break;
       case 'email':
