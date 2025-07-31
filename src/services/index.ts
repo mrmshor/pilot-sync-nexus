@@ -40,10 +40,20 @@ export const FolderService = {
     }
   },
 
-  // פתיחת תיקיה קיימת במערכת - מועבר ל-FolderService המרכזי
-  openFolder: async (folderPath: string, icloudLink?: string) => {
-    const { FolderService } = await import('./folderService');
-    return FolderService.openFolder(folderPath, icloudLink);
+  // פתיחת תיקיה קיימת במערכת
+  openFolder: (folderPath: string, icloudLink?: string): void => {
+    if (folderPath) {
+      try {
+        window.open(`file://${folderPath}`, '_blank');
+      } catch (error) {
+        console.error('Error opening folder:', error);
+        if (icloudLink) {
+          window.open(icloudLink, '_blank');
+        }
+      }
+    } else if (icloudLink) {
+      window.open(icloudLink, '_blank');
+    }
   },
 
   // יצירת נתיב תיקיה מומלץ
@@ -65,20 +75,33 @@ export const ContactService = {
     return phone;
   },
   
-  // פונקציות קשר - כל הפונקציות מרוכזות ב-FolderService
-  makePhoneCall: async (phone: string) => {
-    const { FolderService: MainService } = await import('./folderService');
-    return MainService.makePhoneCall(phone);
+  makePhoneCall: (phone: string): void => {
+    if (!phone) return;
+    try {
+      const cleaned = phone.replace(/[^\d]/g, '');
+      window.open(`tel:+${cleaned}`, '_blank');
+    } catch (error) {
+      console.error('Error making phone call:', error);
+    }
   },
   
-  openWhatsApp: async (phone: string) => {
-    const { FolderService: MainService } = await import('./folderService');
-    return MainService.openWhatsApp(phone);
+  openWhatsApp: (phone: string): void => {
+    if (!phone) return;
+    try {
+      const cleaned = phone.replace(/[^\d]/g, '');
+      window.open(`https://wa.me/${cleaned}`, '_blank');
+    } catch (error) {
+      console.error('Error opening WhatsApp:', error);
+    }
   },
   
-  sendEmail: async (email: string) => {
-    const { FolderService: MainService } = await import('./folderService');
-    return MainService.sendEmail(email);
+  sendEmail: (email: string): void => {
+    if (!email) return;
+    try {
+      window.open(`mailto:${email}`, '_blank');
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
   }
 };
 

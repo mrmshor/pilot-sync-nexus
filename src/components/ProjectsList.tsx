@@ -4,7 +4,7 @@ import {
   CheckCircle2, CreditCard, Plus, X, Calendar, Clock, Filter, SortAsc, SortDesc
 } from 'lucide-react';
 import { Project, ProjectTask } from '../types';
-import { FolderService } from '@/services/folderService';
+import { ContactService, FolderService } from '../services';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader } from '../components/ui/card';
@@ -75,13 +75,13 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
     
     switch (type) {
       case 'phone':
-        FolderService.makePhoneCall(contact);
+        ContactService.makePhoneCall(contact);
         break;
       case 'whatsapp':
-        FolderService.openWhatsApp(contact);
+        ContactService.openWhatsApp(contact);
         break;
       case 'email':
-        FolderService.sendEmail(contact);
+        ContactService.sendEmail(contact);
         break;
     }
   };
@@ -545,8 +545,8 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 </div>
                 {(project.phone2 || project.whatsapp2) && (
                   <div className="text-xs text-gray-400 bg-gray-100 p-2 rounded mt-2">
-                    {project.phone2 && <div>📞 טלפון נוסף: {FolderService.formatPhoneForDisplay(project.phone2)}</div>}
-                    {project.whatsapp2 && <div>💬 וואטסאפ נוסף: {FolderService.formatPhoneForDisplay(project.whatsapp2)}</div>}
+                    {project.phone2 && <div>📞 טלפון נוסף: {ContactService.formatPhoneForDisplay(project.phone2)}</div>}
+                    {project.whatsapp2 && <div>💬 וואטסאפ נוסף: {ContactService.formatPhoneForDisplay(project.whatsapp2)}</div>}
                   </div>
                 )}
               </div>

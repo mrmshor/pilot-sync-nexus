@@ -38,39 +38,27 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
 
   const handleSelectFolder = async () => {
     try {
-      // For Tauri desktop app - use Tauri dialog API  
-      if ((window as any).__TAURI__) {
-        const { dialog } = (window as any).__TAURI__;
-        const selected = await dialog.open({
-          directory: true,
-          multiple: false,
-        });
-        
-        if (selected && typeof selected === 'string') {
-          setFormData(prev => ({ ...prev, folderPath: selected }));
+      // For desktop applications - use native directory picker
+      if (window.electronAPI && window.electronAPI.selectFolder) {
+        const folderPath = await window.electronAPI.selectFolder();
+        if (folderPath) {
+          setFormData(prev => ({ ...prev, folderPath }));
           toast({
             title: "תיקיה נבחרה",
-            description: `נבחרה התיקיה: ${selected}`,
+            description: `נבחרה התיקיה: ${folderPath}`,
           });
         }
         return;
       }
 
-      // Fallback for other environments
-      const folderResult = await FolderService.selectFolder();
-      if (folderResult) {
-        let folderPath = '';
-        
-        if (typeof folderResult === 'string') {
-          folderPath = folderResult;
-        } else if (folderResult.name) {
-          folderPath = FolderService.generateFolderPath(formData.name || 'New Project', formData.clientName || 'Client');
-        }
-        
-        setFormData(prev => ({ ...prev, folderPath }));
+      // Fallback for web browsers - use File System Access API
+      const folderName = await FolderService.selectFolder();
+      if (folderName) {
+        const generatedPath = FolderService.generateFolderPath(formData.name || 'New Project', formData.clientName || 'Client');
+        setFormData(prev => ({ ...prev, folderPath: generatedPath }));
         toast({
-          title: "תיקיה נבחרה", 
-          description: `נבחרה התיקיה: ${folderPath}`,
+          title: "תיקיה נבחרה",
+          description: `נבחרה התיקיה: ${folderName}`,
         });
       }
     } catch (error) {

@@ -26,7 +26,6 @@ import { ProjectTasksModal } from './ProjectTasksModal';
 import { ProjectEditModal } from './ProjectEditModal';
 import { EnhancedDashboard } from './EnhancedDashboard';
 import { AppSidebar } from './AppSidebar';
-import { FolderService } from '@/services/folderService';
 
 export const ProjectManagementApp = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -398,27 +397,21 @@ export const ProjectManagementApp = () => {
   // Optimized data handling for large datasets
   const { visibleData: visibleProjects } = useOptimizedData(filteredAndSortedProjects, 50);
 
-  // Contact handlers using ContactService
+  // Contact handlers
   const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', value: string) => {
-    console.log('🔍 handleContactClick נקרא:', { type, value });
-    
-    if (!value) {
-      console.warn('⚠️ לא נמצא ערך:', { type, value });
-      return;
-    }
+    if (!value) return;
     
     try {
-      console.log('🚀 מפעיל פעולה:', type);
       switch (type) {
         case 'phone':
-          FolderService.makePhoneCall(value);
+          window.open(`tel:${value}`, '_blank');
           break;
         case 'whatsapp':
-          console.log('📱 קורא ל-FolderService.openWhatsApp עם:', value);
-          FolderService.openWhatsApp(value);
+          const cleanPhone = value.replace(/[^\d]/g, '');
+          window.open(`https://wa.me/${cleanPhone}`, '_blank');
           break;
         case 'email':
-          FolderService.sendEmail(value);
+          window.open(`mailto:${value}`, '_blank');
           break;
       }
     } catch (error) {
@@ -431,9 +424,81 @@ export const ProjectManagementApp = () => {
     }
   };
 
-  // Use FolderService for opening folders
-  const openFolder = (folderPath?: string, icloudLink?: string) => {
-    FolderService.openFolder(folderPath, icloudLink);
+  // Improved folder opening with file picker for macOS
+  const openFolder = async (folderPath?: string, icloudLink?: string) => {
+    // If running as a Capacitor app (native)
+    if (Capacitor.isNativePlatform()) {
+      try {
+        if (folderPath) {
+          // For native macOS app - reveal in Finder
+          await window.open(`file://${folderPath}`, '_blank');
+          toast({
+            title: "תיקייה נפתחת ב-Finder",
+            description: folderPath,
+          });
+        } else if (icloudLink) {
+          await window.open(icloudLink, '_blank');
+          toast({
+            title: "קישור iCloud נפתח",
+            description: "הקישור נפתח בדפדפן",
+          });
+        } else {
+          // Open file picker for selecting a folder
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.webkitdirectory = true;
+          input.addEventListener('change', (e) => {
+            const files = (e.target as HTMLInputElement).files;
+            if (files && files.length > 0) {
+              const folderPath = files[0].webkitRelativePath.split('/')[0];
+              toast({
+                title: "תיקייה נבחרה",
+                description: `נבחרה תיקייה: ${folderPath}`,
+              });
+            }
+          });
+          input.click();
+        }
+      } catch (error) {
+        console.error('Error with Capacitor folder operation:', error);
+        toast({
+          title: "שגיאה",
+          description: "לא ניתן לפתוח את התיקייה",
+          variant: "destructive"
+        });
+      }
+    } else {
+      // Web fallback
+      if (folderPath) {
+        try {
+          window.open(`file://${folderPath}`, '_blank');
+          toast({
+            title: "תיקייה נפתחת",
+            description: "התיקייה נפתחת ב-Finder",
+          });
+        } catch (error) {
+          if (icloudLink) {
+            window.open(icloudLink, '_blank');
+            toast({
+              title: "קישור iCloud נפתח",
+              description: "הקישור נפתח בדפדפן",
+            });
+          } else {
+            toast({
+              title: "שגיאה",
+              description: "לא ניתן לפתוח את התיקייה. נסה לבחור תיקייה חדשה.",
+              variant: "destructive"
+            });
+          }
+        }
+      } else if (icloudLink) {
+        window.open(icloudLink, '_blank');
+        toast({
+          title: "קישור iCloud נפתח",
+          description: "הקישור נפתח בדפדפן",
+        });
+      }
+    }
   };
 
   const handleExportCSV = () => {
@@ -817,38 +882,21 @@ export const ProjectManagementApp = () => {
                           
                           {/* Filters and Actions - Centered */}
                           <div className="flex flex-wrap items-center justify-center gap-3">
-                            <Button 
-                              onClick={() => setShowCreateModal(true)} 
-                              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
-                              title="צור פרויקט חדש (⌘N)"
-                            >
-                              <Plus className="w-4 h-4" />
-                              פרויקט חדש
-                            </Button>
-                            
                             <select
-                              value={`${sortBy}-${sortOrder}`}
-                              onChange={(e) => {
-                                const [field, order] = e.target.value.split('-');
-                                setSortBy(field as any);
-                                setSortOrder(order as any);
-                              }}
-                              className="px-4 py-2 bg-gray-100 border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none cursor-pointer"
+                              value={priorityFilter}
+                              onChange={(e) => setPriorityFilter(e.target.value)}
+                              className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
                             >
-                              <option value="updatedAt-desc">תאריך יצירה ↑</option>
-                              <option value="updatedAt-asc">עדכון אחרון ↑</option>
-                              <option value="createdAt-desc">תאריך יצירה ↓</option>
-                              <option value="createdAt-asc">תאריך יצירה ↑</option>
-                              <option value="name-asc">שם א-ת</option>
-                              <option value="name-desc">שם ת-א</option>
-                              <option value="priority-desc">עדיפות ↓</option>
-                              <option value="priority-asc">עדיפות ↑</option>
+                              <option value="all">כל העדיפויות</option>
+                              <option value="high">עדיפות גבוהה</option>
+                              <option value="medium">עדיפות בינונית</option>
+                              <option value="low">עדיפות נמוכה</option>
                             </select>
                             
                             <select
                               value={statusFilter}
                               onChange={(e) => setStatusFilter(e.target.value)}
-                              className="px-4 py-2 bg-gray-100 border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none cursor-pointer"
+                              className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
                             >
                               <option value="all">כל הסטטוסים</option>
                               <option value="not-started">לא התחיל</option>
@@ -859,15 +907,32 @@ export const ProjectManagementApp = () => {
                             </select>
                             
                             <select
-                              value={priorityFilter}
-                              onChange={(e) => setPriorityFilter(e.target.value)}
-                              className="px-4 py-2 bg-gray-100 border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none cursor-pointer"
+                              value={`${sortBy}-${sortOrder}`}
+                              onChange={(e) => {
+                                const [field, order] = e.target.value.split('-');
+                                setSortBy(field as any);
+                                setSortOrder(order as any);
+                              }}
+                              className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
                             >
-                              <option value="all">כל העדיפויות</option>
-                              <option value="high">עדיפות גבוהה</option>
-                              <option value="medium">עדיפות בינונית</option>
-                              <option value="low">עדיפות נמוכה</option>
+                              <option value="updatedAt-desc">עדכון אחרון ↓</option>
+                              <option value="updatedAt-asc">עדכון אחרון ↑</option>
+                              <option value="createdAt-desc">תאריך יצירה ↓</option>
+                              <option value="createdAt-asc">תאריך יצירה ↑</option>
+                              <option value="name-asc">שם א-ת</option>
+                              <option value="name-desc">שם ת-א</option>
+                              <option value="priority-desc">עדיפות ↓</option>
+                              <option value="priority-asc">עדיפות ↑</option>
                             </select>
+                            
+                            <Button 
+                              onClick={() => setShowCreateModal(true)} 
+                              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6"
+                              title="צור פרויקט חדש (⌘N)"
+                            >
+                              <Plus className="w-4 h-4 ml-2" />
+                              פרויקט חדש
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
