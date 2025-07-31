@@ -4,11 +4,11 @@ import {
 } from 'lucide-react';
 import { Project } from '../types';
 import { FolderService } from '../services/folderService';
-import { Button } from '../components/ui/button';
-import { CreateProjectModal } from '../components/CreateProjectModal';
-import { ProjectsList } from '../components/ProjectsList';
-import { EnhancedDashboard } from '../components/EnhancedDashboard';
-import { ProjectTasksModal } from '../components/ProjectTasksModal';
+import { Button } from './ui/button';
+import { CreateProjectModal } from './CreateProjectModal';
+import { ProjectsList } from './ProjectsList';
+import { EnhancedDashboard } from './EnhancedDashboard';
+import { ProjectTasksModal } from './ProjectTasksModal';
 
 const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
