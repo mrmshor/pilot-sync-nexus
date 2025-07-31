@@ -56,7 +56,7 @@ export const useLocalFolders = () => {
 
       // Browser fallback
       if (folderPath) {
-        FolderService.openFolder(folderPath, icloudLink);
+        await FolderService.openFolder(folderPath, icloudLink);
         return true;
       }
 
@@ -64,7 +64,7 @@ export const useLocalFolders = () => {
     } catch (error) {
       console.error('Error opening folder:', error);
       // Fallback to FolderService
-      FolderService.openFolder(folderPath, icloudLink);
+      await FolderService.openFolder(folderPath, icloudLink);
       return false;
     }
   }, []);

@@ -61,18 +61,34 @@ export const FolderService = {
   },
 
   // פתיחת תיקיה קיימת במערכת
-  openFolder: (folderPath: string, icloudLink?: string): void => {
-    if (folderPath) {
-      try {
-        window.open(`file://${folderPath}`, '_blank');
-      } catch (error) {
-        console.error('Error opening folder:', error);
-        if (icloudLink) {
-          window.open(icloudLink, '_blank');
-        }
+  openFolder: async (folderPath: string, icloudLink?: string): Promise<void> => {
+    if (!folderPath) {
+      console.warn('No folder path provided');
+      return;
+    }
+
+    try {
+      if (isTauriApp()) {
+        // השתמש בפקודה native של Tauri לפתיחת תיקיה במחשב
+        const tauriCore = await eval('import("@tauri-apps/api/tauri")');
+        await tauriCore.invoke('open_folder_native', { path: folderPath });
+        console.log('Folder opened via native command:', folderPath);
+      } else {
+        console.warn('Not running in Tauri app, folder opening limited to desktop');
       }
-    } else if (icloudLink) {
-      window.open(icloudLink, '_blank');
+    } catch (error) {
+      console.error('Error opening folder:', error);
+      
+      // אם הפקודה הראשונה נכשלה, נסה להציג את הפריט בתיקיה
+      try {
+        if (isTauriApp()) {
+          const tauriCore = await eval('import("@tauri-apps/api/tauri")');
+          await tauriCore.invoke('show_item_in_folder', { path: folderPath });
+          console.log('Folder location shown via native command:', folderPath);
+        }
+      } catch (fallbackError) {
+        console.error('Fallback folder opening also failed:', fallbackError);
+      }
     }
   },
 

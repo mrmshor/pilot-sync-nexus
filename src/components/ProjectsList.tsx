@@ -89,8 +89,8 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
     }
   };
 
-  const openFolder = (folderPath: string, icloudLink?: string) => {
-    FolderService.openFolder(folderPath, icloudLink);
+  const openFolder = async (folderPath: string, icloudLink?: string) => {
+    await FolderService.openFolder(folderPath, icloudLink);
   };
 
   const addTaskToProject = (projectId: string) => {
