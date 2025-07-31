@@ -9,32 +9,23 @@ export interface FolderResult {
 }
 
 export const useLocalFolders = () => {
-  const [isElectron] = useState(false); // Tauri app
   const [isTauri] = useState(typeof window !== 'undefined' && '__TAURI__' in window);
 
   const selectFolder = useCallback(async (): Promise<string | null> => {
-    return await FolderService.selectFolder();
-  }, []);
-
-  const openFolder = useCallback(async (folderPath: string, icloudLink?: string): Promise<boolean> => {
     try {
-      FolderService.openFolder(folderPath, icloudLink);
-      return true;
-    } catch (error) {
-      console.error('Error opening folder:', error);
-      return false;
-    }
-  }, []);
+      // עבור עתיד: תמיכה בTauri עם electron API
+      if (window.electronAPI?.selectFolder) {
+        const result = await window.electronAPI.selectFolder();
+        return result;
+      }
 
-  const showItemInFolder = useCallback(async (itemPath: string): Promise<boolean> => {
-    try {
-      FolderService.openFolder(itemPath);
-      return true;
+      // Browser fallback
+      return await FolderService.selectFolder();
     } catch (error) {
-      console.error('Error showing item in folder:', error);
-      return false;
+      console.error('Error selecting folder:', error);
+      return null;
     }
-  }, []);
+  }, [isTauri]);
 
   const attemptAutoOpen = useCallback(async (path: string): Promise<boolean> => {
     const protocols = [
@@ -55,6 +46,45 @@ export const useLocalFolders = () => {
     return false;
   }, []);
 
+  const openFolder = useCallback(async (folderPath: string, icloudLink?: string): Promise<boolean> => {
+    try {
+      // Electron API (עבור עתיד)
+      if (window.electronAPI?.openFolder) {
+        await window.electronAPI.openFolder(folderPath);
+        return true;
+      }
+
+      // Browser fallback
+      if (folderPath) {
+        FolderService.openFolder(folderPath, icloudLink);
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error opening folder:', error);
+      // Fallback to FolderService
+      FolderService.openFolder(folderPath, icloudLink);
+      return false;
+    }
+  }, []);
+
+  const showItemInFolder = useCallback(async (itemPath: string): Promise<boolean> => {
+    try {
+      // Electron API (עבור עתיד)
+      if (window.electronAPI?.showItemInFolder) {
+        await window.electronAPI.showItemInFolder(itemPath);
+        return true;
+      }
+      
+      // Browser fallback
+      return await attemptAutoOpen(itemPath);
+    } catch (error) {
+      console.error('Error showing item in folder:', error);
+      return false;
+    }
+  }, [attemptAutoOpen]);
+
   const handleDownloadHelperFiles = useCallback(async () => {
     return await downloadHelperFiles();
   }, []);
@@ -65,7 +95,7 @@ export const useLocalFolders = () => {
     showItemInFolder,
     attemptAutoOpen,
     downloadHelperFiles: handleDownloadHelperFiles,
-    isElectron,
+    isElectron: !!window.electronAPI,
     isTauri,
   };
 };
