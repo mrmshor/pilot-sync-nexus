@@ -82,36 +82,47 @@ export const FolderService = {
       return;
     }
 
-    // תמיד העדיף קישור iCloud קודם
+    // תמיד העדיף קישור iCloud קודם (עובד ברוב הדפדפנים)
     if (icloudLink && icloudLink.trim() !== '') {
       try {
         console.log('☁️ פותח קישור iCloud:', icloudLink);
-        window.open(icloudLink, '_blank', 'noopener,noreferrer');
-        console.log('✅ קישור iCloud נפתח בהצלחה');
-        return;
+        const newWindow = window.open(icloudLink, '_blank', 'noopener,noreferrer');
+        if (newWindow) {
+          console.log('✅ קישור iCloud נפתח בהצלחה');
+          return;
+        } else {
+          console.warn('⚠️ חלון חדש נחסם, מנסה לנווט בחלון נוכחי');
+          window.location.href = icloudLink;
+          return;
+        }
       } catch (error) {
         console.error('❌ שגיאה בפתיחת קישור iCloud:', error);
       }
     }
 
-    // אם אין iCloud או שנכשל, נסה את נתיב התיקיה
+    // אם אין iCloud או שנכשל, הראה הוראות למשתמש
     if (folderPath && folderPath.trim() !== '') {
-      try {
-        console.log('🗂️ מנסה לפתוח נתיב תיקיה:', folderPath);
-        
-        // ודא שהנתיב מתחיל ב-/ או C:\ (עבור Windows)
-        let fullPath = folderPath;
-        if (!fullPath.startsWith('/') && !fullPath.includes(':\\')) {
-          fullPath = `/${fullPath}`;
+      const instructions = `
+לא ניתן לפתוח תיקיות מקומיות ישירות מהדפדפן מסיבות אבטחה.
+
+נתיב התיקיה: ${folderPath}
+
+אפשרויות:
+1. העתק את הנתיב למעלה ופתח אותו ידנית ב-Finder/Explorer
+2. הוסף קישור iCloud לפרויקט זה
+3. גרור את התיקיה למועדפים שלך לגישה מהירה
+
+האם תרצה להעתיק את הנתיב?`;
+      
+      if (confirm(instructions)) {
+        // העתק את הנתיב ללוח
+        try {
+          await navigator.clipboard.writeText(folderPath);
+          alert('הנתיב הועתק ללוח! עכשיו פתח את Finder/Explorer והדבק אותו');
+        } catch (error) {
+          console.error('שגיאה בהעתקה:', error);
+          prompt('העתק את הנתיב הזה:', folderPath);
         }
-        
-        // פתח את התיקיה
-        window.open(`file://${fullPath}`, '_blank');
-        console.log('✅ תיקיה נפתחה (file:// protocol)');
-        
-      } catch (error) {
-        console.error('❌ שגיאה בפתיחת תיקיה:', error);
-        alert(`לא ניתן לפתוח את התיקיה.\nנתיב: ${folderPath}\nנסה לפתוח ידנית או הוסף קישור iCloud`);
       }
     } else {
       alert('לא הוגדר נתיב תיקיה או קישור iCloud לפרויקט זה');
@@ -152,8 +163,8 @@ export const FolderService = {
     }
     
     try {
-      // נקה את המספר - השאר רק ספרות
-      let cleaned = phone.replace(/[^\d]/g, '');
+      // נקה את המספר - השאר רק ספרות ו+
+      let cleaned = phone.replace(/[^\d+]/g, '');
       console.log('🧹 מספר נוקה:', cleaned);
       
       // אם המספר מתחיל ב-0, החלף ל-972
@@ -162,23 +173,38 @@ export const FolderService = {
         console.log('🇮🇱 הוסף קידומת ישראל:', cleaned);
       }
       
+      // אם אין קידומת, הוסף 972
+      if (!cleaned.startsWith('+') && !cleaned.startsWith('972') && !cleaned.startsWith('1')) {
+        cleaned = '972' + cleaned;
+        console.log('🇮🇱 הוסף קידומת ישראל (ברירת מחדל):', cleaned);
+      }
+      
+      // הסר + אם קיים
+      cleaned = cleaned.replace(/^\+/, '');
+      
       // בדוק שהמספר תקין (לפחות 10 ספרות)
       if (cleaned.length < 10) {
         console.error('❌ מספר טלפון לא תקין:', phone);
-        alert('מספר הטלפון לא תקין. אנא בדוק את המספר.');
+        alert(`מספר הטלפון לא תקין: ${phone}\nהמספר צריך להכיל לפחות 10 ספרות`);
         return;
       }
       
       const whatsappUrl = `https://wa.me/${cleaned}`;
       console.log('🔗 URL וואטסאפ:', whatsappUrl);
       
-      // פתח וואטסאפ
-      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-      console.log('✅ וואטסאפ נפתח בהצלחה');
+      // נסה לפתוח וואטסאפ
+      const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      
+      if (newWindow) {
+        console.log('✅ וואטסאפ נפתח בחלון חדש');
+      } else {
+        console.warn('⚠️ חלון חדש נחסם, מנסה לנווט בחלון נוכחי');
+        window.location.href = whatsappUrl;
+      }
       
     } catch (error) {
       console.error('❌ שגיאה בפתיחת וואטסאפ:', error);
-      alert('שגיאה בפתיחת וואטסאפ. נסה שוב.');
+      alert('שגיאה בפתיחת וואטסאפ. בדוק את החיבור לאינטרנט ונסה שוב.');
     }
   },
   
