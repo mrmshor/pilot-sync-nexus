@@ -50,8 +50,33 @@ fn get_app_data_dir() -> Result<String, String> {
 
 #[tauri::command]
 fn show_in_folder(path: String) -> Result<(), String> {
-    tauri::api::shell::open(&tauri::Env::default(), path, None)
-        .map_err(|e| format!("Failed to open folder: {}", e))
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg("-R")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| format!("Failed to open folder: {}", e))?;
+    }
+    
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("explorer")
+            .arg("/select,")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| format!("Failed to open folder: {}", e))?;
+    }
+    
+    #[cfg(target_os = "linux")]
+    {
+        std::process::Command::new("xdg-open")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| format!("Failed to open folder: {}", e))?;
+    }
+    
+    Ok(())
 }
 
 fn main() {
