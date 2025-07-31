@@ -85,57 +85,38 @@ export const FolderService = {
   openFolder: async (folderPath?: string, icloudLink?: string) => {
     console.log('🗂️ FolderService.openFolder called with:', { folderPath, icloudLink });
     
-    // בדיקה ראשונית
-    if (!folderPath && !icloudLink) {
-      console.log('❌ No path provided');
-      alert('❌ לא הוגדר נתיב תיקיה או קישור iCloud.\nנא להוסיף בעריכת הפרויקט.');
+    // אם יש קישור iCloud - פתח אותו
+    if (icloudLink?.trim()) {
+      console.log('🔗 Opening iCloud link:', icloudLink);
+      window.open(icloudLink, '_blank');
       return;
     }
 
-    // ניסיון עם iCloud קודם
-    if (icloudLink?.trim()) {
-      console.log('🔗 Trying iCloud link:', icloudLink);
-      if (icloudLink.startsWith('http')) {
-        window.open(icloudLink, '_blank');
-        return;
-      }
-    }
-
-    // ניסיון עם נתיב מקומי
+    // אם יש נתיב תיקיה - נסה לפתוח
     if (folderPath?.trim()) {
-      console.log('📁 Trying local path:', folderPath);
+      console.log('📁 Opening folder path:', folderPath);
       
-      // אם זה קישור רשת - פתח ישירות
+      // קישורי רשת
       if (folderPath.startsWith('http')) {
         window.open(folderPath, '_blank');
         return;
       }
       
-      // אם זה iCloud או קישור מיוחד
-      if (folderPath.startsWith('icloud://')) {
-        window.open(folderPath, '_blank');
-        return;
+      // Tauri - פתיחה מקומית
+      if ((window as any).__TAURI__) {
+        try {
+          await openPath(folderPath);
+          return;
+        } catch (error) {
+          console.log('❌ Tauri openPath failed:', error);
+        }
       }
       
-      // עבור נתיבים מקומיים - הצע פתרונות
-      const message = `🔒 לא ניתן לפתוח תיקיות מקומיות בדפדפן
-
-📁 נתיב: ${folderPath}
-
-💡 פתרונות:
-✅ הוסף קישור iCloud (מומלץ)
-✅ הורד קובץ עזר לפתיחה
-✅ העתק נתיב ופתח ידנית
-
-האם להעתיק הנתיב?`;
-      
-      if (confirm(message)) {
-        try {
-          await navigator.clipboard.writeText(folderPath);
-          alert('✅ הנתיב הועתק!\n\nפתח Finder/Explorer והדבק (Cmd+V)');
-        } catch {
-          prompt('העתק את הנתיב:', folderPath);
-        }
+      // דפדפן - ניסיון עם file protocol
+      try {
+        window.open(`file://${folderPath}`, '_blank');
+      } catch (error) {
+        console.log('❌ File protocol failed:', error);
       }
     }
   },
