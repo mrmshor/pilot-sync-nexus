@@ -22,111 +22,33 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Build offline desktop application
+    - name: Build React application
       run: npm run build
       
-    - name: Setup native Mac desktop app
+    - name: Install Electron dependencies
       run: |
-        npx cap add ios
-        npx cap sync ios
+        npm install electron electron-builder concurrently wait-on --save-dev
         
-        # Configure for native desktop app (not web)
-        echo "Configuring native Mac desktop application..."
-        
-        # Configure Info.plist for desktop app
-        /usr/libexec/PlistBuddy -c "Set :LSUIElement false" ios/App/App/Info.plist || true
-        /usr/libexec/PlistBuddy -c "Set :LSApplicationCategoryType public.app-category.productivity" ios/App/App/Info.plist || true
-        /usr/libexec/PlistBuddy -c "Set :NSSupportsAutomaticTermination true" ios/App/App/Info.plist || true
-        /usr/libexec/PlistBuddy -c "Set :NSSupportsSuddenTermination true" ios/App/App/Info.plist || true
-        
-    - name: Create export options plist
+    - name: Build native Mac desktop app
       run: |
-        cat > ios/export-options.plist << 'EOF'
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>method</key>
-            <string>mac-application</string>
-            <key>destination</key>
-            <string>export</string>
-        </dict>
-        </plist>
-        EOF
+        # יצירת אפליקציית שולחן מלאה
+        npx electron-builder --mac --publish=never
         
-    - name: Build native Mac desktop application
+    - name: Verify DMG creation
       run: |
-        cd ios/App
+        ls -la dist-electron/
         
-        # Build native Mac Catalyst desktop application (not web app)
-        xcodebuild -workspace App.xcworkspace \
-                   -scheme App \
-                   -destination 'generic/platform=macOS,variant=Mac Catalyst' \
-                   -configuration Release \
-                   -archivePath "../../build/App.xcarchive" \
-                   clean archive \
-                   CODE_SIGN_IDENTITY="" \
-                   CODE_SIGNING_REQUIRED=NO \
-                   CODE_SIGNING_ALLOWED=NO \
-                   SUPPORTS_MACCATALYST=YES \
-                   TARGETED_DEVICE_FAMILY="1,2,6" \
-                   DEVELOPMENT_TEAM="" \
-                   PROVISIONING_PROFILE_SPECIFIER=""
-                   
-    - name: Export application
-      run: |
-        cd ios
-        xcodebuild -exportArchive \
-                   -archivePath "../build/App.xcarchive" \
-                   -exportPath "../build/export" \
-                   -exportOptionsPlist export-options.plist
-                   
-    - name: Create DMG installer
-      run: |
-        # Create DMG staging directory
-        mkdir -p dmg-staging
-        
-        # Find and copy the app
-        find build/export -name "*.app" -type d | head -1 | while read app_path; do
-          app_name=$(basename "$app_path")
-          echo "Found app: $app_name at $app_path"
-          cp -R "$app_path" dmg-staging/
-          
-          # Rename to Hebrew name
-          mv "dmg-staging/$app_name" "dmg-staging/מערכת ניהול פרויקטים Pro.app"
-          echo "Renamed to: מערכת ניהול פרויקטים Pro.app"
-        done
-        
-        # Check if app exists
-        if [ ! -d "dmg-staging/מערכת ניהול פרויקטים Pro.app" ]; then
-          echo "Error: App not found after export"
-          ls -la build/export/
-          exit 1
-        fi
-        
-        # Create DMG
-        hdiutil create -volname "מערכת ניהול פרויקטים Pro" \
-                       -srcfolder dmg-staging \
-                       -ov -format UDZO \
-                       -fs HFS+ \
-                       "ProjectManager-macOS.dmg"
-                       
-        # Verify DMG was created and check size
-        ls -lh ProjectManager-macOS.dmg
-        
-    - name: Upload DMG as artifact
+    - name: Upload Mac DMG as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ProjectManager-macOS-App
-        path: ProjectManager-macOS.dmg
+        name: ProjectManager-macOS-Native
+        path: dist-electron/*.dmg
         retention-days: 30
         
     - name: Debug - List all files
       if: failure()
       run: |
         echo "=== Build directory ==="
-        find build -type f -name "*.app" 2>/dev/null || echo "No .app files found in build"
-        echo "=== iOS directory ==="  
-        find ios -type d -name "*.app" 2>/dev/null || echo "No .app directories found in ios"
-        echo "=== All .app files ==="
-        find . -name "*.app" -type d 2>/dev/null || echo "No .app directories found anywhere"
+        find dist-electron -type f 2>/dev/null || echo "No files found in dist-electron"
+        echo "=== Current directory ==="
+        ls -la

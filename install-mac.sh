@@ -1,16 +1,10 @@
 #!/bin/bash
 
-echo "🚀 מתקין אפליקציית שולחן נטיבית למק..."
+echo "🖥️ בונה אפליקציית שולחן נטיבית למק עם Electron..."
 
 # בדיקת דרישות
 if ! command -v node &> /dev/null; then
     echo "❌ Node.js לא מותקן. הורד מ: https://nodejs.org/"
-    exit 1
-fi
-
-if ! command -v xcode-select &> /dev/null; then
-    echo "❌ Xcode Command Line Tools לא מותקן."
-    echo "הרץ: xcode-select --install"
     exit 1
 fi
 
@@ -30,29 +24,23 @@ fi
 echo "📦 מתקין תלויות..."
 npm install
 
-echo "🔨 בונה אפליקציה..."
+echo "📦 מתקין Electron..."
+npm install electron electron-builder concurrently wait-on --save-dev
+
+echo "🔨 בונה אפליקציית React..."
 npm run build
 
-echo "📱 מכין אפליקציה נטיבית לשולחן..."
-npx cap add ios
-npx cap sync ios
-
-# הגדרות נוספות לאפליקציית שולחן
-echo "⚙️ מגדיר אפליקציית שולחן נטיבית..."
-
-echo "🍎 פותח ב-Xcode להתקנה סופית..."
-npx cap open ios
+echo "🖥️ בונה אפליקציית שולחן נטיבית..."
+npx electron-builder --mac --publish=never
 
 echo ""
-echo "🎯 כמעט סיימנו!"
+echo "🎉 הבנייה הושלמה!"
 echo ""
-echo "בXcode:"
-echo "1. בחר Target: Mac (Designed for iPad)"
-echo "2. בחר Destination: My Mac (Mac Catalyst)"
-echo "3. וודא שזה NOT Simulator"
-echo "4. לחץ Play (▶️) או Cmd+R"
+echo "📁 קובץ ההתקנה נמצא ב: dist-electron/"
+echo "🖥️ פתח את קובץ ה-DMG והשתמש בו להתקנה!"
 echo ""
-echo "🖥️ האפליקציה תותקן כאפליקציית שולחן מלאה! 🎉"
-echo ""
-echo "💡 טיפ: אם יש שגיאת חתימה, בSigning & Capabilities שנה ל-'Sign to Run Locally'"
-echo "📁 הנתונים יישמרו מקומית במחשב שלך (לא באינטרנט)"
+echo "✅ זוהי אפליקציית שולחן מלאה:"
+echo "   - 🔓 לא דורשת אינטרנט"
+echo "   - 💾 נתונים שמורים מקומית"
+echo "   - ⚡ ביצועים נטיביים"
+echo "   - 🖥️ מותקנת כאפליקציה רגילה"
