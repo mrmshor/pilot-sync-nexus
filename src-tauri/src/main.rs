@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::Manager;
+// use tauri::Manager; // Not needed for current functionality
 use std::fs;
 
 mod commands;
@@ -59,7 +59,7 @@ fn main() {
             commands::open_folder_native,
             commands::open_whatsapp_with_phone
         ])
-        .setup(|app| {
+        .setup(|_app| {
             // Create app data directory on startup
             if let Some(config_dir) = dirs::config_dir() {
                 let app_data_dir = config_dir.join("ProjectManagerPro");

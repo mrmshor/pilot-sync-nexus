@@ -80,49 +80,49 @@ pub fn open_whatsapp_with_phone(phone: String) -> Result<String, String> {
     {
         // Mac - פתיחת WhatsApp Desktop עם מספר טלפון
         let whatsapp_url = format!("whatsapp://send?phone={}", phone);
-        Command::new("open")
-            .arg(&whatsapp_url)
-            .spawn()
-            .map_err(|e| {
+        match Command::new("open").arg(&whatsapp_url).spawn() {
+            Ok(_) => return Ok("WhatsApp opened successfully".to_string()),
+            Err(e) => {
                 // אם זה לא עבד, נסה לפתוח רק את האפליקציה
-                Command::new("open")
-                    .args(["-a", "WhatsApp"])
-                    .spawn()
-                    .map_err(|e2| format!("Failed to open WhatsApp: {} and {}", e, e2))?;
-                "Opened WhatsApp app only".to_string()
-            })?;
+                match Command::new("open").args(["-a", "WhatsApp"]).spawn() {
+                    Ok(_) => return Ok("WhatsApp app opened".to_string()),
+                    Err(e2) => return Err(format!("Failed to open WhatsApp: {} and {}", e, e2)),
+                }
+            }
+        }
     }
 
     #[cfg(target_os = "windows")]
     {
         // Windows - פתיחת WhatsApp Desktop
         let whatsapp_url = format!("whatsapp://send?phone={}", phone);
-        Command::new("cmd")
-            .args(["/c", "start", &whatsapp_url])
-            .spawn()
-            .map_err(|e| {
+        match Command::new("cmd").args(["/c", "start", &whatsapp_url]).spawn() {
+            Ok(_) => return Ok("WhatsApp opened successfully".to_string()),
+            Err(e) => {
                 // אם זה לא עבד, נסה לפתוח רק את האפליקציה
-                Command::new("cmd")
-                    .args(["/c", "start", "whatsapp:"])
-                    .spawn()
-                    .map_err(|e2| format!("Failed to open WhatsApp: {} and {}", e, e2))?;
-                "Opened WhatsApp app only".to_string()
-            })?;
+                match Command::new("cmd").args(["/c", "start", "whatsapp:"]).spawn() {
+                    Ok(_) => return Ok("WhatsApp app opened".to_string()),
+                    Err(e2) => return Err(format!("Failed to open WhatsApp: {} and {}", e, e2)),
+                }
+            }
+        }
     }
 
     #[cfg(target_os = "linux")]
     {
         // Linux - פתיחת WhatsApp Desktop
         let whatsapp_url = format!("whatsapp://send?phone={}", phone);
-        Command::new("xdg-open")
-            .arg(&whatsapp_url)
-            .spawn()
-            .map_err(|e| {
+        match Command::new("xdg-open").arg(&whatsapp_url).spawn() {
+            Ok(_) => return Ok("WhatsApp opened successfully".to_string()),
+            Err(e) => {
                 // אם זה לא עבד, נסה לפתוח רק את האפליקציה  
-                Command::new("whatsapp-desktop")
-                    .spawn()
-                    .map_err(|e2| format!("Failed to open WhatsApp: {} and {}", e, e2))?;
-                "Opened WhatsApp app only".to_string()
-            })?;
+                match Command::new("whatsapp-desktop").spawn() {
+                    Ok(_) => return Ok("WhatsApp app opened".to_string()),
+                    Err(e2) => return Err(format!("Failed to open WhatsApp: {} and {}", e, e2)),
+                }
+            }
+        }
     }
+
+    Ok("Success".to_string())
 }
