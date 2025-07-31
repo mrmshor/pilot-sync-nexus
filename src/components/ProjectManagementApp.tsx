@@ -272,85 +272,75 @@ const App: React.FC = () => {
     <SidebarProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 w-full" dir="rtl">
         
-        {/* Header */}
-        <header className="bg-white/95 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40 shadow-lg">
-          <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="relative group">
-                    <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center shadow-sm border border-slate-200/60 overflow-hidden">
-                      {customLogo ? (
-                        <img 
-                          src={customLogo} 
-                          alt="לוגו מותאם אישית" 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-sm"></div>
-                      )}
-                    </div>
-                    
-                    {/* Logo upload overlay */}
-                    <div className="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center cursor-pointer">
-                      <label htmlFor="logo-upload" className="cursor-pointer">
-                        <Plus className="h-5 w-5 text-white" />
-                        <input
-                          id="logo-upload"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleLogoUpload}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-                    
-                    {/* Remove logo button */}
-                    {customLogo && (
-                      <button
-                        onClick={removeLogo}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs transition-colors"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    )}
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      מערכת ניהול פרויקטים Pro
-                    </h1>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Apple className="h-3 w-3" />
-                      <span>מותאם macOS</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleExportCSV} 
-                  className="hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 shadow-sm"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  ייצוא CSV
-                </Button>
-                
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  onClick={() => setShowCreateModal(true)}
-                  className="gradient-primary shadow-sm"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  פרויקט חדש
-                </Button>
-              </div>
+        {/* Header - Purple gradient background exactly like the image */}
+        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white py-8 px-6 text-center relative">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+              <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg"></div>
+            </div>
+            <h1 className="text-3xl font-bold">מערכת ניהול פרויקטים Pro</h1>
+          </div>
+          
+          {/* Buttons row */}
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <Button 
+              variant="default"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+              onClick={() => setActiveView('projects')}
+            >
+              פרויקטים מתקדם
+            </Button>
+            
+            <Button 
+              variant="outline"
+              className="bg-white/10 border-white/30 text-white hover:bg-white/20 px-6 py-2 rounded-lg"
+              onClick={() => setActiveView('dashboard')}
+            >
+              לוח בקרה Pro
+            </Button>
+            
+            <Button 
+              variant="outline"
+              size="sm" 
+              onClick={handleExportCSV} 
+              className="bg-white/10 border-white/30 text-white hover:bg-white/20 px-4 py-2 rounded-lg"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              ייצוא CSV
+            </Button>
+          </div>
+          
+          {/* Search and filters section */}
+          <div className="bg-white/10 backdrop-blur rounded-2xl p-6 max-w-4xl mx-auto">
+            <div className="mb-4">
+              <input 
+                type="text"
+                placeholder="חיפוש פרויקטים..."
+                className="w-full px-4 py-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50"
+              />
+            </div>
+            
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <Button variant="ghost" className="text-white hover:bg-white/20 px-4 py-2 rounded-lg">
+                כל הפרויקטים
+              </Button>
+              <Button variant="ghost" className="text-white hover:bg-white/20 px-4 py-2 rounded-lg">
+                כל הסטטוסים
+              </Button>
+              <Button variant="ghost" className="text-white hover:bg-white/20 px-4 py-2 rounded-lg">
+                אחרי יצירה ↑
+              </Button>
+              <Button 
+                variant="default"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+                onClick={() => setShowCreateModal(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                פרויקט חדש
+              </Button>
             </div>
           </div>
-        </header>
+        </div>
 
         <div className="flex w-full">
           {/* Quick Tasks Sidebar */}
@@ -366,31 +356,6 @@ const App: React.FC = () => {
           {/* Main Content */}
           <div className="flex-1">
             <div className="p-6">
-              {/* View Toggle */}
-              <div className="flex justify-center mb-6">
-                <div className="grid grid-cols-2 w-full max-w-md bg-white/90 backdrop-blur p-1.5 rounded-xl shadow-lg border border-gray-200/50">
-                  <button
-                    onClick={() => setActiveView('projects')}
-                    className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      activeView === 'projects' 
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105' 
-                        : 'text-gray-600 hover:text-blue-600 hover:bg-white/50'
-                    }`}
-                  >
-                    פרויקטים מלא
-                  </button>
-                  <button
-                    onClick={() => setActiveView('dashboard')}
-                    className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      activeView === 'dashboard' 
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105' 
-                        : 'text-gray-600 hover:text-blue-600 hover:bg-white/50'
-                    }`}
-                  >
-                    לוח בקרה Pro
-                  </button>
-                </div>
-              </div>
 
               {/* Content */}
               {activeView === 'dashboard' && (
