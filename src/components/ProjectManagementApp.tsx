@@ -425,17 +425,40 @@ const App: React.FC = () => {
         </header>
 
         <div className="flex w-full">
-          {/* Quick Tasks Sidebar */}
+          {/* Left Quick Tasks Sidebar */}
           <div className="w-80 border-r border-gray-200 bg-white/50 backdrop-blur">
-            <QuickTasksSidebar 
-              quickTasks={quickTasks}
-              onAddTask={addQuickTask}
-              onToggleTask={toggleQuickTask}
-              onDeleteTask={deleteQuickTask}
-            />
+            <div className="p-4">
+              <h2 className="text-lg font-semibold mb-4 text-gray-800">משימות מהירות (3)</h2>
+              <div className="space-y-3">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-red-500 rounded-full flex-shrink-0"></div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-700">לקדם פרויקט אליעזר שפירא + מבקש תמונה</p>
+                      <p className="text-xs text-gray-500">שבת, ג׳ אוק׳ 18:50</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-700">מקצוען עור לבגדים - לצלצל במוקד לשני</p>
+                      <p className="text-xs text-gray-500">שבת, ג׳ אוק׳ יום ב׳</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <h3 className="text-sm font-medium text-gray-600 mb-3">אין משימות מחכות</h3>
+                <div className="text-xs text-gray-500">כולן השלמו את המשימות! 🎉</div>
+              </div>
+            </div>
           </div>
 
-          {/* Main Content */}
+          {/* Main Content Area */}
           <div className="flex-1">
             <main className="p-6">
               {/* Navigation Tabs */}
@@ -464,34 +487,102 @@ const App: React.FC = () => {
                 </button>
               </div>
 
-              {/* Tab Content */}
-              <div className="transition-all duration-500 ease-in-out">
-                {activeTab === 'dashboard' && (
-                  <EnhancedDashboard projects={projects} stats={stats} />
-                )}
-
-                {activeTab === 'projects' && (
-                  <ProjectsList 
-                    projects={projects}
-                    onUpdateProject={handleUpdateProject}
-                    onDeleteProject={handleDeleteProject}
-                    selectedProjectId={selectedProjectId}
-                    onProjectSelect={(projectId) => {
-                      setSelectedProjectId(projectId);
-                      setShowTasksModal(true);
-                    }}
-                  />
-                )}
+              {/* Projects Grid - Same as in the image */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.map((project) => (
+                  <div key={project.id} className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                    {/* Status badges */}
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                        פ. במידע
+                      </span>
+                      <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                        נמרח
+                      </span>
+                    </div>
+                    
+                    {/* Project title */}
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{project.name}</h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.description}</p>
+                    
+                    {/* Client info */}
+                    <div className="text-sm text-gray-600 mb-4">
+                      <p>{project.clientName}</p>
+                    </div>
+                    
+                    {/* Price */}
+                    <div className="text-xl font-bold text-green-600 mb-4">
+                      {project.price.toLocaleString()} ₪
+                    </div>
+                    
+                    {/* Progress bar */}
+                    <div className="mb-4">
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>התקדמות</span>
+                        <span>0%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-blue-600 h-2 rounded-full" style={{width: '0%'}}></div>
+                      </div>
+                    </div>
+                    
+                    {/* Action buttons */}
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleProjectSelect(project)}
+                        className="flex-1 bg-blue-600 text-white text-sm py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        פתח
+                      </button>
+                      <button className="px-3 py-2 border border-gray-300 text-gray-600 text-sm rounded-lg hover:bg-gray-50 transition-colors">
+                        ש׳
+                      </button>
+                      <button className="px-3 py-2 border border-gray-300 text-gray-600 text-sm rounded-lg hover:bg-gray-50 transition-colors">
+                        $
+                      </button>
+                      <button className="px-3 py-2 bg-red-100 text-red-600 text-sm rounded-lg hover:bg-red-200 transition-colors">
+                        מ
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </main>
           </div>
 
-          {/* Projects Sidebar */}
-          <AppSidebar 
-            projects={projects}
-            onProjectSelect={handleProjectSelect}
-            selectedProjectId={selectedProjectId}
-          />
+          {/* Right Projects List Sidebar */}
+          <div className="w-80 border-l border-gray-200 bg-white/50 backdrop-blur">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-800">רשימת פרויקטים מתוחת</h2>
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 text-sm font-medium">6</span>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {projects.map((project) => (
+                  <div key={project.id} className="bg-white rounded-lg border border-gray-200 p-3 hover:shadow-md transition-shadow cursor-pointer"
+                       onClick={() => handleProjectSelect(project)}>
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-medium text-gray-900 text-sm line-clamp-1">{project.name}</h4>
+                      <span className="text-xs text-gray-500">פ</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">{project.clientName}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold text-green-600">
+                        {project.price.toLocaleString()} ₪
+                      </span>
+                      <div className="flex gap-1">
+                        <span className="w-2 h-2 bg-gray-300 rounded-full"></span>
+                        <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Modals */}
