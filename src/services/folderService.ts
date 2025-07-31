@@ -21,12 +21,17 @@ export const FolderService = {
         return folderPath || null;
       }
 
-      // אם זה דפדפן מודרני עם File System Access API
-      if ('showDirectoryPicker' in window) {
+      // אם זה דפדפן מודרני עם File System Access API (אבל לא iframe)
+      if ('showDirectoryPicker' in window && window.parent === window) {
         console.log('🌐 משתמש ב-File System Access API');
-        const dirHandle = await (window as any).showDirectoryPicker();
-        console.log('✅ תיקיה נבחרה:', dirHandle.name);
-        return dirHandle.name;
+        try {
+          const dirHandle = await (window as any).showDirectoryPicker();
+          console.log('✅ תיקיה נבחרה:', dirHandle.name);
+          return dirHandle.name;
+        } catch (error) {
+          console.log('ℹ️ File System API נכשל:', error);
+          // נמשיך לאופציה הבאה
+        }
       }
 
       // אם זה דפדפן רגיל
