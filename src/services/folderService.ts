@@ -45,7 +45,7 @@ export const FolderService = {
     }
   },
 
-  openFolder: (folderPath?: string, icloudLink?: string) => {
+  openFolder: async (folderPath?: string, icloudLink?: string) => {
     console.log('🗂️ פותח תיקיה במחשב שולחני:', { folderPath, icloudLink });
     
     if (!folderPath && !icloudLink) {
@@ -55,30 +55,20 @@ export const FolderService = {
 
     if (folderPath) {
       try {
-        // For Tauri desktop app - use shell API
-        if ((window as any).__TAURI__ && (window as any).__TAURI__.shell) {
-          (window as any).__TAURI__.shell.open(folderPath);
+        // בדוק אם יש לנו גישה ל-Tauri shell API
+        if ((window as any).__TAURI__) {
+          const { shell } = (window as any).__TAURI__;
+          await shell.open(folderPath);
           console.log('✅ תיקיה נפתחה ב-Finder');
           return;
         }
         
-        // Fallback for other desktop environments
-        if (window.electronAPI && (window.electronAPI as any).openFolder) {
-          (window.electronAPI as any).openFolder(folderPath);
-          console.log('✅ תיקיה נפתחה באמצעות Electron');
-          return;
-        }
-        
-        // Last resort - try system open
-        window.open(`file://${folderPath}`, '_blank');
+        console.error('❌ __TAURI__ API לא זמין');
+        alert(`לא ניתן לפתוח תיקיה: ${folderPath}`);
         
       } catch (error) {
         console.error('❌ שגיאה בפתיחת תיקיה:', error);
-        if (icloudLink) {
-          window.open(icloudLink, '_blank');
-        } else {
-          alert(`שגיאה בפתיחת התיקיה: ${folderPath}`);
-        }
+        alert(`שגיאה בפתיחת התיקיה: ${folderPath}\nשגיאה: ${error}`);
       }
     } else if (icloudLink) {
       window.open(icloudLink, '_blank');
