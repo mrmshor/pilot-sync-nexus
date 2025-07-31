@@ -5,6 +5,7 @@ import { QuickTasksSidebar } from './QuickTasksSidebar';
 import { CreateProjectModal } from './CreateProjectModal';
 import { ProjectTasksModal } from './ProjectTasksModal';
 import { EnhancedDashboard } from './EnhancedDashboard';
+import { ProjectsList } from './ProjectsList';
 import { Project } from '../types';
 import { useQuickTasks } from '../hooks/useEnhancedQuickTasks';
 import { Apple, Download, Plus, X } from 'lucide-react';
@@ -377,7 +378,7 @@ const App: React.FC = () => {
                         : 'text-gray-600 hover:text-blue-600 hover:bg-white/50'
                     }`}
                   >
-                    פרויקטים מלא
+                    רשימת פרויקטים
                   </button>
                   <button
                     onClick={() => setActiveView('dashboard')}
@@ -398,43 +399,16 @@ const App: React.FC = () => {
               )}
 
               {activeView === 'projects' && (
-                <div className="grid gap-6">
-                  <div className="bg-white/90 backdrop-blur rounded-2xl shadow-xl border border-white/20 p-6">
-                    <h2 className="text-2xl font-bold mb-6 text-gray-800">פרויקטים ({projects.length})</h2>
-                    <div className="grid gap-4">
-                      {projects.map((project) => (
-                        <div 
-                          key={project.id}
-                          className="bg-white/80 backdrop-blur rounded-xl p-4 border border-gray-200/50 hover:shadow-lg transition-all cursor-pointer"
-                          onClick={() => handleProjectSelect(project)}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <h3 className="text-lg font-semibold text-gray-800 mb-2">{project.name}</h3>
-                              <p className="text-gray-600 text-sm mb-3">{project.description}</p>
-                              <div className="flex items-center gap-4 text-sm">
-                                <span className="text-gray-700">
-                                  <strong>לקוח:</strong> {project.clientName}
-                                </span>
-                                <span className="text-green-600 font-semibold">
-                                  ₪{project.price?.toLocaleString()}
-                                </span>
-                                <span className={`px-2 py-1 rounded-full text-xs ${
-                                  project.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                                  project.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                  'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                  {project.status === 'in-progress' ? 'בתהליך' :
-                                   project.status === 'completed' ? 'הושלם' : 'מושהה'}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <ProjectsList
+                  projects={projects}
+                  onUpdateProject={handleUpdateProject}
+                  onDeleteProject={handleDeleteProject}
+                  selectedProjectId={selectedProjectId}
+                  onProjectSelect={(projectId) => {
+                    const project = projects.find(p => p.id === projectId);
+                    if (project) handleProjectSelect(project);
+                  }}
+                />
               )}
             </div>
           </div>
