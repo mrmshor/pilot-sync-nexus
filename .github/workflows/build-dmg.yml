@@ -1,4 +1,4 @@
-name: Build Native Mac Desktop App
+name: Build Native Desktop App with Tauri
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-macos:
+  build-tauri-macos:
     runs-on: macos-latest
     
     steps:
@@ -19,94 +19,82 @@ jobs:
         node-version: '20'
         cache: 'npm'
         
-    - name: Install dependencies
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+        
+    - name: Install Rust dependencies
+      run: |
+        rustup target add x86_64-apple-darwin
+        rustup target add aarch64-apple-darwin
+        
+    - name: Install Node dependencies
       run: npm ci
       
-    - name: Build React application (offline mode)
+    - name: Install Tauri CLI
       run: |
-        # Build for offline desktop app
-        npm run build
+        cargo install tauri-cli --version "^1.0"
         
-    - name: Setup Capacitor for native Mac app
+    - name: Add Tauri dependency
       run: |
-        npx cap add ios
-        npx cap sync ios
+        cargo install cargo-edit
+        cd src-tauri
+        cargo add dirs
         
-    - name: Configure iOS project for Mac
+    - name: Build React application
+      run: npm run build
+      
+    - name: Build native Mac desktop app with Tauri
       run: |
-        # Configure Info.plist for desktop app
-        cd ios/App
+        # Build for both Intel and Apple Silicon
+        cargo tauri build --target x86_64-apple-darwin
+        cargo tauri build --target aarch64-apple-darwin
         
-        # Basic configuration
-        /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName מערכת ניהול פרויקטים Pro" App/Info.plist || true
-        /usr/libexec/PlistBuddy -c "Set :LSApplicationCategoryType public.app-category.productivity" App/Info.plist || true
-        
-    - name: Build native Mac desktop application
+    - name: Create universal DMG
       run: |
-        cd ios/App
-        
-        # Simple build using the correct destination format
-        xcodebuild -workspace App.xcworkspace \
-                   -scheme App \
-                   -destination 'platform=macOS' \
-                   -configuration Release \
-                   -derivedDataPath "../../build/DerivedData" \
-                   CODE_SIGN_IDENTITY="" \
-                   CODE_SIGNING_REQUIRED=NO \
-                   CODE_SIGNING_ALLOWED=NO \
-                   DEVELOPMENT_TEAM="" \
-                   build
-                   
-    - name: Find and copy built app
-      run: |
-        # Find the built app
-        APP_PATH=$(find build/DerivedData -name "*.app" -type d | head -1)
-        echo "Found app at: $APP_PATH"
-        
-        if [ -z "$APP_PATH" ]; then
-          echo "No app found, listing DerivedData contents:"
-          find build/DerivedData -type d -name "*.app" || echo "No .app directories found"
-          exit 1
-        fi
-        
-        # Create staging and copy app
+        # Create staging directory
         mkdir -p dmg-staging
-        cp -R "$APP_PATH" dmg-staging/
         
-        # Rename to Hebrew name
-        APP_NAME=$(basename "$APP_PATH")
-        mv "dmg-staging/$APP_NAME" "dmg-staging/מערכת ניהול פרויקטים Pro.app"
-                   
-    - name: Create DMG installer for desktop app
-      run: |
-        # Verify app exists from previous step
-        if [ ! -d "dmg-staging/מערכת ניהול פרויקטים Pro.app" ]; then
-          echo "Error: Native desktop app not found"
-          ls -la dmg-staging/
-          exit 1
+        # Find and copy the universal app (Tauri creates universal builds)
+        if [ -f "src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_x64.dmg" ]; then
+          cp "src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_x64.dmg" "ProjectManager-Native-Desktop-Intel.dmg"
         fi
         
-        # Create native desktop app DMG
-        hdiutil create -volname "מערכת ניהול פרויקטים Pro" \
-                       -srcfolder dmg-staging \
-                       -ov -format UDZO \
-                       -fs HFS+ \
-                       "ProjectManager-Native-macOS.dmg"
-                       
-        # Verify DMG was created
-        ls -lh ProjectManager-Native-macOS.dmg
+        if [ -f "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_aarch64.dmg" ]; then
+          cp "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_aarch64.dmg" "ProjectManager-Native-Desktop-AppleSilicon.dmg"
+        fi
         
-    - name: Upload native desktop DMG
+        # List all built files for debugging
+        echo "=== Intel build files ==="
+        find src-tauri/target/x86_64-apple-darwin -name "*.dmg" -o -name "*.app" || echo "No Intel builds found"
+        echo "=== Apple Silicon build files ==="
+        find src-tauri/target/aarch64-apple-darwin -name "*.dmg" -o -name "*.app" || echo "No Apple Silicon builds found"
+        echo "=== Final DMG files ==="
+        ls -la *.dmg || echo "No final DMG files"
+        
+    - name: Upload Intel DMG
       uses: actions/upload-artifact@v4
       with:
-        name: ProjectManager-Native-macOS-Desktop
-        path: ProjectManager-Native-macOS.dmg
+        name: ProjectManager-Native-Desktop-Intel
+        path: ProjectManager-Native-Desktop-Intel.dmg
         retention-days: 30
+      if: hashFiles('ProjectManager-Native-Desktop-Intel.dmg') != ''
         
-    - name: Debug - List all files
+    - name: Upload Apple Silicon DMG
+      uses: actions/upload-artifact@v4
+      with:
+        name: ProjectManager-Native-Desktop-AppleSilicon
+        path: ProjectManager-Native-Desktop-AppleSilicon.dmg
+        retention-days: 30
+      if: hashFiles('ProjectManager-Native-Desktop-AppleSilicon.dmg') != ''
+        
+    - name: Debug - List all build outputs
       if: failure()
       run: |
-        echo "=== Build directory ==="
-        find build -type f -name "*.app" 2>/dev/null || echo "No .app files found in build"
-        echo "=== Export directory ==="  
-        find build/export -type d -name "*.app" 2>/dev/null || echo "No .app directories found"
+        echo "=== Tauri build directory structure ==="
+        find src-tauri/target -type f -name "*.dmg" -o -name "*.app" 2>/dev/null || echo "No DMG or APP files found"
+        echo "=== Current directory ==="
+        ls -la
+        echo "=== Bundle directory ==="
+        find src-tauri/target -path "*/bundle/*" -type f 2>/dev/null || echo "No bundle files found"

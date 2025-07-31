@@ -1,18 +1,22 @@
 # 🖥️ התקנת אפליקציית שולחן נטיבית למק
 
-**אפליקציית שולחן מלאה עם Capacitor Mac Catalyst - ללא תלות באינטרנט**
+**אפליקציית שולחן נטיבית אמיתית עם Tauri (Rust + React) - ללא תלות באינטרנט**
 
-## 🚀 התקנה קלה (5 דקות):
+## 🚀 התקנה קלה (3 דקות):
 
 ### אופציה 1: הורדת קובץ מוכן (מומלץ)
 1. **לך ל-GitHub Actions** בפרויקט שלך
-2. **לחץ על Build האחרון** (עם ✅ ירוק) 
-3. **הורד** את `ProjectManager-Native-macOS-Desktop.zip`
-4. **פתח את קובץ ה-DMG** 
-5. **גרור את האפליקציה לתיקיית Applications** ✅
+2. **לחץ על Build האחרון** (עם ✅ ירוק)
+3. **הורד את הקובץ המתאים למחשב שלך:**
+   - **Intel Mac**: `ProjectManager-Native-Desktop-Intel.dmg`
+   - **Apple Silicon (M1/M2/M3)**: `ProjectManager-Native-Desktop-AppleSilicon.dmg`
+4. **פתח את קובץ ה-DMG** וגרור לתיקיית Applications ✅
 
 ### אופציה 2: בנייה מקומית
 ```bash
+# וודא שיש לך Rust מותקן
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
 # הורד והרץ את סקריפט הבנייה
 curl -O https://raw.githubusercontent.com/mrmshor/pilot-sync-nexus/main/install-mac.sh
 chmod +x install-mac.sh
@@ -21,64 +25,63 @@ chmod +x install-mac.sh
 
 ### אופציה 3: בנייה ידנית
 ```bash
-# 1. שכפל הקוד
+# 1. התקן Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# 2. שכפל הקוד
 git clone https://github.com/mrmshor/pilot-sync-nexus.git
 cd pilot-sync-nexus
 
-# 2. התקן תלויות
+# 3. התקן תלויות
 npm install
 
-# 3. בנה אפליקציה (offline mode)
-NODE_ENV=production npm run build
+# 4. התקן Tauri CLI
+cargo install tauri-cli
 
-# 4. הכן לmac desktop
-npx cap add ios
-npx cap sync ios
+# 5. בנה אפליקציה
+npm run build
 
-# 5. פתח ב-Xcode
-npx cap open ios
-
-# בXcode: בחר Mac Catalyst → My Mac → Run
+# 6. בנה אפליקציית שולחן נטיבית
+cargo tauri build
 ```
 
 ## ✅ מה תקבל:
-- **🖥️ אפליקציית שולחן נטיבית** עם Mac Catalyst
-- **📁 נתונים מקומיים** במחשב שלך (לא באינטרנט)
-- **⚡ ביצועים נטיביים** למק  
-- **🔐 פרטיות מלאה** - הכל במחשב שלך
-- **📱 ממשק נטיבי** למק עם תפריטים
+- **🖥️ אפליקציית Mac נטיבית אמיתית** בנויה ב-Rust
+- **📁 נתונים מקומיים בלבד** - אף פעם לא נשלח לאינטרנט
+- **⚡ ביצועים מקסימליים** - קוד נטיבי מקומפל
+- **🔐 פרטיות מלאה** - הכל במחשב שלך בלבד
+- **📱 ממשק נטיבי מלא** עם תפריטי Mac
 - **🔓 עבודה ללא אינטרנט** - 100% standalone
-- **💾 שמירה מקומית** בתיקיות המערכת
+- **💾 שמירה בתיקיות מערכת** - `~/Library/Application Support/ProjectManagerPro`
+- **🦀 בנוי ב-Rust** - ביטחון ויעילות מקסימליים
 
 ## 🔧 פתרון בעיות נפוצות:
 
-### "App can't be opened" 
+### "App can't be opened"
 ```bash
 # פתר בעיית חתימה
 sudo xattr -rd com.apple.quarantine "/Applications/מערכת ניהול פרויקטים Pro.app"
 ```
 
-### "Xcode not found"
+### "Rust not found"
 ```bash
-xcode-select --install
+# התקן Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source ~/.cargo/env
 ```
 
 ### "Node.js too old"
 הורד Node.js 20+ מ: https://nodejs.org/
 
-### "Code signing failed" בXcode
-1. Signing & Capabilities
-2. שנה ל-**"Sign to Run Locally"**
-
 ---
 
-**זו אפליקציית שולחן אמיתית עם Mac Catalyst!** 🚀
+**זו אפליקציית שולחן נטיבית אמיתית עם Tauri!** 🚀
 
-🎯 **יתרונות Mac Catalyst:**
-- ✅ אפליקציית Mac נטיבית (לא web app)
-- ✅ ללא תלות באינטרנט כלל
-- ✅ נתונים מקומיים בלבד
-- ✅ ביצועים נטיביים מלאים  
-- ✅ תפריטים נטיביים למק
-- ✅ התקנה רגילה דרך DMG
-- ✅ שילוב מלא עם מערכת ההפעלה
+🎯 **יתרונות Tauri על פני Capacitor:**
+- ✅ **אפליקציית Mac נטיבית 100%** (לא web wrapper)
+- ✅ **קובץ קטן ומהיר** - ללא Chrome engine
+- ✅ **ביטחון מקסימלי** - Rust + sandbox
+- ✅ **ביצועים מעולים** - קוד מקומפל
+- ✅ **זיכרון נמוך** - ללא browser overhead
+- ✅ **שילוב מלא עם macOS** - תפריטים, הודעות, קבצים
+- ✅ **עדכונים אוטומטיים** - מובנה בTauri

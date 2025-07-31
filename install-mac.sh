@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🖥️ בונה אפליקציית שולחן נטיבית למק עם Capacitor..."
+echo "🖥️ בונה אפליקציית שולחן נטיבית למק עם Tauri..."
 
 # בדיקת דרישות
 if ! command -v node &> /dev/null; then
@@ -8,10 +8,11 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
-if ! command -v xcode-select &> /dev/null; then
-    echo "❌ Xcode Command Line Tools לא מותקן."
-    echo "הרץ: xcode-select --install"
-    exit 1
+if ! command -v cargo &> /dev/null; then
+    echo "❌ Rust לא מותקן. הורד מ: https://rustup.rs/"
+    echo "מתקין Rust עכשיו..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    source ~/.cargo/env
 fi
 
 echo "✅ בודק דרישות מערכת..."
@@ -27,14 +28,32 @@ if [ ! -d ".git" ]; then
     git clone https://github.com/mrmshor/pilot-sync-nexus.git .
 fi
 
-echo "📦 מתקין תלויות..."
+echo "📦 מתקין תלויות Node.js..."
 npm install
 
-echo "🔨 בונה אפליקציית React (offline mode)..."
-NODE_ENV=production npm run build
+echo "🦀 מתקין Tauri CLI..."
+cargo install tauri-cli --version "^1.0"
 
-echo "🖥️ מכין אפליקציית שולחן נטיבית..."
-npx cap add ios
-npx cap sync ios
+echo "📁 מוסיף תלויות Rust..."
+cd src-tauri
+cargo add dirs
+cd ..
 
-echo "⚙️ מגדיר אפליקציית שולחן נטיבית (לא web app)..."
+echo "🔨 בונה אפליקציית React..."
+npm run build
+
+echo "🖥️ בונה אפליקציית שולחן נטיבית עם Tauri..."
+cargo tauri build
+
+echo ""
+echo "🎉 הבנייה הושלמה!"
+echo ""
+echo "📁 קבצי ההתקנה נמצאים ב: src-tauri/target/release/bundle/"
+echo "🖥️ חפש קובץ DMG בתיקייה!"
+echo ""
+echo "✅ זוהי אפליקציית שולחן נטיבית אמיתית:"
+echo "   - 🔓 לא דורשת אינטרנט כלל"
+echo "   - 💾 נתונים שמורים מקומית במחשב"
+echo "   - ⚡ ביצועים נטיביים מלאים"
+echo "   - 🖥️ אפליקציית Mac אמיתית"
+echo "   - 🦀 בנויה ב-Rust + React"
