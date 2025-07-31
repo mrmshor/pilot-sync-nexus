@@ -4,7 +4,15 @@ import { ContactHelpers } from '../utils/contactHelpers';
 
 /**
  * שירות תיקיות - ממשק מאוחד לכל פעולות התיקיות והתקשורת
- * @deprecated השתמש ישירות ב-FileSystemService ו-CommunicationService
+ * 
+ * ⚠️ קובץ זה מיועד לתאימות אחורה בלבד!
+ * 
+ * לשימוש חדש, השתמש ישירות ב:
+ * • FileSystemService - פעולות תיקיות
+ * • CommunicationService - וואטסאפ, טלפון, אימייל  
+ * • ContactHelpers - עזרים לפרטי קשר
+ * 
+ * הקובץ יוסר בעתיד.
  */
 export const FolderService = {
   // ====== פעולות תיקיות ======

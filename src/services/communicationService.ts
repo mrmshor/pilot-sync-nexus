@@ -23,7 +23,6 @@ export const CommunicationService = {
     
     if (!phone?.trim()) {
       console.error('❌ אין מספר וואטסאפ');
-      alert('נא להזין מספר וואטסאפ');
       return;
     }
 
@@ -33,7 +32,7 @@ export const CommunicationService = {
       console.log('🔢 מספר נקי:', cleanNumber);
 
       if (cleanNumber.length < 9) {
-        alert(`מספר טלפון קצר מדי: ${phone}`);
+        console.error(`❌ מספר טלפון קצר מדי: ${phone}`);
         return;
       }
 
@@ -48,7 +47,7 @@ export const CommunicationService = {
       const whatsappUrl = `https://wa.me/${formattedNumber}`;
       console.log('🟢 פותח:', whatsappUrl);
       
-      const { isTauri } = CommunicationService.getEnvironment();
+      const { isTauri, isElectron } = CommunicationService.getEnvironment();
       
       // Tauri - אפליקציית שולחן
       if (isTauri) {
@@ -67,7 +66,6 @@ export const CommunicationService = {
       console.log('✅ וואטסאפ נפתח בהצלחה');
     } catch (error) {
       console.error('❌ שגיאה בוואטסאפ:', error);
-      alert('שגיאה בפתיחת וואטסאפ');
     }
   },
 
