@@ -4,7 +4,7 @@ import {
   CheckCircle2, CreditCard, Plus, X, Calendar, Clock, Filter, SortAsc, SortDesc
 } from 'lucide-react';
 import { Project, ProjectTask } from '../types';
-import { FolderService } from '../services/folderService';
+import { FolderService } from '@/services/folderService';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader } from '../components/ui/card';

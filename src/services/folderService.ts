@@ -75,35 +75,42 @@ export const FolderService = {
   },
 
   openFolder: async (folderPath?: string, icloudLink?: string) => {
-    console.log('🗂️ מנסה לפתוח תיקיה:', { folderPath, icloudLink });
+    console.log('🗂️ FolderService.openFolder called with:', { folderPath, icloudLink });
     
     // בדיקה ראשונית
     if (!folderPath && !icloudLink) {
+      console.log('❌ No path provided');
       alert('❌ לא הוגדר נתיב תיקיה או קישור iCloud.\nנא להוסיף בעריכת הפרויקט.');
       return;
     }
 
-    // יבוא ה-hook
-    const { useLocalFolders } = await import('../hooks/useLocalFolders');
-    
     // ניסיון עם iCloud קודם
     if (icloudLink?.trim()) {
-      try {
-        const success = await useLocalFolders().openFolder(icloudLink);
-        if (success) return;
-      } catch (error) {
-        console.error('❌ iCloud נכשל:', error);
+      console.log('🔗 Trying iCloud link:', icloudLink);
+      if (icloudLink.startsWith('http')) {
+        window.open(icloudLink, '_blank');
+        return;
       }
     }
 
     // ניסיון עם נתיב מקומי
     if (folderPath?.trim()) {
-      try {
-        const success = await useLocalFolders().openFolder(folderPath);
-        if (success) return;
-        
-        // אם נכשל - הצע פתרונות
-        const message = `🔒 לא ניתן לפתוח תיקיות מקומיות בדפדפן
+      console.log('📁 Trying local path:', folderPath);
+      
+      // אם זה קישור רשת - פתח ישירות
+      if (folderPath.startsWith('http')) {
+        window.open(folderPath, '_blank');
+        return;
+      }
+      
+      // אם זה iCloud או קישור מיוחד
+      if (folderPath.startsWith('icloud://')) {
+        window.open(folderPath, '_blank');
+        return;
+      }
+      
+      // עבור נתיבים מקומיים - הצע פתרונות
+      const message = `🔒 לא ניתן לפתוח תיקיות מקומיות בדפדפן
 
 📁 נתיב: ${folderPath}
 
@@ -113,29 +120,32 @@ export const FolderService = {
 ✅ העתק נתיב ופתח ידנית
 
 האם להעתיק הנתיב?`;
-        
-        if (confirm(message)) {
-          try {
-            await navigator.clipboard.writeText(folderPath);
-            alert('✅ הנתיב הועתק!\n\nפתח Finder/Explorer והדבק (Cmd+V)');
-          } catch {
-            prompt('העתק את הנתיב:', folderPath);
-          }
+      
+      if (confirm(message)) {
+        try {
+          await navigator.clipboard.writeText(folderPath);
+          alert('✅ הנתיב הועתק!\n\nפתח Finder/Explorer והדבק (Cmd+V)');
+        } catch {
+          prompt('העתק את הנתיב:', folderPath);
         }
-      } catch (error) {
-        console.error('❌ פתיחה מקומית נכשלה:', error);
       }
     }
   },
 
   makePhoneCall: (phone?: string) => {
+    console.log('📞 makePhoneCall called with:', phone);
     if (phone) {
+      console.log('📞 Opening tel:', `tel:${phone}`);
       window.open(`tel:${phone}`);
+    } else {
+      console.log('❌ No phone number provided');
     }
   },
   
   openWhatsApp: async (phone: string): Promise<void> => {
+    console.log('🟢 openWhatsApp called with:', phone);
     if (!phone?.trim()) {
+      console.log('❌ No WhatsApp number provided');
       alert('נא להזין מספר וואטסאפ');
       return;
     }
@@ -143,6 +153,7 @@ export const FolderService = {
     try {
       // ניקוי פשוט - רק ספרות
       const cleanNumber = phone.replace(/\D/g, '');
+      console.log('🟢 Cleaned number:', cleanNumber);
       
       // ווlidation בסיסית
       if (cleanNumber.length < 9) {
@@ -159,7 +170,7 @@ export const FolderService = {
       }
       
       const whatsappUrl = `https://wa.me/${formattedNumber}`;
-      console.log('🟢 פותח וואטסאפ:', whatsappUrl);
+      console.log('🟢 Opening WhatsApp URL:', whatsappUrl);
       
       window.open(whatsappUrl, '_blank');
     } catch (error) {
@@ -169,8 +180,12 @@ export const FolderService = {
   },
   
   sendEmail: (email?: string) => {
+    console.log('📧 sendEmail called with:', email);
     if (email) {
+      console.log('📧 Opening mailto:', `mailto:${email}`);
       window.open(`mailto:${email}`);
+    } else {
+      console.log('❌ No email provided');
     }
   },
 
