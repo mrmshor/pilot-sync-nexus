@@ -45,10 +45,10 @@ jobs:
       run: |
         cd ios/App
         
-        # Simple build without complex signing
+        # Simple build using the correct destination
         xcodebuild -workspace App.xcworkspace \
                    -scheme App \
-                   -destination 'generic/platform=macOS,variant=Mac Catalyst' \
+                   -destination 'platform:macOS,name:My Mac' \
                    -configuration Release \
                    -derivedDataPath "../../build/DerivedData" \
                    CODE_SIGN_IDENTITY="" \
