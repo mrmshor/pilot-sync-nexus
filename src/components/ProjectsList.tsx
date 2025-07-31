@@ -1,14 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
-  Search, Edit, Trash2, User, PhoneCall, MessageCircle, Mail, FolderOpen,
+  Search, Edit, Trash2, User, FolderOpen,
   CheckCircle2, CreditCard, Plus, X, Calendar, Clock, Filter, SortAsc, SortDesc
 } from 'lucide-react';
 import { Project, ProjectTask } from '../types';
-import { ContactService, FolderService } from '../services';
+import { FolderService } from '../services';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
+import { ContactButtons } from './ContactButtons';
 import { StatusDropdown } from './StatusDropdown';
 import { PriorityDropdown } from './PriorityDropdown';
 
@@ -70,24 +71,6 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
     return filtered;
   }, [projects, searchTerm, priorityFilter, statusFilter, sortBy, sortOrder]);
 
-  const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', contact: string) => {
-    if (!contact) return;
-    
-    console.log(`🔍 ContactClick - Type: ${type}, Contact: "${contact}"`);
-    
-    switch (type) {
-      case 'phone':
-        ContactService.makePhoneCall(contact);
-        break;
-      case 'whatsapp':
-        console.log('📱 Calling ContactService.openWhatsApp with:', contact);
-        ContactService.openWhatsApp(contact);
-        break;
-      case 'email':
-        ContactService.sendEmail(contact);
-        break;
-    }
-  };
 
   const openFolder = async (folderPath: string, icloudLink?: string) => {
     await FolderService.openFolder(folderPath, icloudLink);
@@ -403,56 +386,23 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
 
               {/* Contact Actions */}
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
-                <div className="flex flex-wrap gap-2">
-                  {project.phone1 && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleContactClick('phone', project.phone1);
-                      }}
-                      className="text-xs hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200"
-                    >
-                      <PhoneCall className="h-3 w-3 mr-1" />
-                      חייג
-                    </Button>
-                  )}
-                  {project.whatsapp1 && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleContactClick('whatsapp', project.whatsapp1);
-                      }}
-                      className="text-xs text-green-600 hover:bg-green-50 hover:border-green-300 transition-all duration-200"
-                    >
-                      <MessageCircle className="h-3 w-3 mr-1" />
-                      וואטסאפ
-                    </Button>
-                  )}
-                  {project.email && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleContactClick('email', project.email);
-                      }}
-                      className="text-xs hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all duration-200"
-                    >
-                      <Mail className="h-3 w-3 mr-1" />
-                      מייל
-                    </Button>
-                  )}
+                <div 
+                  className="flex flex-wrap gap-2" 
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ContactButtons
+                    phone={project.phone1}
+                    whatsapp={project.whatsapp1}
+                    email={project.email}
+                    className="flex-wrap"
+                  />
                   {(project.folderPath || project.icloudLink) && (
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.stopPropagation();
-                        openFolder(project.folderPath || '', project.icloudLink);
+                        await openFolder(project.folderPath || '', project.icloudLink);
                       }}
                       className="text-xs hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
                       title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}
@@ -548,8 +498,12 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 </div>
                 {(project.phone2 || project.whatsapp2) && (
                   <div className="text-xs text-gray-400 bg-gray-100 p-2 rounded mt-2">
-                    {project.phone2 && <div>📞 טלפון נוסף: {ContactService.formatPhoneForDisplay(project.phone2)}</div>}
-                    {project.whatsapp2 && <div>💬 וואטסאפ נוסף: {ContactService.formatPhoneForDisplay(project.whatsapp2)}</div>}
+                    <div className="mb-2">פרטי קשר נוספים:</div>
+                    <ContactButtons
+                      phone={project.phone2}
+                      whatsapp={project.whatsapp2}
+                      className="gap-1"
+                    />
                   </div>
                 )}
               </div>
