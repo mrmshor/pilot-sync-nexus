@@ -9,7 +9,7 @@ export const FolderService = {
     console.log('🗂️ מתחיל בחירת תיקיה');
     
     try {
-      // אם זה Tauri
+      // אם זה Tauri - יעבוד רק באפליקציית מחשב
       if ((window as any).__TAURI__) {
         console.log('🖥️ משתמש ב-Tauri');
         const folderPath = await tauriOpen({
@@ -21,44 +21,21 @@ export const FolderService = {
         return folderPath || null;
       }
 
-      // אם זה דפדפן מודרני עם File System Access API (אבל לא iframe)
-      if ('showDirectoryPicker' in window && window.parent === window) {
-        console.log('🌐 משתמש ב-File System Access API');
-        try {
-          const dirHandle = await (window as any).showDirectoryPicker();
-          console.log('✅ תיקיה נבחרה:', dirHandle.name);
-          return dirHandle.name;
-        } catch (error) {
-          console.log('ℹ️ File System API נכשל:', error);
-          // נמשיך לאופציה הבאה
-        }
-      }
-
-      // אם זה דפדפן רגיל
-      console.log('📁 משתמש ב-webkitdirectory');
+      // בדפדפן Lovable - נתן למשתמש להקליד נתיב
+      console.log('🌐 סביבת דפדפן - דורש הקלדה ידנית');
+      
       return new Promise((resolve) => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.webkitdirectory = true;
-        input.style.display = 'none';
-
-        input.onchange = (e) => {
-          const files = (e.target as HTMLInputElement).files;
-          if (files && files.length > 0) {
-            const folderName = files[0].webkitRelativePath.split('/')[0];
-            console.log('✅ תיקיה נבחרה:', folderName);
-            resolve(folderName);
-          } else {
-            resolve(null);
-          }
-        };
-
-        input.oncancel = () => resolve(null);
+        const folderPath = prompt('הזן נתיב תיקיה (לדוגמה: /Users/Desktop/Projects/פרויקט חדש)');
         
-        document.body.appendChild(input);
-        input.click();
-        document.body.removeChild(input);
+        if (folderPath && folderPath.trim()) {
+          console.log('✅ נתיב תיקיה הוזן:', folderPath);
+          resolve(folderPath.trim());
+        } else {
+          console.log('ℹ️ לא הוזן נתיב תיקיה');
+          resolve(null);
+        }
       });
+      
     } catch (error) {
       console.error('❌ שגיאה בבחירת תיקיה:', error);
       return null;
