@@ -96,7 +96,7 @@ export const ContactService = {
     }
   },
   
-  openWhatsApp: (phone: string): void => {
+  openWhatsApp: async (phone: string): Promise<void> => {
     if (!phone) {
       console.warn('⚠️ לא נמצא מספר וואטסאפ');
       return;
@@ -105,19 +105,32 @@ export const ContactService = {
     try {
       console.log('💬 פותח וואטסאפ למספר:', phone);
       const cleaned = phone.replace(/[^\d]/g, '');
+      
+      // Make sure we have a valid phone number
+      if (cleaned.length < 8) {
+        console.error('❌ מספר טלפון לא תקין:', phone);
+        return;
+      }
+      
       const whatsappUrl = `https://wa.me/${cleaned}`;
       
-      // Open in new tab/window
+      // For Tauri desktop app - use shell API
+      if ((window as any).__TAURI__) {
+        const { shell } = (window as any).__TAURI__;
+        await shell.open(whatsappUrl);
+        console.log('✅ וואטסאפ נפתח באמצעות Tauri');
+        return;
+      }
+      
+      // Fallback for other environments
       const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
       if (!newWindow) {
-        // Fallback if popup blocked
         window.location.href = whatsappUrl;
       }
       
       console.log('✅ וואטסאפ נפתח');
     } catch (error) {
       console.error('❌ שגיאה בפתיחת וואטסאפ:', error);
-      alert(`שגיאה בפתיחת וואטסאפ למספר: ${phone}`);
     }
   },
   
