@@ -27,7 +27,6 @@ import { ProjectEditModal } from './ProjectEditModal';
 import { EnhancedDashboard } from './EnhancedDashboard';
 import { AppSidebar } from './AppSidebar';
 import { FolderService } from '@/services/folderService';
-import { ContactService } from '@/services';
 
 export const ProjectManagementApp = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -412,14 +411,14 @@ export const ProjectManagementApp = () => {
       console.log('🚀 מפעיל פעולה:', type);
       switch (type) {
         case 'phone':
-          ContactService.makePhoneCall(value);
+          FolderService.makePhoneCall(value);
           break;
         case 'whatsapp':
-          console.log('📱 קורא ל-ContactService.openWhatsApp עם:', value);
-          ContactService.openWhatsApp(value);
+          console.log('📱 קורא ל-FolderService.openWhatsApp עם:', value);
+          FolderService.openWhatsApp(value);
           break;
         case 'email':
-          ContactService.sendEmail(value);
+          FolderService.sendEmail(value);
           break;
       }
     } catch (error) {
