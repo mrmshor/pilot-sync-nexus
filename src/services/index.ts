@@ -5,6 +5,21 @@ const isTauriApp = (): boolean => {
   return typeof window !== 'undefined' && '__TAURI__' in window;
 };
 
+// Safe Tauri shell open function
+const openWithTauri = async (url: string): Promise<boolean> => {
+  try {
+    if (!isTauriApp()) return false;
+    
+    // Use eval to avoid TypeScript module resolution issues
+    const tauriShell = await eval('import("@tauri-apps/api/shell")');
+    await tauriShell.open(url);
+    return true;
+  } catch (error) {
+    console.warn('Tauri shell API not available:', error);
+    return false;
+  }
+};
+
 export const FolderService = {
   // פתיחת Finder לבחירת תיקיה חדשה
   selectFolder: async (): Promise<string | null> => {
@@ -124,10 +139,8 @@ export const ContactService = {
       }
       const telUrl = `tel:+${formatted}`;
       
-      if (isTauriApp()) {
-        const { open } = await import('@tauri-apps/api/shell');
-        await open(telUrl);
-      } else {
+      const opened = await openWithTauri(telUrl);
+      if (!opened) {
         window.open(telUrl, '_blank');
       }
     } catch (error) {
@@ -146,12 +159,8 @@ export const ContactService = {
       const whatsappUrl = `https://wa.me/${formatted}`;
       console.log('Opening WhatsApp with URL:', whatsappUrl);
       
-      if (isTauriApp()) {
-        // Use Tauri's shell API for opening external URLs
-        const { open } = await import('@tauri-apps/api/shell');
-        await open(whatsappUrl);
-      } else {
-        // Fallback to window.open for web/preview
+      const opened = await openWithTauri(whatsappUrl);
+      if (!opened) {
         window.open(whatsappUrl, '_blank');
       }
     } catch (error) {
@@ -168,10 +177,8 @@ export const ContactService = {
       }
       const mailtoUrl = `mailto:${email}`;
       
-      if (isTauriApp()) {
-        const { open } = await import('@tauri-apps/api/shell');
-        await open(mailtoUrl);
-      } else {
+      const opened = await openWithTauri(mailtoUrl);
+      if (!opened) {
         window.open(mailtoUrl, '_blank');
       }
     } catch (error) {
