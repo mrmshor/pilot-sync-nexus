@@ -73,3 +73,56 @@ pub fn open_folder_native(path: String) -> Result<String, String> {
 
     Ok("Success".to_string())
 }
+
+#[command]
+pub fn open_whatsapp_with_phone(phone: String) -> Result<String, String> {
+    #[cfg(target_os = "macos")]
+    {
+        // Mac - פתיחת WhatsApp Desktop עם מספר טלפון
+        let whatsapp_url = format!("whatsapp://send?phone={}", phone);
+        Command::new("open")
+            .arg(&whatsapp_url)
+            .spawn()
+            .map_err(|e| {
+                // אם זה לא עבד, נסה לפתוח רק את האפליקציה
+                Command::new("open")
+                    .args(["-a", "WhatsApp"])
+                    .spawn()
+                    .map_err(|e2| format!("Failed to open WhatsApp: {} and {}", e, e2))?;
+                "Opened WhatsApp app only".to_string()
+            })?;
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        // Windows - פתיחת WhatsApp Desktop
+        let whatsapp_url = format!("whatsapp://send?phone={}", phone);
+        Command::new("cmd")
+            .args(["/c", "start", &whatsapp_url])
+            .spawn()
+            .map_err(|e| {
+                // אם זה לא עבד, נסה לפתוח רק את האפליקציה
+                Command::new("cmd")
+                    .args(["/c", "start", "whatsapp:"])
+                    .spawn()
+                    .map_err(|e2| format!("Failed to open WhatsApp: {} and {}", e, e2))?;
+                "Opened WhatsApp app only".to_string()
+            })?;
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        // Linux - פתיחת WhatsApp Desktop
+        let whatsapp_url = format!("whatsapp://send?phone={}", phone);
+        Command::new("xdg-open")
+            .arg(&whatsapp_url)
+            .spawn()
+            .map_err(|e| {
+                // אם זה לא עבד, נסה לפתוח רק את האפליקציה  
+                Command::new("whatsapp-desktop")
+                    .spawn()
+                    .map_err(|e2| format!("Failed to open WhatsApp: {} and {}", e, e2))?;
+                "Opened WhatsApp app only".to_string()
+            })?;
+    }
+}

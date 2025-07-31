@@ -157,23 +157,18 @@ export const ContactService = {
         return;
       }
       
-      // נסה קודם URL scheme של אפליקציית WhatsApp Desktop
-      const whatsappDesktopUrl = `whatsapp://send?phone=${formatted}`;
-      console.log('Trying WhatsApp Desktop with URL:', whatsappDesktopUrl);
-      
-      const desktopOpened = await openWithTauri(whatsappDesktopUrl);
-      if (desktopOpened) {
-        console.log('WhatsApp Desktop opened successfully');
-        return;
-      }
-      
-      // אם זה לא עבד, נסה את URL הרגיל של הדפדפן
-      const whatsappWebUrl = `https://wa.me/${formatted}`;
-      console.log('Fallback to WhatsApp Web with URL:', whatsappWebUrl);
-      
-      const webOpened = await openWithTauri(whatsappWebUrl);
-      if (!webOpened) {
-        window.open(whatsappWebUrl, '_blank');
+      if (isTauriApp()) {
+        // השתמש בפקודה native של Tauri להפעלת WhatsApp במחשב
+        try {
+          const tauriCore = await eval('import("@tauri-apps/api/tauri")');
+          await tauriCore.invoke('open_whatsapp_with_phone', { phone: formatted });
+          console.log('WhatsApp opened via native command with phone:', formatted);
+        } catch (error) {
+          console.error('Failed to open WhatsApp via native command:', error);
+        }
+      } else {
+        // זה לא צריך להגיע כי אנחנו מתמקדים רק במחשב
+        console.warn('Not running in Tauri app, WhatsApp functionality limited to desktop');
       }
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
