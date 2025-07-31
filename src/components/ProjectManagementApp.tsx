@@ -401,14 +401,21 @@ export const ProjectManagementApp = () => {
 
   // Contact handlers using ContactService
   const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', value: string) => {
-    if (!value) return;
+    console.log('🔍 handleContactClick נקרא:', { type, value });
+    
+    if (!value) {
+      console.warn('⚠️ לא נמצא ערך:', { type, value });
+      return;
+    }
     
     try {
+      console.log('🚀 מפעיל פעולה:', type);
       switch (type) {
         case 'phone':
           ContactService.makePhoneCall(value);
           break;
         case 'whatsapp':
+          console.log('📱 קורא ל-ContactService.openWhatsApp עם:', value);
           ContactService.openWhatsApp(value);
           break;
         case 'email':

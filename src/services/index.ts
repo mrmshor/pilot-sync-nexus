@@ -97,14 +97,16 @@ export const ContactService = {
   },
   
   openWhatsApp: async (phone: string): Promise<void> => {
+    console.log('🟢 openWhatsApp התחיל עם מספר:', phone);
+    
     if (!phone) {
       console.warn('⚠️ לא נמצא מספר וואטסאפ');
       return;
     }
     
     try {
-      console.log('💬 פותח וואטסאפ למספר:', phone);
       const cleaned = phone.replace(/[^\d]/g, '');
+      console.log('🧹 מספר נוקה:', cleaned);
       
       // Make sure we have a valid phone number
       if (cleaned.length < 8) {
@@ -113,18 +115,22 @@ export const ContactService = {
       }
       
       const whatsappUrl = `https://wa.me/${cleaned}`;
+      console.log('🔗 URL וואטסאפ:', whatsappUrl);
       
       // For Tauri desktop app - use shell API
       if ((window as any).__TAURI__) {
+        console.log('🖥️ זוהה Tauri, משתמש ב-shell API');
         const { shell } = (window as any).__TAURI__;
         await shell.open(whatsappUrl);
         console.log('✅ וואטסאפ נפתח באמצעות Tauri');
         return;
       }
       
+      console.log('🌐 אין Tauri, משתמש ב-window.open');
       // Fallback for other environments
       const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
       if (!newWindow) {
+        console.log('🚫 window.open נכשל, מנסה location.href');
         window.location.href = whatsappUrl;
       }
       
