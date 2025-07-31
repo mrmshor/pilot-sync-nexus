@@ -1,9 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::Manager;
 use std::fs;
-use std::path::Path;
 
 #[tauri::command]
 fn save_project_data(data: String, filename: String) -> Result<String, String> {
@@ -55,7 +53,7 @@ fn show_in_folder(path: String) -> Result<(), String> {
         std::process::Command::new("open")
             .arg("-R")
             .arg(&path)
-            .spawn()
+            .output()
             .map_err(|e| format!("Failed to open folder: {}", e))?;
     }
     
@@ -64,7 +62,7 @@ fn show_in_folder(path: String) -> Result<(), String> {
         std::process::Command::new("explorer")
             .arg("/select,")
             .arg(&path)
-            .spawn()
+            .output()
             .map_err(|e| format!("Failed to open folder: {}", e))?;
     }
     
@@ -72,7 +70,7 @@ fn show_in_folder(path: String) -> Result<(), String> {
     {
         std::process::Command::new("xdg-open")
             .arg(&path)
-            .spawn()
+            .output()
             .map_err(|e| format!("Failed to open folder: {}", e))?;
     }
     
@@ -87,7 +85,7 @@ fn main() {
         get_app_data_dir,
         show_in_folder
     ])
-        .setup(|app| {
+        .setup(|_app| {
             // Create app data directory on startup
             if let Some(config_dir) = dirs::config_dir() {
                 let app_data_dir = config_dir.join("ProjectManagerPro");
