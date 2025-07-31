@@ -811,21 +811,38 @@ export const ProjectManagementApp = () => {
                           
                           {/* Filters and Actions - Centered */}
                           <div className="flex flex-wrap items-center justify-center gap-3">
-                            <select
-                              value={priorityFilter}
-                              onChange={(e) => setPriorityFilter(e.target.value)}
-                              className="px-3 py-2 border border-input rounded-md text-sm bg-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
+                            <Button 
+                              onClick={() => setShowCreateModal(true)} 
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
+                              title="צור פרויקט חדש (⌘N)"
                             >
-                              <option value="all">כל העדיפויות</option>
-                              <option value="high">עדיפות גבוהה</option>
-                              <option value="medium">עדיפות בינונית</option>
-                              <option value="low">עדיפות נמוכה</option>
+                              <Plus className="w-4 h-4" />
+                              פרויקט חדש
+                            </Button>
+                            
+                            <select
+                              value={`${sortBy}-${sortOrder}`}
+                              onChange={(e) => {
+                                const [field, order] = e.target.value.split('-');
+                                setSortBy(field as any);
+                                setSortOrder(order as any);
+                              }}
+                              className="px-4 py-2 bg-gray-100 border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none cursor-pointer"
+                            >
+                              <option value="updatedAt-desc">תאריך יצירה ↑</option>
+                              <option value="updatedAt-asc">עדכון אחרון ↑</option>
+                              <option value="createdAt-desc">תאריך יצירה ↓</option>
+                              <option value="createdAt-asc">תאריך יצירה ↑</option>
+                              <option value="name-asc">שם א-ת</option>
+                              <option value="name-desc">שם ת-א</option>
+                              <option value="priority-desc">עדיפות ↓</option>
+                              <option value="priority-asc">עדיפות ↑</option>
                             </select>
                             
                             <select
                               value={statusFilter}
                               onChange={(e) => setStatusFilter(e.target.value)}
-                              className="px-3 py-2 border border-input rounded-md text-sm bg-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
+                              className="px-4 py-2 bg-gray-100 border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none cursor-pointer"
                             >
                               <option value="all">כל הסטטוסים</option>
                               <option value="not-started">לא התחיל</option>
@@ -836,34 +853,15 @@ export const ProjectManagementApp = () => {
                             </select>
                             
                             <select
-                              value={`${sortBy}-${sortOrder}`}
-                              onChange={(e) => {
-                                const [field, order] = e.target.value.split('-');
-                                setSortBy(field as any);
-                                setSortOrder(order as any);
-                              }}
-                              className="px-3 py-2 border border-input rounded-md text-sm bg-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
+                              value={priorityFilter}
+                              onChange={(e) => setPriorityFilter(e.target.value)}
+                              className="px-4 py-2 bg-gray-100 border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none cursor-pointer"
                             >
-                              <option value="updatedAt-desc">עדכון אחרון ↓</option>
-                              <option value="updatedAt-asc">עדכון אחרון ↑</option>
-                              <option value="createdAt-desc">תאריך יצירה ↓</option>
-                              <option value="createdAt-asc">תאריך יצירה ↑</option>
-                              <option value="name-asc">שם א-ת</option>
-                              <option value="name-desc">שם ת-א</option>
-                              <option value="priority-desc">עדיפות ↓</option>
-                              <option value="priority-asc">עדיפות ↑</option>
+                              <option value="all">כל העדיפויות</option>
+                              <option value="high">עדיפות גבוהה</option>
+                              <option value="medium">עדיפות בינונית</option>
+                              <option value="low">עדיפות נמוכה</option>
                             </select>
-                            
-                            <Button 
-                              onClick={() => setShowCreateModal(true)} 
-                              variant="default"
-                              size="default"
-                              className="gradient-primary shadow-sm hover:shadow-md transition-all duration-300 px-6"
-                              title="צור פרויקט חדש (⌘N)"
-                            >
-                              <Plus className="w-4 h-4 ml-2" />
-                              פרויקט חדש
-                            </Button>
                           </div>
                         </div>
                       </CardContent>
