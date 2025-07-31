@@ -163,61 +163,36 @@ ${folderPath}
   },
   
   openWhatsApp: async (phone: string): Promise<void> => {
-    console.log('🟢 פותח וואטסאפ למספר:', phone);
-    
-    if (!phone || phone.trim() === '') {
-      console.warn('⚠️ מספר וואטסאפ ריק');
+    if (!phone?.trim()) {
       alert('נא להזין מספר וואטסאפ');
       return;
     }
     
     try {
-      // ניקוי מספר יסודי - רק ספרות ו+
-      let cleaned = phone.replace(/[^\d+]/g, '').trim();
-      console.log('🧹 מספר אחרי ניקוי:', cleaned);
+      // ניקוי פשוט - רק ספרות
+      const cleanNumber = phone.replace(/\D/g, '');
       
-      // הסרת + מהתחלה אם קיים
-      if (cleaned.startsWith('+')) {
-        cleaned = cleaned.substring(1);
-      }
-      
-      // טיפול במספרים ישראליים שמתחילים ב-0
-      if (cleaned.startsWith('0')) {
-        // החלפת 0 ב-972 למספרים ישראליים
-        cleaned = '972' + cleaned.substring(1);
-        console.log('🇮🇱 המרה למספר ישראלי:', cleaned);
-      } 
-      // אם המספר לא מתחיל ב-972 או קידומת אחרת (1, 44 וכו'), הוסף 972
-      else if (!cleaned.match(/^(972|1|44|33|49|39|34|31|32|43|41|46|47|48|20|27|91|86|81|82|55|52|54|56|57|58|51|595|598|502|503|504|505|506|507|508|509|590|591|592|593|594|596|597|598|599)/)) {
-        cleaned = '972' + cleaned;
-        console.log('🇮🇱 הוספת קידומת ישראל:', cleaned);
-      }
-      
-      // וולידציה - המספר חייב להיות לפחות 10 ספרות
-      if (cleaned.length < 10) {
-        console.error('❌ מספר קצר מדי:', phone, 'נוקה:', cleaned);
-        alert(`מספר טלפון לא תקין: ${phone}\nהמספר חייב להכיל לפחות 10 ספרות`);
+      // ווlidation בסיסית
+      if (cleanNumber.length < 9) {
+        alert(`מספר טלפון קצר מדי: ${phone}`);
         return;
       }
       
-      // יצירת קישור וואטסאפ
-      const whatsappUrl = `https://wa.me/${cleaned}`;
-      console.log('🔗 קישור וואטסאפ:', whatsappUrl);
-      
-      // ניסיון פתיחה בחלון חדש
-      const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-      
-      if (newWindow) {
-        console.log('✅ וואטסאפ נפתח בחלון חדש');
-      } else {
-        // אם חלון חדש נחסם, נווט בחלון הנוכחי
-        console.warn('⚠️ חלון חדש נחסם, מנווט בחלון הנוכחי');
-        window.location.href = whatsappUrl;
+      // פורמט למספר ישראלי
+      let formattedNumber = cleanNumber;
+      if (cleanNumber.startsWith('0')) {
+        formattedNumber = '972' + cleanNumber.substring(1);
+      } else if (!cleanNumber.startsWith('972')) {
+        formattedNumber = '972' + cleanNumber;
       }
       
+      const whatsappUrl = `https://wa.me/${formattedNumber}`;
+      console.log('🟢 פותח וואטסאפ:', whatsappUrl);
+      
+      window.open(whatsappUrl, '_blank');
     } catch (error) {
-      console.error('❌ שגיאה בפתיחת וואטסאפ:', error);
-      alert(`שגיאה בפתיחת וואטסאפ:\n${error}\n\nנא לבדוק את החיבור לאינטרנט ולנסות שוב.`);
+      console.error('❌ שגיאה בוואטסאפ:', error);
+      alert('שגיאה בפתיחת וואטסאפ');
     }
   },
   
