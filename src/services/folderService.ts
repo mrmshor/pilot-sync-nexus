@@ -43,17 +43,10 @@ export const FolderService = {
     }
   },
 
-  openFolder: async (folderPath?: string, icloudLink?: string) => {
+  openFolder: (folderPath?: string, icloudLink?: string) => {
     if (folderPath) {
       try {
-        // בדוק אם זה אפליקציית Tauri
-        if ((window as any).__TAURI__) {
-          const { invoke } = (window as any).__TAURI__.tauri;
-          await invoke('show_in_folder', { path: folderPath });
-        } else {
-          // fallback לדפדפן
-          window.open(`file://${folderPath}`, '_blank');
-        }
+        window.open(`file://${folderPath}`, '_blank');
       } catch (error) {
         console.error('Error opening folder:', error);
         if (icloudLink) {

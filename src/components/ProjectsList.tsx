@@ -226,69 +226,48 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex gap-3 flex-wrap">
-                <div className="relative">
-                  <select
-                    value={priorityFilter} 
-                    onChange={(e) => setPriorityFilter(e.target.value)}
-                    className="appearance-none bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
-                  >
-                    <option value="all">כל העדיפויות</option>
-                    <option value="high">🔴 גבוהה</option>
-                    <option value="medium">🟡 בינונית</option>
-                    <option value="low">🟢 נמוכה</option>
-                  </select>
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
+              <div className="flex gap-2 flex-wrap">
+                <select
+                  value={priorityFilter} 
+                  onChange={(e) => setPriorityFilter(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white/80 backdrop-blur"
+                >
+                  <option value="all">כל העדיפויות</option>
+                  <option value="high">🔴 גבוהה</option>
+                  <option value="medium">🟡 בינונית</option>
+                  <option value="low">🟢 נמוכה</option>
+                </select>
 
-                <div className="relative">
-                  <select
-                    value={statusFilter} 
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="appearance-none bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
-                  >
-                    <option value="all">כל הסטטוסים</option>
-                    <option value="not-started">לא התחיל</option>
-                    <option value="in-progress">בתהליך</option>
-                    <option value="completed">הושלם</option>
-                  </select>
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
+                <select
+                  value={statusFilter} 
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white/80 backdrop-blur"
+                >
+                  <option value="all">כל הסטטוסים</option>
+                  <option value="not-started">לא התחיל</option>
+                  <option value="in-progress">בתהליך</option>
+                  <option value="completed">הושלם</option>
+                </select>
               </div>
               
-              <div className="flex gap-3">
-                <div className="relative">
-                  <select
-                    value={sortBy} 
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="appearance-none bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
-                  >
-                    <option value="updatedAt">תאריך עדכון</option>
-                    <option value="createdAt">תאריך יצירה</option>
-                    <option value="name">שם פרויקט</option>
-                    <option value="clientName">שם לקוח</option>
-                    <option value="price">מחיר</option>
-                  </select>
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
+              <div className="flex gap-2">
+                <select
+                  value={sortBy} 
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white/80 backdrop-blur"
+                >
+                  <option value="updatedAt">תאריך עדכון</option>
+                  <option value="createdAt">תאריך יצירה</option>
+                  <option value="name">שם פרויקט</option>
+                  <option value="clientName">שם לקוח</option>
+                  <option value="price">מחיר</option>
+                </select>
 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                  className="bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition-all duration-200 shadow-sm hover:shadow-md"
+                  className="px-3 bg-white/80 backdrop-blur"
                 >
                   {sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
                 </Button>
@@ -307,9 +286,9 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                   setPriorityFilter('all');
                   setStatusFilter('all');
                 }}
-                className="bg-white/90 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xl px-4 py-2 text-xs font-medium text-gray-600 hover:text-gray-800 transition-all duration-200 shadow-sm hover:shadow-md"
+                className="text-xs"
               >
-                <Filter className="h-3 w-3 ml-1" />
+                <Filter className="h-3 w-3 mr-1" />
                 נקה פילטרים
               </Button>
             </div>
