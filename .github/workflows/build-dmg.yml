@@ -1,0 +1,84 @@
+name: Build macOS DMG
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-dmg:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build web app
+      run: npm run build
+      
+    - name: Setup Capacitor
+      run: |
+        npx cap add ios
+        npx cap sync ios
+        
+    - name: Build macOS app
+      run: |
+        cd ios/App
+        xcodebuild -workspace App.xcworkspace \
+                   -scheme App \
+                   -destination 'generic/platform=macOS,variant=Mac Catalyst' \
+                   -configuration Release \
+                   -derivedDataPath ./build \
+                   clean build \
+                   CODE_SIGN_IDENTITY="-" \
+                   CODE_SIGNING_REQUIRED=NO \
+                   CODE_SIGNING_ALLOWED=NO
+                   
+    - name: Create DMG
+      run: |
+        mkdir -p dmg-contents
+        cp -R "ios/App/build/Build/Products/Release-maccatalyst/App.app" dmg-contents/
+        mv "dmg-contents/App.app" "dmg-contents/מערכת ניהול פרויקטים Pro.app"
+        
+        hdiutil create -volname "מערכת ניהול פרויקטים Pro" \
+                       -srcfolder dmg-contents \
+                       -ov -format UDZO \
+                       "ProjectManager-macOS.dmg"
+                       
+    - name: Upload DMG
+      uses: actions/upload-artifact@v4
+      with:
+        name: ProjectManager-macOS-DMG
+        path: ProjectManager-macOS.dmg
+        retention-days: 90
+        
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ProjectManager-macOS.dmg
+        body: |
+          ## מערכת ניהול פרויקטים Pro למק
+          
+          ### הורדה והתקנה:
+          1. הורד את קובץ ה-DMG
+          2. פתח את הקובץ ולחץ כפולה על האפליקציה
+          3. גרור לתיקיית Applications
+          4. הפעל מתיקיית Applications
+          
+          ### במידה ונתקל בהודעת אבטחה:
+          ```bash
+          sudo xattr -rd com.apple.quarantine "/Applications/מערכת ניהול פרויקטים Pro.app"
+          ```
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
