@@ -249,7 +249,6 @@ const App: React.FC = () => {
         <div className="w-80 border-r border-gray-200 bg-white/50 backdrop-blur-sm">
           <div className="p-4">
             <h2 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-              <Clock className="h-5 w-5" />
               פרויקטים ({projects.length})
             </h2>
             
@@ -258,9 +257,11 @@ const App: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-red-500 rounded-full flex-shrink-0"></div>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-700">לקדם פרויקט אליעזר שפירא + מבקש תמונה</p>
-                    <p className="text-xs text-gray-500">שבת, ג׳ אוק׳ 18:50</p>
+                    <p className="text-sm text-gray-700">לקדם פרויקט אליעזר שפירא</p>
+                    <p className="text-xs text-gray-500">+ מבקש תמונה</p>
+                    <p className="text-xs text-gray-400">שבת, ג׳ אוק׳ 18:50</p>
                   </div>
+                  <div className="text-red-500">🔴</div>
                 </div>
               </div>
               
@@ -268,21 +269,23 @@ const App: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-700">מקצוען עור לבגדים - לצלצל במוקד לשני</p>
-                    <p className="text-xs text-gray-500">שבת, ג׳ אוק׳ יום ב׳</p>
+                    <p className="text-sm text-gray-700">מקצוען עור לבגדים</p>
+                    <p className="text-xs text-gray-500">לצלצל במוקד לשני</p>
+                    <p className="text-xs text-gray-400">שבת, ג׳ אוק׳ יום ב׳</p>
                   </div>
+                  <div className="text-blue-500">📘</div>
                 </div>
               </div>
             </div>
             
-            <div className="mt-6">
-              <h3 className="text-sm font-medium text-gray-600 mb-3">אין משימות מחכות</h3>
-              <div className="text-xs text-gray-500">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  <span>כולן השלמו את המשימות! 🎉</span>
-                </div>
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-2 text-gray-600">
+                <Clock className="h-4 w-4" />
+                <span className="text-sm font-medium">אין משימות מחכות</span>
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                השלמו את המטלות הנחוצות במועד הנדרש והמערכת מותאמת במיוחד לעבר macOS Pro
+              </p>
             </div>
           </div>
         </div>
