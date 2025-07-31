@@ -65,23 +65,20 @@ export const ContactService = {
     return phone;
   },
   
-  // כל פונקציות הקשר עברו ל-FolderService המרכזי
+  // פונקציות קשר - כל הפונקציות מרוכזות ב-FolderService
   makePhoneCall: async (phone: string) => {
-    // העברה ל-FolderService הראשי
-    const { FolderService } = await import('./folderService');
-    return FolderService.makePhoneCall(phone);
+    const { FolderService: MainService } = await import('./folderService');
+    return MainService.makePhoneCall(phone);
   },
   
   openWhatsApp: async (phone: string) => {
-    // העברה ל-FolderService הראשי
-    const { FolderService } = await import('./folderService');
-    return FolderService.openWhatsApp(phone);
+    const { FolderService: MainService } = await import('./folderService');
+    return MainService.openWhatsApp(phone);
   },
   
   sendEmail: async (email: string) => {
-    // העברה ל-FolderService הראשי
-    const { FolderService } = await import('./folderService');
-    return FolderService.sendEmail(email);
+    const { FolderService: MainService } = await import('./folderService');
+    return MainService.sendEmail(email);
   }
 };
 

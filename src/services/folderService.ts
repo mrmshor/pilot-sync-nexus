@@ -75,57 +75,66 @@ export const FolderService = {
   },
 
   openFolder: async (folderPath?: string, icloudLink?: string) => {
-    console.log('🗂️ מנסה לפתוח תיקיה:', { folderPath, icloudLink });
+    console.log('🗂️ פותח תיקיה:', { folderPath, icloudLink });
     
+    // בדיקה אם יש נתונים כלשהם
     if (!folderPath && !icloudLink) {
-      alert('אין נתיב תיקיה או קישור iCloud מוגדר לפרויקט זה');
+      alert('❌ לא הוגדר נתיב תיקיה או קישור iCloud לפרויקט זה.\nנא להוסיף אחד מהם בעריכת הפרויקט.');
       return;
     }
 
-    // תמיד העדיף קישור iCloud קודם (עובד ברוב הדפדפנים)
+    // קדימות ל-iCloud (עובד בכל הדפדפנים)
     if (icloudLink && icloudLink.trim() !== '') {
       try {
-        console.log('☁️ פותח קישור iCloud:', icloudLink);
+        console.log('☁️ פותח iCloud:', icloudLink);
+        
+        // וולידציה של קישור iCloud
+        if (!icloudLink.includes('icloud.com')) {
+          console.warn('⚠️ קישור לא נראה כמו iCloud');
+        }
+        
         const newWindow = window.open(icloudLink, '_blank', 'noopener,noreferrer');
         if (newWindow) {
-          console.log('✅ קישור iCloud נפתח בהצלחה');
+          console.log('✅ iCloud נפתח בחלון חדש');
           return;
         } else {
-          console.warn('⚠️ חלון חדש נחסם, מנסה לנווט בחלון נוכחי');
+          // אם popup נחסם, נווט בחלון הנוכחי
+          console.warn('⚠️ popup נחסם, מנווט בחלון נוכחי');
           window.location.href = icloudLink;
           return;
         }
       } catch (error) {
-        console.error('❌ שגיאה בפתיחת קישור iCloud:', error);
+        console.error('❌ שגיאה בפתיחת iCloud:', error);
+        alert(`שגיאה בפתיחת iCloud: ${error}`);
       }
     }
 
-    // אם אין iCloud או שנכשל, הראה הוראות למשתמש
+    // תיקיות מקומיות - הסבר למשתמש על מגבלות הדפדפן
     if (folderPath && folderPath.trim() !== '') {
-      const instructions = `
-לא ניתן לפתוח תיקיות מקומיות ישירות מהדפדפן מסיבות אבטחה.
+      const message = `🔒 מגבלות אבטחה של הדפדפן מונעות פתיחה ישירה של תיקיות מקומיות.
 
-נתיב התיקיה: ${folderPath}
+📁 נתיב התיקיה:
+${folderPath}
 
-אפשרויות:
-1. העתק את הנתיב למעלה ופתח אותו ידנית ב-Finder/Explorer
-2. הוסף קישור iCloud לפרויקט זה
-3. גרור את התיקיה למועדפים שלך לגישה מהירה
+💡 פתרונות זמינים:
+1️⃣ העתק הנתיב למטה ופתח ב-Finder/Explorer
+2️⃣ הוסף קישור iCloud לפרויקט (מומלץ)
+3️⃣ גרור התיקיה למועדפים במחשב
 
-האם תרצה להעתיק את הנתיב?`;
+❓ האם להעתיק את הנתיב ללוח?`;
       
-      if (confirm(instructions)) {
-        // העתק את הנתיב ללוח
+      if (confirm(message)) {
         try {
           await navigator.clipboard.writeText(folderPath);
-          alert('הנתיב הועתק ללוח! עכשיו פתח את Finder/Explorer והדבק אותו');
-        } catch (error) {
-          console.error('שגיאה בהעתקה:', error);
-          prompt('העתק את הנתיב הזה:', folderPath);
+          alert('✅ הנתיב הועתק ללוח!\n\n📋 עכשיו:\n1. פתח Finder (Mac) או Explorer (Windows)\n2. הדבק (Cmd+V / Ctrl+V) את הנתיב בשורת הכתובת\n3. לחץ Enter');
+        } catch (clipboardError) {
+          console.error('❌ שגיאה בהעתקה ללוח:', clipboardError);
+          // fallback - הצג prompt עם הנתיב
+          prompt('העתק את הנתיב הזה ידנית:', folderPath);
         }
       }
     } else {
-      alert('לא הוגדר נתיב תיקיה או קישור iCloud לפרויקט זה');
+      alert('❌ לא הוגדר נתיב תיקיה.\nנא להוסיף נתיב תיקיה או קישור iCloud בעריכת הפרויקט.');
     }
   },
 
@@ -154,57 +163,61 @@ export const FolderService = {
   },
   
   openWhatsApp: async (phone: string): Promise<void> => {
-    console.log('🟢 openWhatsApp התחיל עם מספר:', phone);
+    console.log('🟢 פותח וואטסאפ למספר:', phone);
     
     if (!phone || phone.trim() === '') {
-      console.warn('⚠️ לא נמצא מספר וואטסאפ');
-      alert('לא הוזן מספר וואטסאפ');
+      console.warn('⚠️ מספר וואטסאפ ריק');
+      alert('נא להזין מספר וואטסאפ');
       return;
     }
     
     try {
-      // נקה את המספר - השאר רק ספרות ו+
-      let cleaned = phone.replace(/[^\d+]/g, '');
-      console.log('🧹 מספר נוקה:', cleaned);
+      // ניקוי מספר יסודי - רק ספרות ו+
+      let cleaned = phone.replace(/[^\d+]/g, '').trim();
+      console.log('🧹 מספר אחרי ניקוי:', cleaned);
       
-      // אם המספר מתחיל ב-0, החלף ל-972
+      // הסרת + מהתחלה אם קיים
+      if (cleaned.startsWith('+')) {
+        cleaned = cleaned.substring(1);
+      }
+      
+      // טיפול במספרים ישראליים שמתחילים ב-0
       if (cleaned.startsWith('0')) {
+        // החלפת 0 ב-972 למספרים ישראליים
         cleaned = '972' + cleaned.substring(1);
-        console.log('🇮🇱 הוסף קידומת ישראל:', cleaned);
-      }
-      
-      // אם אין קידומת, הוסף 972
-      if (!cleaned.startsWith('+') && !cleaned.startsWith('972') && !cleaned.startsWith('1')) {
+        console.log('🇮🇱 המרה למספר ישראלי:', cleaned);
+      } 
+      // אם המספר לא מתחיל ב-972 או קידומת אחרת (1, 44 וכו'), הוסף 972
+      else if (!cleaned.match(/^(972|1|44|33|49|39|34|31|32|43|41|46|47|48|20|27|91|86|81|82|55|52|54|56|57|58|51|595|598|502|503|504|505|506|507|508|509|590|591|592|593|594|596|597|598|599)/)) {
         cleaned = '972' + cleaned;
-        console.log('🇮🇱 הוסף קידומת ישראל (ברירת מחדל):', cleaned);
+        console.log('🇮🇱 הוספת קידומת ישראל:', cleaned);
       }
       
-      // הסר + אם קיים
-      cleaned = cleaned.replace(/^\+/, '');
-      
-      // בדוק שהמספר תקין (לפחות 10 ספרות)
+      // וולידציה - המספר חייב להיות לפחות 10 ספרות
       if (cleaned.length < 10) {
-        console.error('❌ מספר טלפון לא תקין:', phone);
-        alert(`מספר הטלפון לא תקין: ${phone}\nהמספר צריך להכיל לפחות 10 ספרות`);
+        console.error('❌ מספר קצר מדי:', phone, 'נוקה:', cleaned);
+        alert(`מספר טלפון לא תקין: ${phone}\nהמספר חייב להכיל לפחות 10 ספרות`);
         return;
       }
       
+      // יצירת קישור וואטסאפ
       const whatsappUrl = `https://wa.me/${cleaned}`;
-      console.log('🔗 URL וואטסאפ:', whatsappUrl);
+      console.log('🔗 קישור וואטסאפ:', whatsappUrl);
       
-      // נסה לפתוח וואטסאפ
+      // ניסיון פתיחה בחלון חדש
       const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
       
       if (newWindow) {
         console.log('✅ וואטסאפ נפתח בחלון חדש');
       } else {
-        console.warn('⚠️ חלון חדש נחסם, מנסה לנווט בחלון נוכחי');
+        // אם חלון חדש נחסם, נווט בחלון הנוכחי
+        console.warn('⚠️ חלון חדש נחסם, מנווט בחלון הנוכחי');
         window.location.href = whatsappUrl;
       }
       
     } catch (error) {
       console.error('❌ שגיאה בפתיחת וואטסאפ:', error);
-      alert('שגיאה בפתיחת וואטסאפ. בדוק את החיבור לאינטרנט ונסה שוב.');
+      alert(`שגיאה בפתיחת וואטסאפ:\n${error}\n\nנא לבדוק את החיבור לאינטרנט ולנסות שוב.`);
     }
   },
   
