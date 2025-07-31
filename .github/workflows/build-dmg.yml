@@ -1,17 +1,16 @@
-name: Build macOS DMG
+name: Build macOS App
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  build-dmg:
+  build-macos:
     runs-on: macos-latest
     
     steps:
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v4
       
     - name: Setup Node.js
@@ -23,80 +22,99 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Build web app
+    - name: Build web application
       run: npm run build
       
-    - name: Setup Capacitor and build native app
+    - name: Add iOS platform for Mac
       run: |
         npx cap add ios
         npx cap sync ios
         
-        # Build the native iOS app for Mac
+    - name: Create export options plist
+      run: |
+        cat > ios/export-options.plist << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>method</key>
+            <string>mac-application</string>
+            <key>destination</key>
+            <string>export</string>
+        </dict>
+        </plist>
+        EOF
+        
+    - name: Build and archive iOS app for Mac
+      run: |
         cd ios/App
+        
+        # Set build settings for Mac Catalyst
         xcodebuild -workspace App.xcworkspace \
                    -scheme App \
                    -destination 'generic/platform=macOS,variant=Mac Catalyst' \
                    -configuration Release \
-                   -archivePath ./App.xcarchive \
+                   -archivePath "../../build/App.xcarchive" \
                    clean archive \
-                   CODE_SIGN_IDENTITY="-" \
+                   CODE_SIGN_IDENTITY="" \
                    CODE_SIGNING_REQUIRED=NO \
-                   CODE_SIGNING_ALLOWED=NO
+                   CODE_SIGNING_ALLOWED=NO \
+                   SUPPORTS_MACCATALYST=YES \
+                   TARGETED_DEVICE_FAMILY="1,2,6"
                    
-        # Export the app
-        xcodebuild -exportArchive \
-                   -archivePath ./App.xcarchive \
-                   -exportPath ./ExportedApp \
-                   -exportOptionsPlist ../../export-options.plist || \
-        cp -R ./App.xcarchive/Products/Applications/ ./ExportedApp/
-                   
-    - name: Create DMG
+    - name: Export application
       run: |
-        mkdir -p dmg-contents
+        cd ios
+        xcodebuild -exportArchive \
+                   -archivePath "../build/App.xcarchive" \
+                   -exportPath "../build/export" \
+                   -exportOptionsPlist export-options.plist
+                   
+    - name: Create DMG installer
+      run: |
+        # Create DMG staging directory
+        mkdir -p dmg-staging
         
-        # Copy the built app to DMG contents
-        if [ -d "ios/App/ExportedApp/App.app" ]; then
-          cp -R "ios/App/ExportedApp/App.app" dmg-contents/
-        elif [ -d "ios/App/App.xcarchive/Products/Applications/App.app" ]; then
-          cp -R "ios/App/App.xcarchive/Products/Applications/App.app" dmg-contents/
-        else
-          echo "App not found in expected locations"
-          find ios/App -name "*.app" -type d | head -1 | xargs -I {} cp -R {} dmg-contents/
+        # Find and copy the app
+        find build/export -name "*.app" -type d | head -1 | while read app_path; do
+          cp -R "$app_path" dmg-staging/
+        done
+        
+        # Rename to Hebrew name
+        find dmg-staging -name "*.app" -type d | head -1 | while read app_path; do
+          mv "$app_path" "dmg-staging/מערכת ניהול פרויקטים Pro.app"
+        done
+        
+        # Check if app exists
+        if [ ! -d "dmg-staging/מערכת ניהול פרויקטים Pro.app" ]; then
+          echo "Error: App not found after export"
+          ls -la build/export/
+          exit 1
         fi
-        
-        # Rename the app
-        find dmg-contents -name "*.app" -exec mv {} "dmg-contents/מערכת ניהול פרויקטים Pro.app" \;
         
         # Create DMG
         hdiutil create -volname "מערכת ניהול פרויקטים Pro" \
-                       -srcfolder dmg-contents \
+                       -srcfolder dmg-staging \
                        -ov -format UDZO \
+                       -fs HFS+ \
                        "ProjectManager-macOS.dmg"
                        
-    - name: Upload DMG
+        # Verify DMG was created and check size
+        ls -lh ProjectManager-macOS.dmg
+        
+    - name: Upload DMG as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ProjectManager-macOS-DMG
+        name: ProjectManager-macOS-App
         path: ProjectManager-macOS.dmg
-        retention-days: 90
+        retention-days: 30
         
-    - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
-      with:
-        files: ProjectManager-macOS.dmg
-        body: |
-          ## מערכת ניהול פרויקטים Pro למק
-          
-          ### הורדה והתקנה:
-          1. הורד את קובץ ה-DMG
-          2. פתח את הקובץ ולחץ כפולה על האפליקציה
-          3. גרור לתיקיית Applications
-          4. הפעל מתיקיית Applications
-          
-          ### במידה ונתקל בהודעת אבטחה:
-          ```bash
-          sudo xattr -rd com.apple.quarantine "/Applications/מערכת ניהול פרויקטים Pro.app"
-          ```
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Debug - List all files
+      if: failure()
+      run: |
+        echo "=== Build directory ==="
+        find build -type f -name "*.app" 2>/dev/null || echo "No .app files found in build"
+        echo "=== iOS directory ==="  
+        find ios -type d -name "*.app" 2>/dev/null || echo "No .app directories found in ios"
+        echo "=== All .app files ==="
+        find . -name "*.app" -type d 2>/dev/null || echo "No .app directories found anywhere"
