@@ -1,10 +1,16 @@
 #!/bin/bash
 
-echo "🖥️ בונה אפליקציית שולחן נטיבית למק עם Electron..."
+echo "🖥️ בונה אפליקציית שולחן נטיבית למק עם Capacitor..."
 
 # בדיקת דרישות
 if ! command -v node &> /dev/null; then
     echo "❌ Node.js לא מותקן. הורד מ: https://nodejs.org/"
+    exit 1
+fi
+
+if ! command -v xcode-select &> /dev/null; then
+    echo "❌ Xcode Command Line Tools לא מותקן."
+    echo "הרץ: xcode-select --install"
     exit 1
 fi
 
@@ -24,23 +30,11 @@ fi
 echo "📦 מתקין תלויות..."
 npm install
 
-echo "📦 מתקין Electron..."
-npm install electron electron-builder concurrently wait-on --save-dev
+echo "🔨 בונה אפליקציית React (offline mode)..."
+NODE_ENV=production npm run build
 
-echo "🔨 בונה אפליקציית React..."
-npm run build
+echo "🖥️ מכין אפליקציית שולחן נטיבית..."
+npx cap add ios
+npx cap sync ios
 
-echo "🖥️ בונה אפליקציית שולחן נטיבית..."
-npx electron-builder --mac --publish=never
-
-echo ""
-echo "🎉 הבנייה הושלמה!"
-echo ""
-echo "📁 קובץ ההתקנה נמצא ב: dist-electron/"
-echo "🖥️ פתח את קובץ ה-DMG והשתמש בו להתקנה!"
-echo ""
-echo "✅ זוהי אפליקציית שולחן מלאה:"
-echo "   - 🔓 לא דורשת אינטרנט"
-echo "   - 💾 נתונים שמורים מקומית"
-echo "   - ⚡ ביצועים נטיביים"
-echo "   - 🖥️ מותקנת כאפליקציה רגילה"
+echo "⚙️ מגדיר אפליקציית שולחן נטיבית (לא web app)..."

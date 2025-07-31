@@ -15,7 +15,11 @@ const config: CapacitorConfig = {
   },
   ios: {
     scheme: 'ProjectManagerPro',
-    path: 'ios'
+    path: 'ios',
+    buildOptions: {
+      developmentTeam: '',
+      packageType: 'app-store'
+    }
   }
 };
 
