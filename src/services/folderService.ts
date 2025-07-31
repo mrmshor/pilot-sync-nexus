@@ -78,38 +78,43 @@ export const FolderService = {
     console.log('🗂️ מנסה לפתוח תיקיה:', { folderPath, icloudLink });
     
     if (!folderPath && !icloudLink) {
-      alert('אין נתיב תיקיה מוגדר לפרויקט זה');
+      alert('אין נתיב תיקיה או קישור iCloud מוגדר לפרויקט זה');
       return;
     }
 
-    if (folderPath) {
+    // תמיד העדיף קישור iCloud קודם
+    if (icloudLink && icloudLink.trim() !== '') {
       try {
-        // Tauri v2 Opener Plugin
-        if ((window as any).__TAURI__) {
-          console.log('🖥️ זוהה Tauri, משתמש ב-opener plugin');
-          await openPath(folderPath);
-          console.log('✅ תיקיה נפתחה ב-Finder/Explorer');
-          return;
+        console.log('☁️ פותח קישור iCloud:', icloudLink);
+        window.open(icloudLink, '_blank', 'noopener,noreferrer');
+        console.log('✅ קישור iCloud נפתח בהצלחה');
+        return;
+      } catch (error) {
+        console.error('❌ שגיאה בפתיחת קישור iCloud:', error);
+      }
+    }
+
+    // אם אין iCloud או שנכשל, נסה את נתיב התיקיה
+    if (folderPath && folderPath.trim() !== '') {
+      try {
+        console.log('🗂️ מנסה לפתוח נתיב תיקיה:', folderPath);
+        
+        // ודא שהנתיב מתחיל ב-/ או C:\ (עבור Windows)
+        let fullPath = folderPath;
+        if (!fullPath.startsWith('/') && !fullPath.includes(':\\')) {
+          fullPath = `/${fullPath}`;
         }
         
-        // Fallback for web browsers
-        console.log('🌐 משתמש בדפדפן, מנסה file:// protocol');
-        window.open(`file://${folderPath}`, '_blank');
+        // פתח את התיקיה
+        window.open(`file://${fullPath}`, '_blank');
+        console.log('✅ תיקיה נפתחה (file:// protocol)');
         
       } catch (error) {
         console.error('❌ שגיאה בפתיחת תיקיה:', error);
-        
-        // Try iCloud link as fallback if available
-        if (icloudLink) {
-          console.log('🔄 מנסה לפתוח קישור iCloud במקום');
-          window.open(icloudLink, '_blank');
-        } else {
-          alert(`שגיאה בפתיחת התיקיה: ${folderPath}\nנסה לפתוח ידנית`);
-        }
+        alert(`לא ניתן לפתוח את התיקיה.\nנתיב: ${folderPath}\nנסה לפתוח ידנית או הוסף קישור iCloud`);
       }
-    } else if (icloudLink) {
-      console.log('☁️ פותח קישור iCloud');
-      window.open(icloudLink, '_blank');
+    } else {
+      alert('לא הוגדר נתיב תיקיה או קישור iCloud לפרויקט זה');
     }
   },
 
@@ -140,41 +145,40 @@ export const FolderService = {
   openWhatsApp: async (phone: string): Promise<void> => {
     console.log('🟢 openWhatsApp התחיל עם מספר:', phone);
     
-    if (!phone) {
+    if (!phone || phone.trim() === '') {
       console.warn('⚠️ לא נמצא מספר וואטסאפ');
+      alert('לא הוזן מספר וואטסאפ');
       return;
     }
     
     try {
-      const cleaned = phone.replace(/[^\d]/g, '');
+      // נקה את המספר - השאר רק ספרות
+      let cleaned = phone.replace(/[^\d]/g, '');
       console.log('🧹 מספר נוקה:', cleaned);
       
-      if (cleaned.length < 8) {
+      // אם המספר מתחיל ב-0, החלף ל-972
+      if (cleaned.startsWith('0')) {
+        cleaned = '972' + cleaned.substring(1);
+        console.log('🇮🇱 הוסף קידומת ישראל:', cleaned);
+      }
+      
+      // בדוק שהמספר תקין (לפחות 10 ספרות)
+      if (cleaned.length < 10) {
         console.error('❌ מספר טלפון לא תקין:', phone);
+        alert('מספר הטלפון לא תקין. אנא בדוק את המספר.');
         return;
       }
       
       const whatsappUrl = `https://wa.me/${cleaned}`;
       console.log('🔗 URL וואטסאפ:', whatsappUrl);
       
-      // Tauri v2 Opener Plugin
-      if ((window as any).__TAURI__) {
-        console.log('🖥️ זוהה Tauri, משתמש ב-opener plugin');
-        await openPath(whatsappUrl);
-        console.log('✅ וואטסאפ נפתח באמצעות Tauri');
-        return;
-      }
+      // פתח וואטסאפ
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      console.log('✅ וואטסאפ נפתח בהצלחה');
       
-      console.log('🌐 אין Tauri, משתמש ב-window.open');
-      const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-      if (!newWindow) {
-        console.log('🚫 window.open נכשל, מנסה location.href');
-        window.location.href = whatsappUrl;
-      }
-      
-      console.log('✅ וואטסאפ נפתח');
     } catch (error) {
       console.error('❌ שגיאה בפתיחת וואטסאפ:', error);
+      alert('שגיאה בפתיחת וואטסאפ. נסה שוב.');
     }
   },
   
