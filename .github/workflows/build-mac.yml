@@ -1,20 +1,17 @@
-name: Build macOS App
+name: Build Check
 
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  build-mac:
-    runs-on: macos-latest
+  build:
+    runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
+    - uses: actions/checkout@v4
+    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -24,48 +21,12 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Build for production
+    - name: Build project
       run: npm run build
       
-    - name: Archive build
-      run: |
-        tar -czf project-build.tar.gz dist/ src/ public/ *.json *.ts *.js *.md
-        
-    - name: Upload build artifact
+    - name: Upload build
       uses: actions/upload-artifact@v4
       with:
-        name: ProjectManager-Source
-        path: project-build.tar.gz
-        retention-days: 30
-        
-    - name: Create Release
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v${{ github.run_number }}
-        name: מערכת ניהול פרויקטים Pro v${{ github.run_number }}
-        body: |
-          ## מערכת ניהול פרויקטים Pro - גירסה למק
-          
-          ### הורדה והתקנה:
-          1. הורד את קובץ ה-DMG
-          2. פתח את הקובץ ולחץ על האפליקציה
-          3. גרור את האפליקציה לתיקיית Applications
-          4. הפעל את האפליקציה
-          
-          ### תכונות בגירסה זו:
-          - ממשק עברי מלא עם תמיכה RTL
-          - פתיחת תיקיות ישירה ב-Finder
-          - שמירת נתונים מקומית בטוחה
-          - אופטימיזציות ביצועים מתקדמות
-          - תמיכה בלוגו מותאם אישית
-          
-          ### דרישות מערכת:
-          - macOS 11.0 (Big Sur) ואילך
-          - 4GB זכרון פנוי
-          - 1GB שטח דיסק פנוי
-        files: ProjectManager-macOS.dmg
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: project-build
+        path: dist/
+        retention-days: 7
