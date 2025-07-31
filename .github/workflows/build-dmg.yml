@@ -26,30 +26,48 @@ jobs:
     - name: Build web app
       run: npm run build
       
-    - name: Setup Capacitor
+    - name: Setup Capacitor and build native app
       run: |
         npx cap add ios
         npx cap sync ios
         
-    - name: Build macOS app
-      run: |
+        # Build the native iOS app for Mac
         cd ios/App
         xcodebuild -workspace App.xcworkspace \
                    -scheme App \
                    -destination 'generic/platform=macOS,variant=Mac Catalyst' \
                    -configuration Release \
-                   -derivedDataPath ./build \
-                   clean build \
+                   -archivePath ./App.xcarchive \
+                   clean archive \
                    CODE_SIGN_IDENTITY="-" \
                    CODE_SIGNING_REQUIRED=NO \
                    CODE_SIGNING_ALLOWED=NO
                    
+        # Export the app
+        xcodebuild -exportArchive \
+                   -archivePath ./App.xcarchive \
+                   -exportPath ./ExportedApp \
+                   -exportOptionsPlist ../../export-options.plist || \
+        cp -R ./App.xcarchive/Products/Applications/ ./ExportedApp/
+                   
     - name: Create DMG
       run: |
         mkdir -p dmg-contents
-        cp -R "ios/App/build/Build/Products/Release-maccatalyst/App.app" dmg-contents/
-        mv "dmg-contents/App.app" "dmg-contents/מערכת ניהול פרויקטים Pro.app"
         
+        # Copy the built app to DMG contents
+        if [ -d "ios/App/ExportedApp/App.app" ]; then
+          cp -R "ios/App/ExportedApp/App.app" dmg-contents/
+        elif [ -d "ios/App/App.xcarchive/Products/Applications/App.app" ]; then
+          cp -R "ios/App/App.xcarchive/Products/Applications/App.app" dmg-contents/
+        else
+          echo "App not found in expected locations"
+          find ios/App -name "*.app" -type d | head -1 | xargs -I {} cp -R {} dmg-contents/
+        fi
+        
+        # Rename the app
+        find dmg-contents -name "*.app" -exec mv {} "dmg-contents/מערכת ניהול פרויקטים Pro.app" \;
+        
+        # Create DMG
         hdiutil create -volname "מערכת ניהול פרויקטים Pro" \
                        -srcfolder dmg-contents \
                        -ov -format UDZO \
