@@ -399,16 +399,112 @@ const App: React.FC = () => {
               )}
 
               {activeView === 'projects' && (
-                <ProjectsList
-                  projects={projects}
-                  onUpdateProject={handleUpdateProject}
-                  onDeleteProject={handleDeleteProject}
-                  selectedProjectId={selectedProjectId}
-                  onProjectSelect={(projectId) => {
-                    const project = projects.find(p => p.id === projectId);
-                    if (project) handleProjectSelect(project);
-                  }}
-                />
+                <div className="space-y-6">
+                  {/* Projects Cards */}
+                  <div className="grid gap-4">
+                    {projects.map((project) => (
+                      <div 
+                        key={project.id}
+                        className="bg-white/90 backdrop-blur rounded-xl border border-gray-200/50 hover:shadow-lg transition-all duration-200 overflow-hidden"
+                      >
+                        {/* Project Header */}
+                        <div className="bg-gradient-to-r from-blue-50/50 to-purple-50/50 p-4 border-b border-gray-100">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h3 className="text-lg font-bold text-gray-800 mb-1">{project.name}</h3>
+                              <p className="text-sm text-gray-600">{project.clientName}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                project.priority === 'high' ? 'bg-red-100 text-red-700' :
+                                project.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-green-100 text-green-700'
+                              }`}>
+                                {project.priority === 'high' ? 'עדיפות גבוהה' :
+                                 project.priority === 'medium' ? 'עדיפות בינונית' : 'עדיפות נמוכה'}
+                              </span>
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                project.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                                project.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                'bg-gray-100 text-gray-700'
+                              }`}>
+                                {project.status === 'in-progress' ? 'בתהליך' :
+                                 project.status === 'completed' ? 'הושלם' : 'לא התחיל'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Project Content */}
+                        <div className="p-4">
+                          <p className="text-sm text-gray-600 mb-4 leading-relaxed">{project.description}</p>
+                          
+                          {/* Price and Tasks */}
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="text-xl font-bold text-green-600">
+                              ₪{project.price?.toLocaleString()}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {project.tasks?.length || 0} משימות
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-2 flex-wrap">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleProjectSelect(project)}
+                              className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
+                            >
+                              משימות
+                            </Button>
+                            
+                            {project.phone1 && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="hover:bg-green-50 hover:text-green-700 hover:border-green-300"
+                              >
+                                בלל טלפון
+                              </Button>
+                            )}
+                            
+                            {project.whatsapp1 && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="hover:bg-green-50 hover:text-green-700 hover:border-green-300"
+                              >
+                                וואטסאפ
+                              </Button>
+                            )}
+                            
+                            {project.email && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
+                              >
+                                מייל
+                              </Button>
+                            )}
+                            
+                            {(project.folderPath || project.icloudLink) && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
+                              >
+                                פתח תיקיה
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </div>
