@@ -29,8 +29,7 @@ jobs:
       
     - name: Setup iOS (for macOS)
       run: |
-        npx cap add ios
-        npx cap update ios
+        npx cap add ios || true
         npx cap sync ios
         
     - name: Setup Xcode
