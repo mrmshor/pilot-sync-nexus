@@ -25,98 +25,69 @@ jobs:
     - name: Build React application (offline mode)
       run: |
         # Build for offline desktop app
-        NODE_ENV=production npm run build
+        npm run build
         
     - name: Setup Capacitor for native Mac app
       run: |
         npx cap add ios
         npx cap sync ios
         
-        # Configure for native desktop app (not web app)
-        echo "Configuring native Mac desktop application..."
-        
-        # Configure Info.plist for standalone desktop app
-        /usr/libexec/PlistBuddy -c "Set :LSUIElement false" ios/App/App/Info.plist || true
-        /usr/libexec/PlistBuddy -c "Set :LSApplicationCategoryType public.app-category.productivity" ios/App/App/Info.plist || true
-        /usr/libexec/PlistBuddy -c "Set :NSSupportsAutomaticTermination true" ios/App/App/Info.plist || true
-        /usr/libexec/PlistBuddy -c "Set :NSSupportsSuddenTermination true" ios/App/App/Info.plist || true
-        /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName מערכת ניהול פרויקטים Pro" ios/App/App/Info.plist || true
-        
-        # Remove web-specific settings
-        /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" ios/App/App/Info.plist || true
-        
-    - name: Create export options for native app
+    - name: Configure iOS project for Mac
       run: |
-        cat > ios/export-options.plist << 'EOF'
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>method</key>
-            <string>mac-application</string>
-            <key>destination</key>
-            <string>export</string>
-            <key>stripSwiftSymbols</key>
-            <true/>
-            <key>thinning</key>
-            <string>&lt;none&gt;</string>
-        </dict>
-        </plist>
-        EOF
+        # Configure Info.plist for desktop app
+        cd ios/App
+        
+        # Basic configuration
+        /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName מערכת ניהול פרויקטים Pro" App/Info.plist || true
+        /usr/libexec/PlistBuddy -c "Set :LSApplicationCategoryType public.app-category.productivity" App/Info.plist || true
         
     - name: Build native Mac desktop application
       run: |
         cd ios/App
         
-        # Build true native Mac desktop application
+        # Simple build without complex signing
         xcodebuild -workspace App.xcworkspace \
                    -scheme App \
                    -destination 'generic/platform=macOS,variant=Mac Catalyst' \
                    -configuration Release \
-                   -archivePath "../../build/App.xcarchive" \
-                   clean archive \
+                   -derivedDataPath "../../build/DerivedData" \
                    CODE_SIGN_IDENTITY="" \
                    CODE_SIGNING_REQUIRED=NO \
                    CODE_SIGNING_ALLOWED=NO \
-                   SUPPORTS_MACCATALYST=YES \
-                   TARGETED_DEVICE_FAMILY="1,2,6" \
                    DEVELOPMENT_TEAM="" \
-                   PROVISIONING_PROFILE_SPECIFIER="" \
-                   ENABLE_BITCODE=NO
+                   build
                    
-    - name: Export native desktop application
+    - name: Find and copy built app
       run: |
-        cd ios
-        xcodebuild -exportArchive \
-                   -archivePath "../build/App.xcarchive" \
-                   -exportPath "../build/export" \
-                   -exportOptionsPlist export-options.plist
+        # Find the built app
+        APP_PATH=$(find build/DerivedData -name "*.app" -type d | head -1)
+        echo "Found app at: $APP_PATH"
+        
+        if [ -z "$APP_PATH" ]; then
+          echo "No app found, listing DerivedData contents:"
+          find build/DerivedData -type d -name "*.app" || echo "No .app directories found"
+          exit 1
+        fi
+        
+        # Create staging and copy app
+        mkdir -p dmg-staging
+        cp -R "$APP_PATH" dmg-staging/
+        
+        # Rename to Hebrew name
+        APP_NAME=$(basename "$APP_PATH")
+        mv "dmg-staging/$APP_NAME" "dmg-staging/מערכת ניהול פרויקטים Pro.app"
                    
     - name: Create DMG installer for desktop app
       run: |
-        # Create DMG staging directory
-        mkdir -p dmg-staging
-        
-        # Find and copy the native app
-        find build/export -name "*.app" -type d | head -1 | while read app_path; do
-          echo "Found native app: $app_path"
-          cp -R "$app_path" dmg-staging/
-          
-          # Rename to Hebrew name for desktop
-          app_name=$(basename "$app_path")
-          mv "dmg-staging/$app_name" "dmg-staging/מערכת ניהול פרויקטים Pro.app"
-          echo "Created native desktop app: מערכת ניהול פרויקטים Pro.app"
-        done
-        
-        # Verify native app exists
+        # Verify app exists from previous step
         if [ ! -d "dmg-staging/מערכת ניהול פרויקטים Pro.app" ]; then
           echo "Error: Native desktop app not found"
-          ls -la build/export/
+          ls -la dmg-staging/
           exit 1
         fi
         
         # Create native desktop app DMG
-        hdiutil create -volname "מערכת ניהול פרויקטים Pro - Native Desktop" \
+        hdiutil create -volname "מערכת ניהול פרויקטים Pro" \
                        -srcfolder dmg-staging \
                        -ov -format UDZO \
                        -fs HFS+ \
