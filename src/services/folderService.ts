@@ -189,6 +189,18 @@ export const FolderService = {
       const whatsappUrl = `https://wa.me/${formattedNumber}`;
       console.log('🟢 פותח:', whatsappUrl);
       
+      // אם זה Tauri - נשתמש ב-openPath
+      if ((window as any).__TAURI__) {
+        try {
+          await openPath(whatsappUrl);
+          console.log('✅ וואטסאפ נפתח דרך Tauri');
+          return;
+        } catch (error) {
+          console.error('❌ Tauri נכשל עבור וואטסאפ:', error);
+          // נפל חזרה לשיטה הרגילה
+        }
+      }
+      
       window.open(whatsappUrl, '_blank');
       console.log('✅ וואטסאפ נפתח בהצלחה');
     } catch (error) {
