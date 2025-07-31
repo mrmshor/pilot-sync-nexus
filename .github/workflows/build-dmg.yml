@@ -25,7 +25,7 @@ jobs:
     - name: Build web application
       run: npm run build
       
-    - name: Add iOS platform for Mac
+    - name: Add iOS platform for Mac desktop app
       run: |
         npx cap add ios
         npx cap sync ios
@@ -45,11 +45,11 @@ jobs:
         </plist>
         EOF
         
-    - name: Build and archive iOS app for Mac
+    - name: Build native Mac desktop application
       run: |
         cd ios/App
         
-        # Set build settings for Mac Catalyst
+        # Build native Mac Catalyst desktop application (not web app)
         xcodebuild -workspace App.xcworkspace \
                    -scheme App \
                    -destination 'generic/platform=macOS,variant=Mac Catalyst' \
@@ -60,7 +60,9 @@ jobs:
                    CODE_SIGNING_REQUIRED=NO \
                    CODE_SIGNING_ALLOWED=NO \
                    SUPPORTS_MACCATALYST=YES \
-                   TARGETED_DEVICE_FAMILY="1,2,6"
+                   TARGETED_DEVICE_FAMILY="1,2,6" \
+                   DEVELOPMENT_TEAM="" \
+                   PROVISIONING_PROFILE_SPECIFIER=""
                    
     - name: Export application
       run: |
