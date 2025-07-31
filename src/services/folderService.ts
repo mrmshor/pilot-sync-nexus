@@ -28,37 +28,57 @@ export const FolderService = {
         }
       }
 
-      // Priority 2: Browser with File System Access API (only if not in iframe)
-      if ('showDirectoryPicker' in window && window.top === window.self) {
+      // Priority 2: File System Access API - ננסה תמיד
+      if ('showDirectoryPicker' in window) {
         console.log('🌐 משתמש ב-File System Access API');
         try {
           const dirHandle = await (window as any).showDirectoryPicker();
+          console.log('✅ תיקיה נבחרה דרך File System API:', dirHandle.name);
           return { name: dirHandle.name, handle: dirHandle };
         } catch (error) {
-          console.error('❌ שגיאה ב-showDirectoryPicker:', error);
-          // Fall through to manual input
+          console.log('ℹ️ File System API נכשל (רגיל ב-iframe):', error.name);
+          // זה רגיל - נמשיך לאפשרויות הבאות
         }
       }
 
-      // Priority 3: Manual input (works everywhere including iframe)
-      console.log('📝 משתמש בהכנסה ידנית');
-      const folderPath = prompt(`בחר אחת מהאפשרויות:
+      // Priority 3: webkitdirectory fallback
+      console.log('📁 משתמש ב-webkitdirectory fallback');
+      return new Promise<any>((resolve) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.webkitdirectory = true;
+        input.style.display = 'none';
 
-1️⃣ הכנס נתיב מלא (C:\\Users\\...)
-2️⃣ הכנס קישור iCloud 
-3️⃣ השאר ריק ותוכל להוסיף מאוחר יותר
+        input.addEventListener('change', (e) => {
+          const files = (e.target as HTMLInputElement).files;
+          if (files && files.length > 0) {
+            const folderName = files[0].webkitRelativePath.split('/')[0];
+            console.log('✅ תיקיה נבחרה דרך webkitdirectory:', folderName);
+            resolve({ name: folderName, handle: null });
+          } else {
+            resolve(null);
+          }
+        });
 
-נתיב תיקיה:`);
-      
-      if (folderPath && folderPath.trim()) {
-        console.log('✅ נתיב הוכנס ידנית:', folderPath);
-        return folderPath.trim();
-      }
-      
-      return null;
+        input.addEventListener('cancel', () => {
+          console.log('ℹ️ בחירת תיקיה בוטלה');
+          resolve(null);
+        });
+        
+        document.body.appendChild(input);
+        input.click();
+        document.body.removeChild(input);
+      });
     } catch (error) {
       console.error('❌ שגיאה כללית בבחירת תיקיה:', error);
-      return null;
+      // אפשרות אחרונה - הכנסה ידנית
+      const path = prompt(`בחירה אוטומטית נכשלה.
+      
+הכנס נתיב תיקיה או קישור:
+• נתיב מקומי: C:\\Projects\\...
+• קישור iCloud: https://...
+• או השאר ריק לביטול`);
+      return path?.trim() || null;
     }
   },
 
