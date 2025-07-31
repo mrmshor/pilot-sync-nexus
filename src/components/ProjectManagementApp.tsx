@@ -404,7 +404,8 @@ export const ProjectManagementApp = () => {
     try {
       switch (type) {
         case 'phone':
-          window.open(`tel:${value}`, '_blank');
+          const cleanPhoneForCall = value.replace(/[^\d]/g, '');
+          window.open(`tel:+${cleanPhoneForCall}`, '_blank');
           break;
         case 'whatsapp':
           const cleanPhone = value.replace(/[^\d]/g, '');
