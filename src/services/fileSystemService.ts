@@ -1,5 +1,4 @@
-import { open as tauriOpen } from '@tauri-apps/plugin-dialog';
-import { openPath } from '@tauri-apps/plugin-opener';
+import { TauriService } from './tauriService';
 
 /**
  * שירות מערכת קבצים - טיפול בבחירה ופתיחה של תיקיות
@@ -49,13 +48,14 @@ selectFolder: async (): Promise<string | null> => {
     // Tauri - אפליקציית שולחן
     if (isTauri) {
       console.log('🖥️ משתמש ב-Tauri');
-      const folderPath = await tauriOpen({
-        multiple: false,
-        directory: true,
-        title: 'בחר תיקיה לפרויקט'
-      });
-      console.log('✅ תיקיה נבחרה:', folderPath);
-      return folderPath || null;
+      try {
+        const folderPath = await TauriService.selectFolder();
+        console.log('✅ תיקיה נבחרה:', folderPath);
+        return folderPath;
+      } catch (error) {
+        console.error('❌ Tauri selectFolder נכשל:', error);
+        return null;
+      }
     }
 
     // דפדפן - שתי אפשרויות: בחירת תיקיה או נתיב מלא
@@ -186,7 +186,7 @@ selectFolder: async (): Promise<string | null> => {
     if (isTauri) {
       console.log('🖥️ משתמש ב-Tauri');
       try {
-        await openPath(folderPath);
+        await TauriService.openFolder(folderPath);
         console.log('✅ Tauri הצליח');
         return;
       } catch (error) {

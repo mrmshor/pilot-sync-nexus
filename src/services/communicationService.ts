@@ -1,4 +1,4 @@
-import { openPath } from '@tauri-apps/plugin-opener';
+import { TauriService } from './tauriService';
 
 /**
  * שירות תקשורת - טיפול בוואטסאפ, טלפון ואימייל
@@ -52,7 +52,7 @@ export const CommunicationService = {
       // Tauri - אפליקציית שולחן
       if (isTauri) {
         try {
-          await openPath(whatsappUrl);
+          await TauriService.openWhatsApp(formattedNumber);
           console.log('✅ וואטסאפ נפתח דרך Tauri');
           return;
         } catch (error) {
