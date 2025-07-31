@@ -75,66 +75,56 @@ export const FolderService = {
   },
 
   openFolder: async (folderPath?: string, icloudLink?: string) => {
-    console.log('🗂️ פותח תיקיה:', { folderPath, icloudLink });
+    console.log('🗂️ מנסה לפתוח תיקיה:', { folderPath, icloudLink });
     
-    // בדיקה אם יש נתונים כלשהם
+    // בדיקה ראשונית
     if (!folderPath && !icloudLink) {
-      alert('❌ לא הוגדר נתיב תיקיה או קישור iCloud לפרויקט זה.\nנא להוסיף אחד מהם בעריכת הפרויקט.');
+      alert('❌ לא הוגדר נתיב תיקיה או קישור iCloud.\nנא להוסיף בעריכת הפרויקט.');
       return;
     }
 
-    // קדימות ל-iCloud (עובד בכל הדפדפנים)
-    if (icloudLink && icloudLink.trim() !== '') {
+    // יבוא ה-hook
+    const { useLocalFolders } = await import('../hooks/useLocalFolders');
+    
+    // ניסיון עם iCloud קודם
+    if (icloudLink?.trim()) {
       try {
-        console.log('☁️ פותח iCloud:', icloudLink);
-        
-        // וולידציה של קישור iCloud
-        if (!icloudLink.includes('icloud.com')) {
-          console.warn('⚠️ קישור לא נראה כמו iCloud');
-        }
-        
-        const newWindow = window.open(icloudLink, '_blank', 'noopener,noreferrer');
-        if (newWindow) {
-          console.log('✅ iCloud נפתח בחלון חדש');
-          return;
-        } else {
-          // אם popup נחסם, נווט בחלון הנוכחי
-          console.warn('⚠️ popup נחסם, מנווט בחלון נוכחי');
-          window.location.href = icloudLink;
-          return;
-        }
+        const success = await useLocalFolders().openFolder(icloudLink);
+        if (success) return;
       } catch (error) {
-        console.error('❌ שגיאה בפתיחת iCloud:', error);
-        alert(`שגיאה בפתיחת iCloud: ${error}`);
+        console.error('❌ iCloud נכשל:', error);
       }
     }
 
-    // תיקיות מקומיות - הסבר למשתמש על מגבלות הדפדפן
-    if (folderPath && folderPath.trim() !== '') {
-      const message = `🔒 מגבלות אבטחה של הדפדפן מונעות פתיחה ישירה של תיקיות מקומיות.
+    // ניסיון עם נתיב מקומי
+    if (folderPath?.trim()) {
+      try {
+        const success = await useLocalFolders().openFolder(folderPath);
+        if (success) return;
+        
+        // אם נכשל - הצע פתרונות
+        const message = `🔒 לא ניתן לפתוח תיקיות מקומיות בדפדפן
 
-📁 נתיב התיקיה:
-${folderPath}
+📁 נתיב: ${folderPath}
 
-💡 פתרונות זמינים:
-1️⃣ העתק הנתיב למטה ופתח ב-Finder/Explorer
-2️⃣ הוסף קישור iCloud לפרויקט (מומלץ)
-3️⃣ גרור התיקיה למועדפים במחשב
+💡 פתרונות:
+✅ הוסף קישור iCloud (מומלץ)
+✅ הורד קובץ עזר לפתיחה
+✅ העתק נתיב ופתח ידנית
 
-❓ האם להעתיק את הנתיב ללוח?`;
-      
-      if (confirm(message)) {
-        try {
-          await navigator.clipboard.writeText(folderPath);
-          alert('✅ הנתיב הועתק ללוח!\n\n📋 עכשיו:\n1. פתח Finder (Mac) או Explorer (Windows)\n2. הדבק (Cmd+V / Ctrl+V) את הנתיב בשורת הכתובת\n3. לחץ Enter');
-        } catch (clipboardError) {
-          console.error('❌ שגיאה בהעתקה ללוח:', clipboardError);
-          // fallback - הצג prompt עם הנתיב
-          prompt('העתק את הנתיב הזה ידנית:', folderPath);
+האם להעתיק הנתיב?`;
+        
+        if (confirm(message)) {
+          try {
+            await navigator.clipboard.writeText(folderPath);
+            alert('✅ הנתיב הועתק!\n\nפתח Finder/Explorer והדבק (Cmd+V)');
+          } catch {
+            prompt('העתק את הנתיב:', folderPath);
+          }
         }
+      } catch (error) {
+        console.error('❌ פתיחה מקומית נכשלה:', error);
       }
-    } else {
-      alert('❌ לא הוגדר נתיב תיקיה.\nנא להוסיף נתיב תיקיה או קישור iCloud בעריכת הפרויקט.');
     }
   },
 
