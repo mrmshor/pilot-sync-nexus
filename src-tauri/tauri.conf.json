@@ -53,6 +53,9 @@
         "depends": []
       },
       "externalBin": [],
+      "icon": [
+        "icons/icon.png"
+      ],
       "identifier": "com.mrmshor.projectmanager.pro",
       "longDescription": "מערכת ניהול פרויקטים מתקדמת עם תמיכה מלאה בעברית ושמירה מקומית",
       "macOS": {
