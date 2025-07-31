@@ -156,12 +156,24 @@ export const ContactService = {
         console.warn('Invalid phone number for WhatsApp:', phone);
         return;
       }
-      const whatsappUrl = `https://wa.me/${formatted}`;
-      console.log('Opening WhatsApp with URL:', whatsappUrl);
       
-      const opened = await openWithTauri(whatsappUrl);
-      if (!opened) {
-        window.open(whatsappUrl, '_blank');
+      // נסה קודם URL scheme של אפליקציית WhatsApp Desktop
+      const whatsappDesktopUrl = `whatsapp://send?phone=${formatted}`;
+      console.log('Trying WhatsApp Desktop with URL:', whatsappDesktopUrl);
+      
+      const desktopOpened = await openWithTauri(whatsappDesktopUrl);
+      if (desktopOpened) {
+        console.log('WhatsApp Desktop opened successfully');
+        return;
+      }
+      
+      // אם זה לא עבד, נסה את URL הרגיל של הדפדפן
+      const whatsappWebUrl = `https://wa.me/${formatted}`;
+      console.log('Fallback to WhatsApp Web with URL:', whatsappWebUrl);
+      
+      const webOpened = await openWithTauri(whatsappWebUrl);
+      if (!webOpened) {
+        window.open(whatsappWebUrl, '_blank');
       }
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
