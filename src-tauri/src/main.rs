@@ -48,13 +48,20 @@ fn get_app_data_dir() -> Result<String, String> {
     Ok(app_data_dir.to_string_lossy().to_string())
 }
 
+#[tauri::command]
+fn show_in_folder(path: String) -> Result<(), String> {
+    tauri::api::shell::open(&tauri::Env::default(), path, None)
+        .map_err(|e| format!("Failed to open folder: {}", e))
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![
-            save_project_data,
-            load_project_data,
-            get_app_data_dir
-        ])
+    .invoke_handler(tauri::generate_handler![
+        save_project_data,
+        load_project_data,
+        get_app_data_dir,
+        show_in_folder
+    ])
         .setup(|app| {
             // Create app data directory on startup
             if let Some(config_dir) = dirs::config_dir() {
