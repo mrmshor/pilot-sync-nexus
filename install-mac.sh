@@ -24,7 +24,7 @@ cd "$INSTALL_DIR"
 # שכפול הקוד (אם עוד לא קיים)
 if [ ! -d ".git" ]; then
     echo "📥 מוריד קוד מ-GitHub..."
-    git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git .
+    git clone https://github.com/mrmshor/pilot-sync-nexus.git .
 fi
 
 echo "📦 מתקין תלויות..."

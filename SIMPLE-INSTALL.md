@@ -7,7 +7,7 @@
 ### אופציה 1: סקריפט אוטומטי (מומלץ)
 ```bash
 # הורד והרץ את סקריפט ההתקנה
-curl -O https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO_NAME/main/install-mac.sh
+curl -O https://raw.githubusercontent.com/mrmshor/pilot-sync-nexus/main/install-mac.sh
 chmod +x install-mac.sh
 ./install-mac.sh
 ```
@@ -15,8 +15,8 @@ chmod +x install-mac.sh
 ### אופציה 2: התקנה ידנית (שלב אחר שלב)
 ```bash
 # 1. שכפל הקוד
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-cd YOUR_REPO_NAME
+git clone https://github.com/mrmshor/pilot-sync-nexus.git
+cd pilot-sync-nexus
 
 # 2. התקן תלויות
 npm install
