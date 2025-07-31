@@ -83,83 +83,37 @@ export const FolderService = {
   },
 
   openFolder: async (folderPath?: string, icloudLink?: string) => {
-    console.log('🗂️ FolderService.openFolder called with:', { folderPath, icloudLink });
-    
     // אם יש קישור iCloud - פתח אותו
     if (icloudLink?.trim()) {
-      console.log('🔗 Opening iCloud link:', icloudLink);
       window.open(icloudLink, '_blank');
       return;
     }
 
-    // אם יש נתיב תיקיה - פתח בכל דרך אפשרית
+    // אם יש נתיב תיקיה - פתח ישירות
     if (folderPath?.trim()) {
-      console.log('📁 Opening folder path:', folderPath);
-      
       // קישורי רשת
       if (folderPath.startsWith('http')) {
         window.open(folderPath, '_blank');
         return;
       }
       
-      // Tauri - פתיחה מקומית
+      // Tauri - פתיחה ישירה
       if ((window as any).__TAURI__) {
-        console.log('🖥️ Using Tauri openPath');
         try {
           await openPath(folderPath);
-          console.log('✅ Tauri openPath success');
           return;
         } catch (error) {
-          console.log('⚠️ Tauri openPath failed, trying alternatives:', error);
+          // שקט
         }
       }
       
-      // Electron - אם זמין
-      if ((window as any).electronAPI?.openFolder) {
-        console.log('🖥️ Using Electron openFolder');
-        try {
-          await (window as any).electronAPI.openFolder(folderPath);
-          console.log('✅ Electron openFolder success');
-          return;
-        } catch (error) {
-          console.log('⚠️ Electron openFolder failed, trying alternatives:', error);
-        }
-      }
-      
-      // דפדפן - ניסיונות מרובים
-      console.log('🌐 Using browser methods');
-      
-      // ניסיון 1: file:// protocol
+      // דפדפן - פתיחה ישירה
       try {
         const fileUrl = folderPath.startsWith('/') ? `file://${folderPath}` : `file:///${folderPath.replace(/\\/g, '/')}`;
         window.open(fileUrl, '_blank');
-        console.log('✅ File protocol attempt made');
-        return;
       } catch (error) {
-        console.log('⚠️ File protocol failed:', error);
+        // שקט
       }
-      
-      // ניסיון 2: בפורמט Windows
-      if (folderPath.includes('\\')) {
-        try {
-          window.open(`file:///${folderPath.replace(/\\/g, '/')}`, '_blank');
-          console.log('✅ Windows file protocol attempt made');
-          return;
-        } catch (error) {
-          console.log('⚠️ Windows file protocol failed:', error);
-        }
-      }
-      
-      // ניסיון 3: location.href
-      try {
-        window.location.href = `file://${folderPath}`;
-        console.log('✅ Location.href attempt made');
-        return;
-      } catch (error) {
-        console.log('⚠️ Location.href failed:', error);
-      }
-      
-      console.log('✅ All folder opening attempts completed');
     }
   },
 
