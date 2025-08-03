@@ -102,7 +102,7 @@
         "maximized": false,
         "visible": true,
         "skipTaskbar": false,
-        "theme": "auto"
+        "theme": "light"
       }
     ]
   }
