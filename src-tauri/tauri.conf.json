@@ -1,39 +1,13 @@
 {
-  "build": {
-    "beforeBuildCommand": "npm run build",
-    "beforeDevCommand": "npm run dev",
-    "devPath": "http://localhost:5173",
-    "distDir": "../dist"
-  },
+  "$schema": "https://schema.tauri.app/config/2.0.json",
   "productName": "מערכת ניהול פרויקטים Pro",
   "version": "1.0.0",
   "identifier": "com.mrmshor.projectmanager.pro",
-  "plugins": {
-    "shell": {
-      "open": true,
-      "scope": [
-        {
-          "name": "open",
-          "sidecar": false,
-          "args": [
-            {
-              "validator": "\\S+"
-            }
-          ]
-        }
-      ]
-    },
-    "dialog": {
-      "open": true,
-      "save": true,
-      "message": true,
-      "ask": true,
-      "confirm": true
-    },
-    "fs": {
-      "all": true,
-      "scope": ["**", "$HOME/**", "$DOCUMENTS/**", "$DESKTOP/**"]
-    }
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173"
   },
   "app": {
     "windows": [
@@ -56,7 +30,10 @@
         "visible": true,
         "skipTaskbar": false
       }
-    ]
+    ],
+    "security": {
+      "csp": null
+    }
   },
   "bundle": {
     "active": true,
@@ -84,7 +61,31 @@
       "timestampUrl": ""
     }
   },
-  "security": {
-    "csp": null
+  "plugins": {
+    "shell": {
+      "open": true,
+      "scope": [
+        {
+          "name": "open",
+          "sidecar": false,
+          "args": [
+            {
+              "validator": "\\S+"
+            }
+          ]
+        }
+      ]
+    },
+    "dialog": {
+      "open": true,
+      "save": true,
+      "message": true,
+      "ask": true,
+      "confirm": true
+    },
+    "fs": {
+      "all": true,
+      "scope": ["**", "$HOME/**", "$DOCUMENTS/**", "$DESKTOP/**"]
+    }
   }
 }
