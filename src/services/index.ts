@@ -51,27 +51,31 @@ export const FolderService = {
       console.log('Attempting to open folder dialog using Tauri command...');
       
       try {
-        // Use Tauri command for folder selection - equivalent to Electron's dialog.showOpenDialog
+        // מקביל ל-dialog.showOpenDialog() ב-Electron - פותח דיאלוג בחירת תיקיה
         const tauri = (window as any).__TAURI__;
         if (tauri && tauri.dialog && tauri.dialog.open) {
-          console.log('Using Tauri dialog API...');
+          console.log('Opening native folder selection dialog via Tauri...');
           const selected = await tauri.dialog.open({
             directory: true,
             multiple: false,
-            title: 'בחר תיקיה לפרויקט'
+            title: 'בחר תיקיה לפרויקט',
+            defaultPath: '/Users'  // התחל בתיקיית המשתמשים (מקביל למה שעושים ב-Mac)
           });
           
-          console.log('Dialog result:', selected);
+          console.log('Native dialog result:', selected);
           
           if (selected && typeof selected === 'string') {
-            console.log('Folder selected via dialog:', selected);
+            console.log('Folder successfully selected:', selected);
             return selected;
+          } else if (selected === null) {
+            console.log('User cancelled folder selection');
+            return null;
           }
         } else {
-          console.error('Tauri dialog API not available');
+          console.error('Tauri dialog API not available in current environment');
         }
       } catch (error) {
-        console.error('Error with Tauri dialog:', error);
+        console.error('Error opening native folder dialog:', error);
       }
       
       return null;
@@ -81,7 +85,7 @@ export const FolderService = {
     }
   },
 
-  // פתיחת תיקיה קיימת במערכת
+  // פתיחת תיקיה קיימת במערכת - מקביל ל-shell.openPath() ב-Electron
   openFolder: async (folderPath: string, icloudLink?: string): Promise<void> => {
     if (!folderPath) {
       console.warn('No folder path provided');
@@ -90,23 +94,35 @@ export const FolderService = {
 
     try {
       if (isTauriApp()) {
-        // השתמש בפקודה native של Tauri לפתיחת תיקיה במחשב
-        await invokeCommand('open_folder_native', { path: folderPath });
-        console.log('Folder opened via native command:', folderPath);
+        // מקביל ל-shell.openPath() ב-Electron - פותח את התיקיה ישירות
+        const result = await invokeCommand('open_folder_native', { path: folderPath });
+        console.log('Folder opened successfully via Tauri native command:', result);
       } else {
-        console.warn('Not running in Tauri app, folder opening limited to desktop');
+        console.warn('Not running in Tauri app - folder opening only works on desktop');
       }
     } catch (error) {
-      console.error('Error opening folder:', error);
+      console.error('Failed to open folder with Tauri command:', error);
       
       // אם הפקודה הראשונה נכשלה, נסה להציג את הפריט בתיקיה
       try {
         if (isTauriApp()) {
-          await invokeCommand('show_item_in_folder', { path: folderPath });
-          console.log('Folder location shown via native command:', folderPath);
+          const result = await invokeCommand('show_item_in_folder', { path: folderPath });
+          console.log('Fallback: Item location shown in folder:', result);
         }
       } catch (fallbackError) {
-        console.error('Fallback folder opening also failed:', fallbackError);
+        console.error('Both folder opening methods failed:', fallbackError);
+        
+        // אם גם זה נכשל ויש קישור iCloud, נסה לפתוח אותו
+        if (icloudLink && icloudLink.startsWith('http')) {
+          try {
+            const opened = await openWithTauri(icloudLink);
+            if (opened) {
+              console.log('Opened iCloud link as fallback:', icloudLink);
+            }
+          } catch (icloudError) {
+            console.error('Failed to open iCloud link as fallback:', icloudError);
+          }
+        }
       }
     }
   },
