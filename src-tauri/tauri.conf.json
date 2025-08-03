@@ -71,6 +71,9 @@
         }
       ]
     },
+    "opener": {
+      "enable": true
+    },
     "dialog": {
       "open": true,
       "save": true,

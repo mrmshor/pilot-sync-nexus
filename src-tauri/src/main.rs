@@ -2,7 +2,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::Manager;
-use tauri_plugin_shell::ShellExt;
 use std::fs;
 
 mod commands;
@@ -55,6 +54,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             save_project_data,
             load_project_data,
@@ -74,23 +74,10 @@ pub fn run() {
                 }
             }
 
-            // Handle external links - equivalent to Electron's setWindowOpenHandler
+            // Handle external links in webview
             if let Some(window) = app.get_webview_window("main") {
-                let app_handle = app.handle().clone();
-                window.on_navigation(move |url| {
-                    // Allow navigation to internal pages, deny external URLs and open them externally
-                    if url.scheme() == "http" || url.scheme() == "https" {
-                        if url.host_str() != Some("localhost") && url.host_str() != Some("127.0.0.1") {
-                            // Open external URLs in default browser/app using shell plugin
-                            let _ = app_handle.shell().open(url.as_str(), None);
-                            return false; // Deny navigation in webview
-                        }
-                    } else if url.scheme() == "tel" || url.scheme() == "mailto" || url.scheme() == "whatsapp" {
-                        // Open tel:, mailto:, whatsapp: links externally using shell plugin
-                        let _ = app_handle.shell().open(url.as_str(), None);
-                        return false; // Deny navigation in webview
-                    }
-                    true // Allow internal navigation
+                window.on_menu_event(move |window, event| {
+                    println!("got menu event: {:?}", event);
                 });
             }
 

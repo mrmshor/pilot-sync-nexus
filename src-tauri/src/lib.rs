@@ -1,5 +1,6 @@
-// Import the main module which contains all the logic
-mod main;
+// This is a library crate for the Tauri application
+// The actual application runs from src/main.rs
 
-// Re-export the run function from main module
-pub use main::run;
+pub fn lib_version() -> &'static str {
+    "1.0.0"
+}
