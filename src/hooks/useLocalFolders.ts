@@ -28,22 +28,15 @@ export const useLocalFolders = () => {
   }, [isTauri]);
 
   const attemptAutoOpen = useCallback(async (path: string): Promise<boolean> => {
-    const protocols = [
-      `file://${path}`,
-      `vscode://file/${path}`,
-      `subl://open?url=file://${path}`,
-    ];
-
-    for (const protocol of protocols) {
-      try {
-        window.open(protocol, '_blank');
-        return true;
-      } catch (error) {
-        console.warn(`Failed to open with protocol: ${protocol}`, error);
-      }
+    try {
+      // Use Tauri shell to open file/folder natively
+      const { FolderService } = await import('../services');
+      await FolderService.openFolder(path);
+      return true;
+    } catch (error) {
+      console.warn(`Failed to open path: ${path}`, error);
+      return false;
     }
-
-    return false;
   }, []);
 
   const openFolder = useCallback(async (folderPath: string, icloudLink?: string): Promise<boolean> => {

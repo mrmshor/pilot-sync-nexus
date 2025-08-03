@@ -43,39 +43,29 @@ export const FolderService = {
   // פתיחת Finder לבחירת תיקיה חדשה
   selectFolder: async (): Promise<string | null> => {
     try {
-      // מודרני - File System Access API
-      if (window.showDirectoryPicker) {
-        const dirHandle = await window.showDirectoryPicker();
-        return dirHandle.name;
+      if (!isTauriApp()) {
+        console.warn('Not running in Tauri - folder selection not available');
+        return null;
       }
-      
-      // חלופה - webkitdirectory
-      return new Promise((resolve) => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        (input as any).webkitdirectory = true;
-        input.style.display = 'none';
-        
-        input.addEventListener('change', (e) => {
-          const target = e.target as HTMLInputElement;
-          const files = target.files;
-          if (files && files.length > 0) {
-            const path = (files[0] as any).webkitRelativePath.split('/')[0];
-            resolve(path);
-          } else {
-            resolve(null);
-          }
+
+      // Use Tauri native dialog to select folder
+      const tauri = (window as any).__TAURI__;
+      if (tauri && tauri.dialog && tauri.dialog.open) {
+        const selected = await tauri.dialog.open({
+          directory: true,
+          multiple: false,
+          title: 'בחר תיקיה לפרויקט'
         });
         
-        input.addEventListener('cancel', () => resolve(null));
-        document.body.appendChild(input);
-        input.click();
-        document.body.removeChild(input);
-      });
+        if (selected && typeof selected === 'string') {
+          return selected;
+        }
+      }
+      
+      return null;
     } catch (error) {
-      console.error('Error selecting folder:', error);
-      const path = prompt('הכנס נתיב תיקיה מלא:');
-      return path;
+      console.error('Error selecting folder with Tauri:', error);
+      return null;
     }
   },
 
@@ -178,17 +168,13 @@ export const ContactService = {
           console.log('Phone call initiated via native command with phone:', formatted);
         } catch (error) {
           console.error('Failed to initiate call via native command:', error);
-          // חלופה - השתמש ב-tel protocol
+          // חלופה - השתמש ב-tel protocol דרך Tauri shell
           const telUrl = `tel:+${formatted}`;
           const opened = await openWithTauri(telUrl);
           if (!opened) {
-            window.open(telUrl, '_blank');
+            console.warn('Unable to open tel: URL on this platform');
           }
         }
-      } else {
-        // חלופה לדפדפן
-        const telUrl = `tel:+${formatted}`;
-        window.open(telUrl, '_blank');
       }
     } catch (error) {
       console.error('Error making phone call:', error);
@@ -211,16 +197,13 @@ export const ContactService = {
           console.log('WhatsApp opened via native command with phone:', formatted);
         } catch (error) {
           console.error('Failed to open WhatsApp via native command:', error);
-          // חלופה - השתמש ב-whatsapp protocol
+          // חלופה - השתמש ב-whatsapp protocol דרך Tauri shell
           const whatsappUrl = `whatsapp://send?phone=${formatted}`;
           const opened = await openWithTauri(whatsappUrl);
           if (!opened) {
-            window.open(`https://wa.me/${formatted}`, '_blank');
+            console.warn('Unable to open WhatsApp on this platform');
           }
         }
-      } else {
-        // חלופה לדפדפן
-        window.open(`https://wa.me/${formatted}`, '_blank');
       }
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
@@ -238,7 +221,7 @@ export const ContactService = {
       
       const opened = await openWithTauri(mailtoUrl);
       if (!opened) {
-        window.open(mailtoUrl, '_blank');
+        console.warn('Unable to open email client on this platform');
       }
     } catch (error) {
       console.error('Error sending email:', error);
