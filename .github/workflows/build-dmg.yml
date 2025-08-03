@@ -34,13 +34,7 @@ jobs:
       
     - name: Install Tauri CLI
       run: |
-        cargo install tauri-cli --version "^1.0"
-        
-    - name: Add Tauri dependency
-      run: |
-        cargo install cargo-edit
-        cd src-tauri
-        cargo add dirs
+        cargo install tauri-cli --version "^2.0"
         
     - name: Build React application
       run: npm run build

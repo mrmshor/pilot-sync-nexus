@@ -21,12 +21,12 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Build project
+    - name: Build React project
       run: npm run build
       
-    - name: Upload build
+    - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: project-build
+        name: react-build
         path: dist/
         retention-days: 7
