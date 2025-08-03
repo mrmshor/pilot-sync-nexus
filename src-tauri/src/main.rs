@@ -6,11 +6,16 @@ use std::fs;
 
 mod commands;
 
+// Helper function to get app data directory
+fn get_app_data_directory() -> Result<std::path::PathBuf, String> {
+    dirs::config_dir()
+        .ok_or("Could not find config directory".to_string())
+        .map(|dir| dir.join("ProjectManagerPro"))
+}
+
 #[tauri::command]
 fn save_project_data(data: String, filename: String) -> Result<String, String> {
-    let app_data_dir = dirs::config_dir()
-        .ok_or("Could not find config directory")?
-        .join("ProjectManagerPro");
+    let app_data_dir = get_app_data_directory()?;
     
     if !app_data_dir.exists() {
         fs::create_dir_all(&app_data_dir)
@@ -26,14 +31,11 @@ fn save_project_data(data: String, filename: String) -> Result<String, String> {
 
 #[tauri::command]
 fn load_project_data(filename: String) -> Result<String, String> {
-    let app_data_dir = dirs::config_dir()
-        .ok_or("Could not find config directory")?
-        .join("ProjectManagerPro");
-    
+    let app_data_dir = get_app_data_directory()?;
     let file_path = app_data_dir.join(filename);
     
     if !file_path.exists() {
-        return Ok("{}".to_string()); // Return empty object if file doesn't exist
+        return Ok("{}".to_string());
     }
     
     fs::read_to_string(&file_path)
@@ -42,10 +44,7 @@ fn load_project_data(filename: String) -> Result<String, String> {
 
 #[tauri::command]
 fn get_app_data_dir() -> Result<String, String> {
-    let app_data_dir = dirs::config_dir()
-        .ok_or("Could not find config directory")?
-        .join("ProjectManagerPro");
-    
+    let app_data_dir = get_app_data_directory()?;
     Ok(app_data_dir.to_string_lossy().to_string())
 }
 
