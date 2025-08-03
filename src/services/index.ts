@@ -48,29 +48,30 @@ export const FolderService = {
         return null;
       }
 
-      console.log('Attempting to open folder dialog...');
+      console.log('Attempting to open folder dialog using Tauri command...');
       
-      // Use Tauri native dialog through global API
-      const tauri = (window as any).__TAURI__;
-      console.log('Tauri object:', tauri);
-      console.log('Tauri dialog:', tauri?.dialog);
-      
-      if (tauri && tauri.dialog && tauri.dialog.open) {
-        console.log('Opening dialog...');
-        const selected = await tauri.dialog.open({
-          directory: true,
-          multiple: false,
-          title: 'בחר תיקיה לפרויקט'
-        });
-        
-        console.log('Dialog result:', selected);
-        
-        if (selected && typeof selected === 'string') {
-          console.log('Folder selected:', selected);
-          return selected;
+      try {
+        // Use Tauri command for folder selection - equivalent to Electron's dialog.showOpenDialog
+        const tauri = (window as any).__TAURI__;
+        if (tauri && tauri.dialog && tauri.dialog.open) {
+          console.log('Using Tauri dialog API...');
+          const selected = await tauri.dialog.open({
+            directory: true,
+            multiple: false,
+            title: 'בחר תיקיה לפרויקט'
+          });
+          
+          console.log('Dialog result:', selected);
+          
+          if (selected && typeof selected === 'string') {
+            console.log('Folder selected via dialog:', selected);
+            return selected;
+          }
+        } else {
+          console.error('Tauri dialog API not available');
         }
-      } else {
-        console.error('Tauri dialog API not available');
+      } catch (error) {
+        console.error('Error with Tauri dialog:', error);
       }
       
       return null;
