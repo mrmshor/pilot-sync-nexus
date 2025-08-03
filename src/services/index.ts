@@ -5,36 +5,31 @@ export const isTauriApp = (): boolean => {
   return typeof window !== 'undefined' && '__TAURI__' in window;
 };
 
-// Safe Tauri invoke function using global window API
+// Safe Tauri invoke function using Tauri 2.0 API
 const invokeCommand = async (cmd: string, args?: any): Promise<any> => {
   try {
     if (!isTauriApp()) throw new Error('Not in Tauri environment');
     
-    // Use the global __TAURI__ API
-    const tauri = (window as any).__TAURI__;
-    if (tauri && tauri.invoke) {
-      return await tauri.invoke(cmd, args);
-    }
-    throw new Error('Tauri invoke not available');
+    // Use Tauri 2.0 core API
+    const { invoke } = await import('@tauri-apps/api/core');
+    return await invoke(cmd, args);
   } catch (error) {
     console.warn(`Tauri command ${cmd} failed:`, error);
     throw error;
   }
 };
 
-// Safe Tauri shell open function using global window API
+// Safe Tauri shell open function using Tauri 2.0 plugin
 export const openWithTauri = async (url: string): Promise<boolean> => {
   try {
     if (!isTauriApp()) return false;
     
-    const tauri = (window as any).__TAURI__;
-    if (tauri && tauri.shell && tauri.shell.open) {
-      await tauri.shell.open(url);
-      return true;
-    }
-    return false;
+    // Use Tauri 2.0 shell plugin
+    const { open } = await import('@tauri-apps/plugin-shell');
+    await open(url);
+    return true;
   } catch (error) {
-    console.warn('Tauri shell API not available:', error);
+    console.warn('Tauri shell plugin not available:', error);
     return false;
   }
 };
@@ -51,28 +46,23 @@ export const FolderService = {
       console.log('Attempting to open folder dialog using Tauri command...');
       
       try {
-        // מקביל ל-dialog.showOpenDialog() ב-Electron - פותח דיאלוג בחירת תיקיה
-        const tauri = (window as any).__TAURI__;
-        if (tauri && tauri.dialog && tauri.dialog.open) {
-          console.log('Opening native folder selection dialog via Tauri...');
-          const selected = await tauri.dialog.open({
-            directory: true,
-            multiple: false,
-            title: 'בחר תיקיה לפרויקט',
-            defaultPath: '/Users'  // התחל בתיקיית המשתמשים (מקביל למה שעושים ב-Mac)
-          });
-          
-          console.log('Native dialog result:', selected);
-          
-          if (selected && typeof selected === 'string') {
-            console.log('Folder successfully selected:', selected);
-            return selected;
-          } else if (selected === null) {
-            console.log('User cancelled folder selection');
-            return null;
-          }
-        } else {
-          console.error('Tauri dialog API not available in current environment');
+        // מקביל ל-dialog.showOpenDialog() ב-Electron - פותח דיאלוג בחירת תיקיה עם Tauri 2.0
+        const { open } = await import('@tauri-apps/plugin-dialog');
+        console.log('Opening native folder selection dialog via Tauri 2.0...');
+        const selected = await open({
+          directory: true,
+          multiple: false,
+          title: 'בחר תיקיה לפרויקט'
+        });
+        
+        console.log('Native dialog result:', selected);
+        
+        if (selected && typeof selected === 'string') {
+          console.log('Folder successfully selected:', selected);
+          return selected;
+        } else if (selected === null) {
+          console.log('User cancelled folder selection');
+          return null;
         }
       } catch (error) {
         console.error('Error opening native folder dialog:', error);

@@ -1,0 +1,1 @@
+// Tauri doesn't have an interface, this is an empty file.

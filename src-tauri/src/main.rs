@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{Manager, api::shell};
+use tauri::Manager;
 use std::fs;
 
 mod commands;
@@ -51,6 +51,9 @@ fn get_app_data_dir() -> Result<String, String> {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
             save_project_data,
             load_project_data,
@@ -70,19 +73,19 @@ fn main() {
             }
 
             // Handle external links - equivalent to Electron's setWindowOpenHandler
-            let window = app.get_window("main").unwrap();
-            let app_handle = app.handle();
+            let window = app.get_webview_window("main").unwrap();
+            let app_handle = app.handle().clone();
             window.on_navigation(move |url| {
                 // Allow navigation to internal pages, deny external URLs and open them externally
                 if url.scheme() == "http" || url.scheme() == "https" {
                     if url.host_str() != Some("localhost") && url.host_str() != Some("127.0.0.1") {
-                        // Open external URLs in default browser/app
-                        let _ = shell::open(&app_handle.shell_scope(), url.as_str(), None);
+                        // Open external URLs in default browser/app using shell plugin
+                        let _ = app_handle.shell().open(url.as_str(), None);
                         return false; // Deny navigation in webview
                     }
                 } else if url.scheme() == "tel" || url.scheme() == "mailto" || url.scheme() == "whatsapp" {
-                    // Open tel:, mailto:, whatsapp: links externally
-                    let _ = shell::open(&app_handle.shell_scope(), url.as_str(), None);
+                    // Open tel:, mailto:, whatsapp: links externally using shell plugin
+                    let _ = app_handle.shell().open(url.as_str(), None);
                     return false; // Deny navigation in webview
                 }
                 true // Allow internal navigation
