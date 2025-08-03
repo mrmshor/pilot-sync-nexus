@@ -454,7 +454,6 @@ export const ProjectManagementApp = () => {
         variant: "destructive"
       });
     }
-    }
   };
 
   const handleExportCSV = () => {
