@@ -49,7 +49,8 @@ fn get_app_data_dir() -> Result<String, String> {
     Ok(app_data_dir.to_string_lossy().to_string())
 }
 
-fn main() {
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
@@ -73,26 +74,31 @@ fn main() {
             }
 
             // Handle external links - equivalent to Electron's setWindowOpenHandler
-            let window = app.get_webview_window("main").unwrap();
-            let app_handle = app.handle().clone();
-            window.on_navigation(move |url| {
-                // Allow navigation to internal pages, deny external URLs and open them externally
-                if url.scheme() == "http" || url.scheme() == "https" {
-                    if url.host_str() != Some("localhost") && url.host_str() != Some("127.0.0.1") {
-                        // Open external URLs in default browser/app using shell plugin
+            if let Some(window) = app.get_webview_window("main") {
+                let app_handle = app.handle().clone();
+                window.on_navigation(move |url| {
+                    // Allow navigation to internal pages, deny external URLs and open them externally
+                    if url.scheme() == "http" || url.scheme() == "https" {
+                        if url.host_str() != Some("localhost") && url.host_str() != Some("127.0.0.1") {
+                            // Open external URLs in default browser/app using shell plugin
+                            let _ = app_handle.shell().open(url.as_str(), None);
+                            return false; // Deny navigation in webview
+                        }
+                    } else if url.scheme() == "tel" || url.scheme() == "mailto" || url.scheme() == "whatsapp" {
+                        // Open tel:, mailto:, whatsapp: links externally using shell plugin
                         let _ = app_handle.shell().open(url.as_str(), None);
                         return false; // Deny navigation in webview
                     }
-                } else if url.scheme() == "tel" || url.scheme() == "mailto" || url.scheme() == "whatsapp" {
-                    // Open tel:, mailto:, whatsapp: links externally using shell plugin
-                    let _ = app_handle.shell().open(url.as_str(), None);
-                    return false; // Deny navigation in webview
-                }
-                true // Allow internal navigation
-            });
+                    true // Allow internal navigation
+                });
+            }
 
             Ok(())
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn main() {
+    run();
 }

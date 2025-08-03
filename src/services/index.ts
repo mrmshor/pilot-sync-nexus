@@ -12,7 +12,7 @@ const invokeCommand = async (cmd: string, args?: any): Promise<any> => {
     
     // Use Tauri 2.0 core API
     const { invoke } = await import('@tauri-apps/api/core');
-    return await invoke(cmd, args);
+    return await invoke(cmd, args || {});
   } catch (error) {
     console.warn(`Tauri command ${cmd} failed:`, error);
     throw error;

@@ -5,10 +5,9 @@
     "devPath": "http://localhost:5173",
     "distDir": "../dist"
   },
-  "package": {
-    "productName": "מערכת ניהול פרויקטים Pro",
-    "version": "1.0.0"
-  },
+  "productName": "מערכת ניהול פרויקטים Pro",
+  "version": "1.0.0",
+  "identifier": "com.mrmshor.projectmanager.pro",
   "plugins": {
     "shell": {
       "open": true
@@ -25,41 +24,10 @@
       "scope": ["**"]
     }
   },
-  "tauri": {
-    "bundle": {
-      "active": true,
-      "category": "Productivity",
-      "copyright": "Copyright © 2025 מערכת ניהול פרויקטים Pro",
-      "deb": {
-        "depends": []
-      },
-      "externalBin": [],
-      "identifier": "com.mrmshor.projectmanager.pro",
-      "longDescription": "מערכת ניהול פרויקטים מתקדמת עם תמיכה מלאה בעברית ושמירה מקומית",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [],
-      "shortDescription": "מערכת ניהול פרויקטים Pro",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
-    "security": {
-      "csp": null
-    },
-    "updater": {
-      "active": false
-    },
+  "app": {
     "windows": [
       {
+        "label": "main",
         "fullscreen": false,
         "height": 800,
         "resizable": true,
@@ -68,7 +36,6 @@
         "minWidth": 800,
         "minHeight": 600,
         "center": true,
-        "url": "../dist/index.html",
         "fileDropEnabled": false,
         "acceptFirstMouse": false,
         "transparent": false,
@@ -79,5 +46,34 @@
         "skipTaskbar": false
       }
     ]
+  },
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "copyright": "Copyright © 2025 מערכת ניהול פרויקטים Pro",
+    "deb": {
+      "depends": []
+    },
+    "externalBin": [],
+    "identifier": "com.mrmshor.projectmanager.pro",
+    "longDescription": "מערכת ניהול פרויקטים מתקדמת עם תמיכה מלאה בעברית ושמירה מקומית",
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
+    },
+    "resources": [],
+    "shortDescription": "מערכת ניהול פרויקטים Pro",
+    "targets": "all",
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    }
+  },
+  "security": {
+    "csp": null
   }
 }
