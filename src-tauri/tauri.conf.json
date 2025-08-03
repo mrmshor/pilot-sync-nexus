@@ -42,7 +42,13 @@
       },
       "shell": {
         "all": false,
-        "open": true
+        "open": true,
+        "execute": true
+      },
+      "process": {
+        "all": false,
+        "relaunch": true,
+        "exit": true
       }
     },
     "bundle": {

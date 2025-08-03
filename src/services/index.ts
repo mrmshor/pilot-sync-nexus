@@ -1,19 +1,38 @@
 import { Project, QuickTask } from '../types';
 
 // Helper function to detect if running in Tauri
-const isTauriApp = (): boolean => {
+export const isTauriApp = (): boolean => {
   return typeof window !== 'undefined' && '__TAURI__' in window;
 };
 
-// Safe Tauri shell open function
-const openWithTauri = async (url: string): Promise<boolean> => {
+// Safe Tauri invoke function using global window API
+const invokeCommand = async (cmd: string, args?: any): Promise<any> => {
+  try {
+    if (!isTauriApp()) throw new Error('Not in Tauri environment');
+    
+    // Use the global __TAURI__ API
+    const tauri = (window as any).__TAURI__;
+    if (tauri && tauri.invoke) {
+      return await tauri.invoke(cmd, args);
+    }
+    throw new Error('Tauri invoke not available');
+  } catch (error) {
+    console.warn(`Tauri command ${cmd} failed:`, error);
+    throw error;
+  }
+};
+
+// Safe Tauri shell open function using global window API
+export const openWithTauri = async (url: string): Promise<boolean> => {
   try {
     if (!isTauriApp()) return false;
     
-    // Use eval to avoid TypeScript module resolution issues
-    const tauriShell = await eval('import("@tauri-apps/api/shell")');
-    await tauriShell.open(url);
-    return true;
+    const tauri = (window as any).__TAURI__;
+    if (tauri && tauri.shell && tauri.shell.open) {
+      await tauri.shell.open(url);
+      return true;
+    }
+    return false;
   } catch (error) {
     console.warn('Tauri shell API not available:', error);
     return false;
@@ -70,8 +89,7 @@ export const FolderService = {
     try {
       if (isTauriApp()) {
         // השתמש בפקודה native של Tauri לפתיחת תיקיה במחשב
-        const tauriCore = await eval('import("@tauri-apps/api/tauri")');
-        await tauriCore.invoke('open_folder_native', { path: folderPath });
+        await invokeCommand('open_folder_native', { path: folderPath });
         console.log('Folder opened via native command:', folderPath);
       } else {
         console.warn('Not running in Tauri app, folder opening limited to desktop');
@@ -82,8 +100,7 @@ export const FolderService = {
       // אם הפקודה הראשונה נכשלה, נסה להציג את הפריט בתיקיה
       try {
         if (isTauriApp()) {
-          const tauriCore = await eval('import("@tauri-apps/api/tauri")');
-          await tauriCore.invoke('show_item_in_folder', { path: folderPath });
+          await invokeCommand('show_item_in_folder', { path: folderPath });
           console.log('Folder location shown via native command:', folderPath);
         }
       } catch (fallbackError) {
@@ -153,10 +170,24 @@ export const ContactService = {
         console.warn('Invalid phone number:', phone);
         return;
       }
-      const telUrl = `tel:+${formatted}`;
       
-      const opened = await openWithTauri(telUrl);
-      if (!opened) {
+      if (isTauriApp()) {
+        // השתמש בפקודה native של Tauri להתקשרות טלפונית במחשב
+        try {
+          await invokeCommand('make_phone_call', { phone: formatted });
+          console.log('Phone call initiated via native command with phone:', formatted);
+        } catch (error) {
+          console.error('Failed to initiate call via native command:', error);
+          // חלופה - השתמש ב-tel protocol
+          const telUrl = `tel:+${formatted}`;
+          const opened = await openWithTauri(telUrl);
+          if (!opened) {
+            window.open(telUrl, '_blank');
+          }
+        }
+      } else {
+        // חלופה לדפדפן
+        const telUrl = `tel:+${formatted}`;
         window.open(telUrl, '_blank');
       }
     } catch (error) {
@@ -176,15 +207,20 @@ export const ContactService = {
       if (isTauriApp()) {
         // השתמש בפקודה native של Tauri להפעלת WhatsApp במחשב
         try {
-          const tauriCore = await eval('import("@tauri-apps/api/tauri")');
-          await tauriCore.invoke('open_whatsapp_with_phone', { phone: formatted });
+          await invokeCommand('open_whatsapp_with_phone', { phone: formatted });
           console.log('WhatsApp opened via native command with phone:', formatted);
         } catch (error) {
           console.error('Failed to open WhatsApp via native command:', error);
+          // חלופה - השתמש ב-whatsapp protocol
+          const whatsappUrl = `whatsapp://send?phone=${formatted}`;
+          const opened = await openWithTauri(whatsappUrl);
+          if (!opened) {
+            window.open(`https://wa.me/${formatted}`, '_blank');
+          }
         }
       } else {
-        // זה לא צריך להגיע כי אנחנו מתמקדים רק במחשב
-        console.warn('Not running in Tauri app, WhatsApp functionality limited to desktop');
+        // חלופה לדפדפן
+        window.open(`https://wa.me/${formatted}`, '_blank');
       }
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
