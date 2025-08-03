@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-// use tauri::Manager; // Not needed for current functionality
+use tauri::Manager;
 use std::fs;
 
 mod commands;
@@ -60,7 +60,7 @@ fn main() {
             commands::open_whatsapp_with_phone,
             commands::make_phone_call
         ])
-        .setup(|_app| {
+        .setup(|app| {
             // Create app data directory on startup
             if let Some(config_dir) = dirs::config_dir() {
                 let app_data_dir = config_dir.join("ProjectManagerPro");
@@ -68,6 +68,25 @@ fn main() {
                     let _ = fs::create_dir_all(&app_data_dir);
                 }
             }
+
+            // Handle external links - equivalent to Electron's setWindowOpenHandler
+            let window = app.get_window("main").unwrap();
+            window.on_navigation(|url| {
+                // Allow navigation to internal pages, deny external URLs and open them externally
+                if url.scheme() == "http" || url.scheme() == "https" {
+                    if url.host_str() != Some("localhost") && url.host_str() != Some("127.0.0.1") {
+                        // Open external URLs in default browser/app
+                        let _ = tauri::api::shell::open(&app.shell_scope(), url.as_str(), None);
+                        return false; // Deny navigation in webview
+                    }
+                } else if url.scheme() == "tel" || url.scheme() == "mailto" || url.scheme() == "whatsapp" {
+                    // Open tel:, mailto:, whatsapp: links externally
+                    let _ = tauri::api::shell::open(&app.shell_scope(), url.as_str(), None);
+                    return false; // Deny navigation in webview
+                }
+                true // Allow internal navigation
+            });
+
             Ok(())
         })
         .run(tauri::generate_context!())

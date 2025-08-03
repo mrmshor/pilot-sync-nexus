@@ -92,7 +92,17 @@
         "width": 1200,
         "minWidth": 800,
         "minHeight": 600,
-        "center": true
+        "center": true,
+        "url": "../dist/index.html",
+        "fileDropEnabled": false,
+        "acceptFirstMouse": false,
+        "transparent": false,
+        "alwaysOnTop": false,
+        "decorations": true,
+        "maximized": false,
+        "visible": true,
+        "skipTaskbar": false,
+        "theme": "auto"
       }
     ]
   }
