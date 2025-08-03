@@ -56,11 +56,38 @@ export const ProjectEditModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData) return;
+    
+    // בדיקות תקינות
+    if (!formData.name.trim()) {
+      toast({
+        title: "שגיאה בטופס",
+        description: "יש להזין שם פרויקט",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.clientName.trim()) {
+      toast({
+        title: "שגיאה בטופס",
+        description: "יש להזין שם לקוח", 
+        variant: "destructive"
+      });
+      return;
+    }
+    
     onUpdateProject({
       ...formData,
       updatedAt: new Date()
     });
     onOpenChange(false);
+    
+    toast({
+      title: "פרויקט עודכן",
+      description: "השינויים נשמרו בהצלחה",
+    });
   };
 
   const handleFieldChange = (field: keyof Project, value: any) => {

@@ -457,6 +457,15 @@ export const ProjectManagementApp = () => {
 
   const handleExportCSV = () => {
     try {
+      if (projects.length === 0) {
+        toast({
+          title: "אין נתונים לייצוא",
+          description: "יש ליצור פרויקטים לפני הייצוא",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const headers = [
         'שם פרויקט', 'תיאור', 'שם לקוח', 'טלפון ראשי', 'טלפון נוסף',
         'וואטסאפ ראשי', 'וואטסאפ נוסף', 'אימייל', 'תיקייה מקומית', 'קישור iCloud',
@@ -465,13 +474,26 @@ export const ProjectManagementApp = () => {
       ];
 
       const csvData = projects.map(project => [
-        project.name, project.description, project.clientName,
-        project.phone1, project.phone2 || '', project.whatsapp1, project.whatsapp2 || '',
-        project.email, project.folderPath || '', project.icloudLink || '',
-        project.status, project.priority, project.price, project.currency,
-        project.paid ? 'כן' : 'לא', project.completed ? 'כן' : 'לא',
-        project.createdAt.toLocaleDateString('he-IL'), project.updatedAt.toLocaleDateString('he-IL'),
-        project.tasks.length, project.tasks.filter(t => t.completed).length,
+        project.name || '', 
+        project.description || '', 
+        project.clientName || '',
+        project.phone1 || '', 
+        project.phone2 || '', 
+        project.whatsapp1 || '', 
+        project.whatsapp2 || '',
+        project.email || '', 
+        project.folderPath || '', 
+        project.icloudLink || '',
+        project.status || '', 
+        project.priority || '', 
+        project.price || 0, 
+        project.currency || 'ILS',
+        project.paid ? 'כן' : 'לא', 
+        project.completed ? 'כן' : 'לא',
+        project.createdAt.toLocaleDateString('he-IL'), 
+        project.updatedAt.toLocaleDateString('he-IL'),
+        project.tasks.length, 
+        project.tasks.filter(t => t.completed).length,
         project.tasks.length > 0 ? `${((project.tasks.filter(t => t.completed).length / project.tasks.length) * 100).toFixed(1)}%` : '0%'
       ]);
 
@@ -490,14 +512,14 @@ export const ProjectManagementApp = () => {
       URL.revokeObjectURL(url);
       
       toast({
-        title: "ייצוא הושלם",
-        description: "הנתונים יוצאו בהצלחה לקובץ CSV",
+        title: "ייצוא הושלם בהצלחה",
+        description: `${projects.length} פרויקטים יוצאו לקובץ CSV`,
       });
     } catch (error) {
       console.error('Error exporting CSV:', error);
       toast({
         title: "שגיאה בייצוא",
-        description: "לא ניתן לייצא את הנתונים",
+        description: "לא ניתן לייצא את הנתונים. נסה שוב.",
         variant: "destructive"
       });
     }

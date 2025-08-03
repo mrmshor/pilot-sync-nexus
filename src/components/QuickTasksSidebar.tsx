@@ -34,10 +34,11 @@ export const QuickTasksSidebar = ({
     }
     
     onAddTask(newTaskTitle.trim());
+    const taskTitle = newTaskTitle.trim();
     setNewTaskTitle('');
     toast({
       title: "משימה נוספה",
-      description: `המשימה "${newTaskTitle}" נוספה בהצלחה`,
+      description: `המשימה "${taskTitle}" נוספה בהצלחה`,
     });
   };
 

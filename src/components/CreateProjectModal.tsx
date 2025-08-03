@@ -60,6 +60,26 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // בדיקות תקינות
+    if (!formData.name.trim()) {
+      toast({
+        title: "שגיאה בטופס",
+        description: "יש להזין שם פרויקט",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.clientName.trim()) {
+      toast({
+        title: "שגיאה בטופס", 
+        description: "יש להזין שם לקוח",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     onCreateProject(formData);
     
     // Reset form
