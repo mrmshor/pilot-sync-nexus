@@ -7,9 +7,9 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 5173,
+    port: 8080,
   },
-  // Tauri expects the app to be served from port 5173 in dev mode
+  // Tauri configuration
   clearScreen: false,
   envPrefix: ['VITE_', 'TAURI_'],
   plugins: [

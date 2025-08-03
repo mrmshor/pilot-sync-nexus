@@ -7,7 +7,7 @@
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
     "frontendDist": "../dist",
-    "devUrl": "http://localhost:5173"
+    "devUrl": "http://localhost:8080"
   },
   "app": {
     "windows": [
@@ -21,7 +21,6 @@
         "minWidth": 800,
         "minHeight": 600,
         "center": true,
-        "fileDropEnabled": false,
         "acceptFirstMouse": false,
         "transparent": false,
         "alwaysOnTop": false,
@@ -39,11 +38,7 @@
     "active": true,
     "category": "Productivity",
     "copyright": "Copyright © 2025 מערכת ניהול פרויקטים Pro",
-    "deb": {
-      "depends": []
-    },
     "externalBin": [],
-    "identifier": "com.mrmshor.projectmanager.pro",
     "longDescription": "מערכת ניהול פרויקטים מתקדמת עם תמיכה מלאה בעברית ושמירה מקומית",
     "macOS": {
       "entitlements": null,
