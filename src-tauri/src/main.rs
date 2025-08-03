@@ -59,6 +59,7 @@ pub fn run() {
             save_project_data,
             load_project_data,
             get_app_data_dir,
+            commands::send_email_native,
             commands::show_item_in_folder,
             commands::open_folder_native,
             commands::open_whatsapp_with_phone,

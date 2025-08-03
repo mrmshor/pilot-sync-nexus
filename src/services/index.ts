@@ -117,11 +117,14 @@ export const FolderService = {
     }
   },
 
-  // יצירת נתיב תיקיה מומלץ
+  // יצירת נתיב תיקיה מומלץ (תואם macOS)
   generateFolderPath: (projectName: string, clientName: string): string => {
-    const sanitizedProject = projectName.replace(/[^א-ת\w\s]/g, '').trim();
-    const sanitizedClient = clientName.replace(/[^א-ת\w\s]/g, '').trim();
-    return `/Users/Projects/${sanitizedClient}/${sanitizedProject}`;
+    const sanitizedProject = projectName.replace(/[^א-ת\w\s\-\.]/g, '').trim();
+    const sanitizedClient = clientName.replace(/[^א-ת\w\s\-\.]/g, '').trim();
+    
+    // נתיב מותאם macOS עם Documents או Desktop
+    const homeDir = '/Users/' + (process.env.USER || 'User');
+    return `${homeDir}/Documents/Projects/${sanitizedClient}/${sanitizedProject}`;
   }
 };
 
@@ -228,18 +231,58 @@ export const ContactService = {
     }
   },
   
-  sendEmail: async (email: string): Promise<void> => {
+  sendEmail: async (email: string, subject?: string, body?: string): Promise<void> => {
     if (!email) return;
     try {
       if (!email.includes('@')) {
         console.warn('Invalid email address:', email);
         return;
       }
-      const mailtoUrl = `mailto:${email}`;
       
-      const opened = await openWithTauri(mailtoUrl);
-      if (!opened) {
-        console.warn('Unable to open email client on this platform');
+      console.log('Sending email to:', email, 'with subject:', subject);
+      
+      if (isTauriApp()) {
+        try {
+          // השתמש בפקודה native מתקדמת למייל
+          const result = await invokeCommand('send_email_native', { 
+            email, 
+            subject: subject || null, 
+            body: body || null 
+          });
+          console.log('Email client opened via native command:', result);
+          return;
+        } catch (error) {
+          console.error('Failed to open email via native command:', error);
+        }
+      }
+      
+      // גיבוי - בניית URL מייל מתקדם עם נושא וגוף ההודעה
+      let mailtoUrl = `mailto:${email}`;
+      const params = [];
+      
+      if (subject) {
+        params.push(`subject=${encodeURIComponent(subject)}`);
+      }
+      if (body) {
+        params.push(`body=${encodeURIComponent(body)}`);
+      }
+      
+      if (params.length > 0) {
+        mailtoUrl += `?${params.join('&')}`;
+      }
+      
+      console.log('Opening email with URL:', mailtoUrl);
+      
+      if (isTauriApp()) {
+        const opened = await openWithTauri(mailtoUrl);
+        if (opened) {
+          console.log('Email client opened successfully via shell');
+        } else {
+          console.warn('Unable to open email client on this platform');
+        }
+      } else {
+        // גיבוי לדפדפן
+        window.open(mailtoUrl, '_blank');
       }
     } catch (error) {
       console.error('Error sending email:', error);

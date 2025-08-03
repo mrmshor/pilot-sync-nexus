@@ -10,7 +10,18 @@
   "identifier": "com.mrmshor.projectmanager.pro",
   "plugins": {
     "shell": {
-      "open": true
+      "open": true,
+      "scope": [
+        {
+          "name": "open",
+          "sidecar": false,
+          "args": [
+            {
+              "validator": "\\S+"
+            }
+          ]
+        }
+      ]
     },
     "dialog": {
       "open": true,
@@ -21,7 +32,7 @@
     },
     "fs": {
       "all": true,
-      "scope": ["**"]
+      "scope": ["**", "$HOME/**", "$DOCUMENTS/**", "$DESKTOP/**"]
     }
   },
   "app": {
