@@ -1,15 +1,3 @@
-// File System Access API Types
-declare global {
-  interface Window {
-    showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
-  }
-}
-
-interface FileSystemDirectoryHandle {
-  name: string;
-  kind: 'directory';
-}
-
 export interface TaskItem {
   id: string;
   text: string;

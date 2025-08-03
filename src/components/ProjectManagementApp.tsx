@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useDebounce, useOptimizedData } from '@/hooks/usePerformanceOptimizations';
 import { MemoryManager, debounce } from '@/utils/memoryManager';
@@ -47,27 +45,31 @@ export const ProjectManagementApp = () => {
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const { toast } = useToast();
 
-  // Load custom logo on startup
+  // Load custom logo on startup using Tauri
   useEffect(() => {
     const loadCustomLogo = async () => {
       try {
-        if (Capacitor.isNativePlatform()) {
-          // For native app - use Capacitor Filesystem
-          const logoData = await Filesystem.readFile({
-            path: 'custom-logo.png',
-            directory: Directory.Data,
-            encoding: Encoding.UTF8
-          });
-          setCustomLogo(logoData.data as string);
+        if (typeof window !== 'undefined' && '__TAURI__' in window) {
+          // For Tauri app - use native file system
+          try {
+            const tauri = (window as any).__TAURI__;
+            if (tauri && tauri.fs) {
+              const logoData = await tauri.fs.readTextFile('custom-logo.txt', { dir: 13 }); // AppConfig dir
+              setCustomLogo(logoData);
+            }
+          } catch (error) {
+            // Logo doesn't exist yet - this is normal
+            console.log('No custom logo found yet');
+          }
         } else {
-          // Fallback to localStorage for web
+          // Fallback to localStorage for development
           const savedLogo = localStorage.getItem('customLogo');
           if (savedLogo) {
             setCustomLogo(savedLogo);
           }
         }
       } catch (error) {
-        // Logo doesn't exist yet - this is normal
+        console.log('Logo loading failed:', error);
         console.log('No custom logo found, using default');
       }
     };
@@ -259,16 +261,14 @@ export const ProjectManagementApp = () => {
         setCustomLogo(result);
         
         try {
-          if (Capacitor.isNativePlatform()) {
-            // Save to filesystem for native app
-            await Filesystem.writeFile({
-              path: 'custom-logo.png',
-              data: result.split(',')[1], // Remove data:image/png;base64, prefix
-              directory: Directory.Data,
-              encoding: Encoding.UTF8
-            });
+          if (typeof window !== 'undefined' && '__TAURI__' in window) {
+            // Save to filesystem for Tauri app
+            const tauri = (window as any).__TAURI__;
+            if (tauri && tauri.fs) {
+              await tauri.fs.writeTextFile('custom-logo.txt', result, { dir: 13 }); // AppConfig dir
+            }
           } else {
-            // Fallback to localStorage for web
+            // Fallback to localStorage for development
             localStorage.setItem('customLogo', result);
           }
           
@@ -294,14 +294,14 @@ export const ProjectManagementApp = () => {
     setCustomLogo(null);
     
     try {
-      if (Capacitor.isNativePlatform()) {
-        // Remove from filesystem for native app
-        await Filesystem.deleteFile({
-          path: 'custom-logo.png',
-          directory: Directory.Data
-        });
+      if (typeof window !== 'undefined' && '__TAURI__' in window) {
+        // Remove from filesystem for Tauri app
+        const tauri = (window as any).__TAURI__;
+        if (tauri && tauri.fs) {
+          await tauri.fs.removeFile('custom-logo.txt', { dir: 13 }); // AppConfig dir
+        }
       } else {
-        // Remove from localStorage for web
+        // Remove from localStorage for development
         localStorage.removeItem('customLogo');
       }
     } catch (error) {
@@ -424,9 +424,8 @@ export const ProjectManagementApp = () => {
     }
   };
 
-  // Improved folder opening with file picker for macOS
+  // Native folder opening for Tauri desktop app
   const openFolder = async (folderPath?: string, icloudLink?: string) => {
-    // If running as a Capacitor app (native)
     try {
       if (folderPath) {
         // Use native Tauri command to open folder

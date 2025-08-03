@@ -13,13 +13,7 @@ export const useLocalFolders = () => {
 
   const selectFolder = useCallback(async (): Promise<string | null> => {
     try {
-      // עבור עתיד: תמיכה בTauri עם electron API
-      if (window.electronAPI?.selectFolder) {
-        const result = await window.electronAPI.selectFolder();
-        return result;
-      }
-
-      // Browser fallback
+      // Use Tauri native folder selection
       return await FolderService.selectFolder();
     } catch (error) {
       console.error('Error selecting folder:', error);
@@ -41,36 +35,21 @@ export const useLocalFolders = () => {
 
   const openFolder = useCallback(async (folderPath: string, icloudLink?: string): Promise<boolean> => {
     try {
-      // Electron API (עבור עתיד)
-      if (window.electronAPI?.openFolder) {
-        await window.electronAPI.openFolder(folderPath);
-        return true;
-      }
-
-      // Browser fallback
+      // Use Tauri native folder opening
       if (folderPath) {
         await FolderService.openFolder(folderPath, icloudLink);
         return true;
       }
-
       return false;
     } catch (error) {
       console.error('Error opening folder:', error);
-      // Fallback to FolderService
-      await FolderService.openFolder(folderPath, icloudLink);
       return false;
     }
   }, []);
 
   const showItemInFolder = useCallback(async (itemPath: string): Promise<boolean> => {
     try {
-      // Electron API (עבור עתיד)
-      if (window.electronAPI?.showItemInFolder) {
-        await window.electronAPI.showItemInFolder(itemPath);
-        return true;
-      }
-      
-      // Browser fallback
+      // Use Tauri native show in folder
       return await attemptAutoOpen(itemPath);
     } catch (error) {
       console.error('Error showing item in folder:', error);
@@ -88,7 +67,7 @@ export const useLocalFolders = () => {
     showItemInFolder,
     attemptAutoOpen,
     downloadHelperFiles: handleDownloadHelperFiles,
-    isElectron: !!window.electronAPI,
+    isElectron: false, // Not using Electron
     isTauri,
   };
 };
