@@ -17,7 +17,7 @@ import {
   FileText, ArrowUpDown, ListTodo, ChevronDown, List
 } from 'lucide-react';
 import { Project, ProjectTask, QuickTask } from '@/types';
-import { ContactService } from '@/services';
+import { ContactService, FolderService, openWithTauri } from '@/services';
 import { useToast } from '@/hooks/use-toast';
 import { CreateProjectModal } from './CreateProjectModal';
 import { StatusDropdown } from './StatusDropdown';
@@ -427,77 +427,33 @@ export const ProjectManagementApp = () => {
   // Improved folder opening with file picker for macOS
   const openFolder = async (folderPath?: string, icloudLink?: string) => {
     // If running as a Capacitor app (native)
-    if (Capacitor.isNativePlatform()) {
-      try {
-        if (folderPath) {
-          // For native macOS app - reveal in Finder
-          await window.open(`file://${folderPath}`, '_blank');
-          toast({
-            title: "תיקייה נפתחת ב-Finder",
-            description: folderPath,
-          });
-        } else if (icloudLink) {
-          await window.open(icloudLink, '_blank');
-          toast({
-            title: "קישור iCloud נפתח",
-            description: "הקישור נפתח בדפדפן",
-          });
-        } else {
-          // Open file picker for selecting a folder
-          const input = document.createElement('input');
-          input.type = 'file';
-          input.webkitdirectory = true;
-          input.addEventListener('change', (e) => {
-            const files = (e.target as HTMLInputElement).files;
-            if (files && files.length > 0) {
-              const folderPath = files[0].webkitRelativePath.split('/')[0];
-              toast({
-                title: "תיקייה נבחרה",
-                description: `נבחרה תיקייה: ${folderPath}`,
-              });
-            }
-          });
-          input.click();
-        }
-      } catch (error) {
-        console.error('Error with Capacitor folder operation:', error);
-        toast({
-          title: "שגיאה",
-          description: "לא ניתן לפתוח את התיקייה",
-          variant: "destructive"
-        });
-      }
-    } else {
-      // Web fallback
+    try {
       if (folderPath) {
-        try {
-          window.open(`file://${folderPath}`, '_blank');
-          toast({
-            title: "תיקייה נפתחת",
-            description: "התיקייה נפתחת ב-Finder",
-          });
-        } catch (error) {
-          if (icloudLink) {
-            window.open(icloudLink, '_blank');
-            toast({
-              title: "קישור iCloud נפתח",
-              description: "הקישור נפתח בדפדפן",
-            });
-          } else {
-            toast({
-              title: "שגיאה",
-              description: "לא ניתן לפתוח את התיקייה. נסה לבחור תיקייה חדשה.",
-              variant: "destructive"
-            });
-          }
-        }
+        // Use native Tauri command to open folder
+        await FolderService.openFolder(folderPath, icloudLink);
+        toast({
+          title: "תיקייה נפתחת",
+          description: `פותח ${folderPath}`,
+        });
       } else if (icloudLink) {
-        window.open(icloudLink, '_blank');
+        // For iCloud links, use shell open
+        const opened = await openWithTauri(icloudLink);
+        if (!opened) {
+          console.warn('Failed to open iCloud link natively');
+        }
         toast({
           title: "קישור iCloud נפתח",
-          description: "הקישור נפתח בדפדפן",
+          description: "נפתח באפליקציית ברירת המחדל",
         });
       }
+    } catch (error) {
+      console.error('Error opening folder:', error);
+      toast({
+        title: "שגיאה",
+        description: "לא ניתן לפתוח את התיקייה",
+        variant: "destructive"
+      });
+    }
     }
   };
 

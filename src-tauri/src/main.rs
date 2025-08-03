@@ -57,7 +57,8 @@ fn main() {
             get_app_data_dir,
             commands::show_item_in_folder,
             commands::open_folder_native,
-            commands::open_whatsapp_with_phone
+            commands::open_whatsapp_with_phone,
+            commands::make_phone_call
         ])
         .setup(|_app| {
             // Create app data directory on startup

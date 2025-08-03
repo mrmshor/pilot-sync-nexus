@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { FolderService } from '../services/folderService';
+import { FolderService } from '../services';
 import { downloadHelperFiles } from '../utils/folderHelpers';
 
 export interface FolderResult {

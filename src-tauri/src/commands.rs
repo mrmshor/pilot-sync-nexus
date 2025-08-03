@@ -126,3 +126,38 @@ pub fn open_whatsapp_with_phone(phone: String) -> Result<String, String> {
 
     Ok("Success".to_string())
 }
+
+#[command]
+pub fn make_phone_call(phone: String) -> Result<String, String> {
+    #[cfg(target_os = "macos")]
+    {
+        // Mac - פתיחת אפליקציית הטלפון עם מספר
+        let tel_url = format!("tel:{}", phone);
+        match Command::new("open").arg(&tel_url).spawn() {
+            Ok(_) => return Ok("Phone call initiated successfully".to_string()),
+            Err(e) => return Err(format!("Failed to initiate phone call: {}", e)),
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        // Windows - פתיחת אפליקציית הטלפון
+        let tel_url = format!("tel:{}", phone);
+        match Command::new("cmd").args(["/c", "start", &tel_url]).spawn() {
+            Ok(_) => return Ok("Phone call initiated successfully".to_string()),
+            Err(e) => return Err(format!("Failed to initiate phone call: {}", e)),
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        // Linux - נסה להשתמש ב-xdg-open
+        let tel_url = format!("tel:{}", phone);
+        match Command::new("xdg-open").arg(&tel_url).spawn() {
+            Ok(_) => return Ok("Phone call initiated successfully".to_string()),
+            Err(e) => return Err(format!("Failed to initiate phone call: {}", e)),
+        }
+    }
+
+    Ok("Success".to_string())
+}

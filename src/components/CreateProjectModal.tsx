@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Project } from '@/types';
 import { Plus, X, FolderOpen } from 'lucide-react';
-import { FolderService } from '@/services/folderService';
+import { FolderService } from '@/services';
 import { useToast } from '@/hooks/use-toast';
 
 interface CreateProjectModalProps {
@@ -38,27 +38,14 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
 
   const handleSelectFolder = async () => {
     try {
-      // For desktop applications - use native directory picker
-      if (window.electronAPI && window.electronAPI.selectFolder) {
-        const folderPath = await window.electronAPI.selectFolder();
-        if (folderPath) {
-          setFormData(prev => ({ ...prev, folderPath }));
-          toast({
-            title: "תיקיה נבחרה",
-            description: `נבחרה התיקיה: ${folderPath}`,
-          });
-        }
-        return;
-      }
-
-      // Fallback for web browsers - use File System Access API
+      // Use Tauri native folder selection
       const folderName = await FolderService.selectFolder();
       if (folderName) {
         const generatedPath = FolderService.generateFolderPath(formData.name || 'New Project', formData.clientName || 'Client');
         setFormData(prev => ({ ...prev, folderPath: generatedPath }));
         toast({
           title: "תיקיה נבחרה",
-          description: `נבחרה התיקיה: ${folderName}`,
+          description: `נבחרה התיקיה: ${generatedPath}`,
         });
       }
     } catch (error) {
