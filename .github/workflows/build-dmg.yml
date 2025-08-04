@@ -72,16 +72,14 @@ jobs:
         cargo check --target aarch64-apple-darwin
         echo "✅ Rust compilation validation passed"
         
-    - name: Dry run Tauri build validation
+    - name: Build full Tauri desktop application
       run: |
-        echo "🔍 Validating Tauri build configuration (dry run)..."
+        echo "🔨 Building full Tauri desktop application for macOS..."
+        cargo tauri build --target universal-apple-darwin
+        echo "✅ Tauri build completed successfully"
         
-        # Test configuration without actual bundling
-        cargo tauri build --help > /dev/null
-        echo "✅ Tauri CLI ready"
-        
-        # Validate all dependencies are available
-        echo "✅ All build dependencies validated"
+        echo "📦 Build artifacts:"
+        ls -la src-tauri/target/universal-apple-darwin/release/bundle/
         
     - name: Generate validation report
       run: |
