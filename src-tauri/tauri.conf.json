@@ -58,7 +58,7 @@
     "targets": "all",
     "windows": {
       "certificateThumbprint": null,
-      "digestalgorithm": "sha256",
+      "digestAlgorithm": "sha256",
       "timestampUrl": ""
     }
   },
