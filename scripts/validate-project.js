@@ -81,8 +81,9 @@ if (fs.existsSync('src-tauri/tauri.conf.json')) {
   try {
     const tauriConfig = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf8'));
     
-    if (!tauriConfig.bundle?.icon) {
-      warnings.push('Tauri bundle.icon not configured in tauri.conf.json');
+    // Tauri icons are disabled intentionally
+    if (tauriConfig.bundle?.icon && tauriConfig.bundle.icon.length > 0) {
+      warnings.push('Tauri bundle.icon should be empty array to disable icons');
     }
     
     if (!tauriConfig.productName) {
