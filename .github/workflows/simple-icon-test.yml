@@ -1,0 +1,47 @@
+name: Simple Icon Generation Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-icons:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      
+    - name: Install Tauri CLI
+      run: cargo install tauri-cli --version "^2.0" --locked
+      
+    - name: Check app-icon.png
+      run: |
+        echo "🔍 Checking app-icon.png..."
+        file src-tauri/app-icon.png
+        if file src-tauri/app-icon.png | grep -q "PNG image data"; then
+          echo "✅ Valid PNG file"
+        else
+          echo "❌ Invalid PNG file"
+          exit 1
+        fi
+        
+    - name: Generate icons
+      run: |
+        echo "🎨 Generating icons..."
+        cd src-tauri
+        cargo tauri icon app-icon.png
+        
+    - name: Verify generated icons
+      run: |
+        echo "🔍 Checking generated icons..."
+        ls -la src-tauri/icons/
+        for icon in src-tauri/icons/*.png; do
+          if file "$icon" | grep -q "PNG image data"; then
+            echo "✅ Valid: $icon"
+          else
+            echo "❌ Invalid: $icon"
+          fi
+        done
