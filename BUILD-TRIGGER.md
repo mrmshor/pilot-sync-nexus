@@ -3,7 +3,7 @@
 מערכת ניהול פרויקטים Pro - Native Desktop App Build
 
 ## Build Details:
-- **תאריך בניה:** 2025-01-04 15:35
+- **תאריך בניה:** 2025-01-04 16:45
 - **גרסה:** 1.0.0  
 - **ארכיטקטורה:** Universal (Intel + Apple Silicon)
 - **סוג:** Production Build
