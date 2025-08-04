@@ -73,14 +73,14 @@ pub fn run() {
 
             // Handle external links in webview
             if let Some(window) = app.get_window("main") {
-                window.on_menu_event(move |_window, event| {
+                window.on_menu_event(move |event| {
                     println!("got menu event: {:?}", event);
                 });
             }
 
             Ok(())
         })
-        .run(tauri::Builder::default().build(tauri::generate_context!()).expect("error while running tauri application"))
+        .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
