@@ -53,20 +53,29 @@ jobs:
         # Create staging directory
         mkdir -p dmg-staging
         
-        # Find and copy the universal app (Tauri creates universal builds)
-        if [ -f "src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_x64.dmg" ]; then
-          cp "src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_x64.dmg" "ProjectManager-Native-Desktop-Intel.dmg"
+        # Find and copy DMG files (handle Hebrew names)
+        echo "=== Searching for DMG files ==="
+        find src-tauri/target -name "*.dmg" -type f || echo "No DMG files found yet"
+        
+        # Intel DMG
+        INTEL_DMG=$(find src-tauri/target/x86_64-apple-darwin -name "*.dmg" -type f | head -1)
+        if [ -n "$INTEL_DMG" ]; then
+          cp "$INTEL_DMG" "ProjectManager-Native-Desktop-Intel.dmg"
+          echo "✅ Intel DMG copied: $INTEL_DMG"
+        else
+          echo "❌ Intel DMG not found"
         fi
         
-        if [ -f "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_aarch64.dmg" ]; then
-          cp "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_aarch64.dmg" "ProjectManager-Native-Desktop-AppleSilicon.dmg"
+        # Apple Silicon DMG  
+        ARM_DMG=$(find src-tauri/target/aarch64-apple-darwin -name "*.dmg" -type f | head -1)
+        if [ -n "$ARM_DMG" ]; then
+          cp "$ARM_DMG" "ProjectManager-Native-Desktop-AppleSilicon.dmg"
+          echo "✅ Apple Silicon DMG copied: $ARM_DMG"
+        else
+          echo "❌ Apple Silicon DMG not found"
         fi
         
-        # List all built files for debugging
-        echo "=== Intel build files ==="
-        find src-tauri/target/x86_64-apple-darwin -name "*.dmg" -o -name "*.app" || echo "No Intel builds found"
-        echo "=== Apple Silicon build files ==="
-        find src-tauri/target/aarch64-apple-darwin -name "*.dmg" -o -name "*.app" || echo "No Apple Silicon builds found"
+        # List final files
         echo "=== Final DMG files ==="
         ls -la *.dmg || echo "No final DMG files"
         

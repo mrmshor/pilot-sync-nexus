@@ -33,9 +33,14 @@ const iconsToCheck = [
 iconsToCheck.forEach(iconPath => {
   if (!isValidPNG(iconPath)) {
     const dir = path.dirname(iconPath);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log(`📁 Created directory: ${dir}`);
+    }
     fs.writeFileSync(iconPath, validIcon);
     console.log(`✅ Fixed: ${iconPath}`);
+  } else {
+    console.log(`✅ Valid: ${iconPath}`);
   }
 });
 console.log('✅ All icons are valid');
