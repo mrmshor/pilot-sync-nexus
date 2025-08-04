@@ -34,10 +34,10 @@ jobs:
       
     - name: Install Tauri CLI
       run: |
-        cargo install tauri-cli --version "^2.0"
+        cargo install tauri-cli --version "^2.0" --locked
         
-    - name: Fix Tauri icons
-      run: node fix-tauri-icons.js
+    - name: Create valid Tauri icons
+      run: node create-valid-icons.js
       
     - name: Build React application
       run: npm run build
@@ -45,8 +45,8 @@ jobs:
     - name: Build native Mac desktop app with Tauri
       run: |
         # Build for both Intel and Apple Silicon
-        cargo tauri build --target x86_64-apple-darwin
-        cargo tauri build --target aarch64-apple-darwin
+        cargo tauri build --target x86_64-apple-darwin --verbose
+        cargo tauri build --target aarch64-apple-darwin --verbose
         
     - name: Create universal DMG
       run: |

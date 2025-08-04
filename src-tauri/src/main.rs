@@ -76,7 +76,7 @@ pub fn run() {
 
             // Handle external links in webview
             if let Some(window) = app.get_webview_window("main") {
-                window.on_menu_event(move |window, event| {
+                window.on_menu_event(move |_window, event| {
                     println!("got menu event: {:?}", event);
                 });
             }
