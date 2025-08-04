@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::Manager;
+
 use std::fs;
 
 mod commands;
@@ -75,7 +75,7 @@ pub fn run() {
             }
 
             // Handle external links in webview
-            if let Some(window) = app.get_webview_window("main") {
+            if let Some(window) = app.get_window("main") {
                 window.on_menu_event(move |_window, event| {
                     println!("got menu event: {:?}", event);
                 });
