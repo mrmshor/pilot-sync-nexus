@@ -28,7 +28,7 @@ jobs:
       run: npx tsc --noEmit
       
     - name: 🔍 ESLint Code Quality
-      run: npx eslint src/ --ext .ts,.tsx --max-warnings 0
+      run: npx eslint src/ --max-warnings 0
       
     - name: 🔍 Check Import/Export Consistency
       run: |
