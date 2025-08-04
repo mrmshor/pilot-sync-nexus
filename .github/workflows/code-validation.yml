@@ -38,7 +38,7 @@ jobs:
     - name: 🔍 Validate Package Dependencies
       run: |
         echo "Checking for unused dependencies..."
-        npx depcheck --ignores="@types/*,typescript,vite,@vitejs/*"
+        npx depcheck --ignores="@types/*,typescript,vite,@vitejs/*,autoprefixer,postcss"
         
     - name: 🔍 Test Build Process
       run: npm run build
