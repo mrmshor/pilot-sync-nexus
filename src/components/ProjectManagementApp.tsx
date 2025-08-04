@@ -87,7 +87,7 @@ export const ProjectManagementApp = () => {
       // CMD+E for export
       if ((event.metaKey || event.ctrlKey) && event.key === 'e') {
         event.preventDefault();
-        handleExportCSV();
+        ExportService.exportProjectsAdvanced(projects, 'csv');
       }
       // CMD+1 for dashboard
       if ((event.metaKey || event.ctrlKey) && event.key === '1') {
@@ -254,9 +254,6 @@ export const ProjectManagementApp = () => {
       } else if (icloudLink) {
         // For iCloud links, use TauriService
         await TauriService.openUrl(icloudLink);
-        if (!opened) {
-          console.warn('Failed to open iCloud link natively');
-        }
         toast({
           title: "קישור iCloud נפתח",
           description: "נפתח באפליקציית ברירת המחדל",
@@ -367,6 +364,28 @@ export const ProjectManagementApp = () => {
       } catch (error) {
         console.error('Error deleting project:', error);
       }
+    }
+  };
+
+  // Project update handlers
+  const updateProjectStatus = async (projectId: string, newStatus: Project['status']) => {
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      await updateProject({ ...project, status: newStatus, updatedAt: new Date() });
+    }
+  };
+
+  const updateProjectPriority = async (projectId: string, newPriority: Project['priority']) => {
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      await updateProject({ ...project, priority: newPriority, updatedAt: new Date() });
+    }
+  };
+
+  const toggleProjectPaid = async (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      await updateProject({ ...project, paid: !project.paid, updatedAt: new Date() });
     }
   };
 
@@ -498,7 +517,7 @@ export const ProjectManagementApp = () => {
                 {/* Export Button - Left Side */}
                 <Button
                   variant="outline"
-                  onClick={handleExportCSV}
+                  onClick={() => ExportService.exportProjectsAdvanced(projects, 'csv')}
                   className="gap-2"
                   title="ייצוא נתונים לקובץ CSV (⌘E)"
                 >
@@ -746,7 +765,7 @@ export const ProjectManagementApp = () => {
                                               }`}
                                               onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleToggleProjectTask(project.id, task.id);
+                                                toggleProjectTask(project.id, task.id);
                                               }}
                                             >
                                               {task.completed && <CheckCircle2 className="w-2 h-2 text-white" />}
@@ -894,9 +913,9 @@ export const ProjectManagementApp = () => {
                 open={showTasksModal}
                 onOpenChange={setShowTasksModal}
                 project={selectedProject ? projects.find(p => p.id === selectedProject.id) || selectedProject : null}
-                onAddTask={handleAddProjectTask}
-                onToggleTask={handleToggleProjectTask}
-                onDeleteTask={handleDeleteProjectTask}
+          onAddTask={addProjectTask}
+          onToggleTask={toggleProjectTask}
+          onDeleteTask={deleteProjectTask}
               />
 
               <ProjectEditModal
