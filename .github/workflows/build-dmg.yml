@@ -46,13 +46,15 @@ jobs:
         
         echo "✅ Tauri config exists"
         
-    - name: Create and validate icons
+    - name: Generate proper Tauri icons
       run: |
-        echo "🎨 Creating valid icons..."
-        node create-valid-icons.js
+        echo "🎨 Generating proper Tauri icons from source..."
+        cd src-tauri
+        cargo tauri icon app-icon.png
+        echo "✅ Icons generated successfully"
         
-        echo "🔍 Validating icon files..."
-        for icon in src-tauri/icons/*.png; do
+        echo "🔍 Validating generated icon files..."
+        for icon in icons/*.png; do
           if [ -f "$icon" ]; then
             file "$icon" | grep -q "PNG image data" && echo "✅ Valid PNG: $icon" || echo "❌ Invalid PNG: $icon"
           fi
