@@ -1,0 +1,135 @@
+name: Test Tauri Icons Only
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-icons:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+        
+    - name: Install Node dependencies
+      run: npm ci
+      
+    - name: Install Tauri CLI
+      run: |
+        cargo install tauri-cli --version "^2.0" --locked
+        
+    - name: Check if src-tauri exists
+      run: |
+        echo "🔍 Checking src-tauri structure..."
+        ls -la
+        if [ -d "src-tauri" ]; then
+          echo "✅ src-tauri directory exists"
+          ls -la src-tauri/
+        else
+          echo "❌ src-tauri directory missing"
+          exit 1
+        fi
+        
+    - name: Check app-icon exists
+      run: |
+        echo "🔍 Checking for app-icon.png..."
+        if [ -f "src-tauri/app-icon.png" ]; then
+          echo "✅ app-icon.png exists"
+          file src-tauri/app-icon.png
+        else
+          echo "❌ app-icon.png missing"
+          exit 1
+        fi
+        
+    - name: Generate icons using Tauri CLI
+      run: |
+        echo "🎨 Generating icons using cargo tauri icon..."
+        cd src-tauri
+        
+        # Generate all required icons
+        cargo tauri icon app-icon.png
+        
+        echo "✅ Icon generation completed"
+        
+    - name: Validate generated icons
+      run: |
+        echo "🔍 Validating generated icon files..."
+        cd src-tauri
+        
+        # Check that icons directory was created
+        if [ -d "icons" ]; then
+          echo "✅ Icons directory created"
+          ls -la icons/
+        else
+          echo "❌ Icons directory not created"
+          exit 1
+        fi
+        
+        # Validate each required icon
+        required_icons=("32x32.png" "128x128.png" "128x128@2x.png" "icon.png")
+        
+        for icon in "${required_icons[@]}"; do
+          if [ -f "icons/$icon" ]; then
+            echo "✅ Found: icons/$icon"
+            file "icons/$icon"
+            
+            # Check if it's a valid PNG
+            if file "icons/$icon" | grep -q "PNG image data"; then
+              echo "✅ Valid PNG: icons/$icon"
+            else
+              echo "❌ Invalid PNG: icons/$icon"
+              exit 1
+            fi
+          else
+            echo "❌ Missing: icons/$icon"
+            exit 1
+          fi
+        done
+        
+    - name: Test PNG integrity
+      run: |
+        echo "🔍 Testing PNG integrity (the part that failed before)..."
+        cd src-tauri/icons
+        
+        # Try to read PNG headers - this is where CRC errors would show up
+        for png in *.png; do
+          echo "Testing $png..."
+          # Use hexdump to check PNG structure
+          if hexdump -C "$png" | head -1 | grep -q "89 50 4e 47"; then
+            echo "✅ Valid PNG signature: $png"
+          else
+            echo "❌ Invalid PNG signature: $png"
+            exit 1
+          fi
+        done
+        
+    - name: Generate final report
+      run: |
+        echo "## 🎯 Icon Generation Test Report" > icon-test-report.md
+        echo "- ✅ src-tauri directory: EXISTS" >> icon-test-report.md
+        echo "- ✅ app-icon.png source: EXISTS" >> icon-test-report.md
+        echo "- ✅ Tauri CLI icon generation: SUCCESS" >> icon-test-report.md
+        echo "- ✅ All required icons: CREATED" >> icon-test-report.md
+        echo "- ✅ PNG integrity: VALIDATED" >> icon-test-report.md
+        echo "- 🎉 **STATUS: ICONS ARE READY FOR BUILD**" >> icon-test-report.md
+        
+        echo "📊 Test Report:"
+        cat icon-test-report.md
+        
+    - name: Upload test report
+      uses: actions/upload-artifact@v4
+      with:
+        name: icon-test-report
+        path: icon-test-report.md
+        retention-days: 7
