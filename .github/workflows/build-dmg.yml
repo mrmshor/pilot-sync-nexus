@@ -36,6 +36,9 @@ jobs:
       run: |
         cargo install tauri-cli --version "^2.0"
         
+    - name: Fix Tauri icons
+      run: node fix-tauri-icons.js
+      
     - name: Build React application
       run: npm run build
       
