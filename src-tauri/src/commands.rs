@@ -206,36 +206,29 @@ pub fn open_whatsapp_with_phone(phone: String) -> Result<String, String> {
 
 #[command]
 pub fn make_phone_call(phone: String) -> Result<String, String> {
+    let tel_url = format!("tel:{}", phone);
+    
     #[cfg(target_os = "macos")]
     {
-        // Mac - פתיחת אפליקציית הטלפון עם מספר
-        let tel_url = format!("tel:{}", phone);
-        match Command::new("open").arg(&tel_url).spawn() {
-            Ok(_) => return Ok("Phone call initiated successfully".to_string()),
-            Err(e) => return Err(format!("Failed to initiate phone call: {}", e)),
-        }
+        Command::new("open").arg(&tel_url).spawn()
+            .map_err(|e| format!("Failed to initiate phone call: {}", e))?;
+        return Ok("Phone call initiated successfully".to_string());
     }
 
     #[cfg(target_os = "windows")]
     {
-        // Windows - פתיחת אפליקציית הטלפון
-        let tel_url = format!("tel:{}", phone);
-        match Command::new("cmd").args(["/c", "start", &tel_url]).spawn() {
-            Ok(_) => return Ok("Phone call initiated successfully".to_string()),
-            Err(e) => return Err(format!("Failed to initiate phone call: {}", e)),
-        }
+        Command::new("cmd").args(["/c", "start", &tel_url]).spawn()
+            .map_err(|e| format!("Failed to initiate phone call: {}", e))?;
+        return Ok("Phone call initiated successfully".to_string());
     }
 
     #[cfg(target_os = "linux")]
     {
-        // Linux - נסה להשתמש ב-xdg-open
-        let tel_url = format!("tel:{}", phone);
-        match Command::new("xdg-open").arg(&tel_url).spawn() {
-            Ok(_) => return Ok("Phone call initiated successfully".to_string()),
-            Err(e) => return Err(format!("Failed to initiate phone call: {}", e)),
-        }
+        Command::new("xdg-open").arg(&tel_url).spawn()
+            .map_err(|e| format!("Failed to initiate phone call: {}", e))?;
+        return Ok("Phone call initiated successfully".to_string());
     }
 
-    // Fallback - shouldn't reach here due to platform-specific code above
+    #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
     Err("Platform not supported for phone calls".to_string())
 }
