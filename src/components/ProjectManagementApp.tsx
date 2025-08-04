@@ -600,8 +600,8 @@ export const ProjectManagementApp = () => {
                               value={`${sortBy}-${sortOrder}`}
                               onChange={(e) => {
                                 const [field, order] = e.target.value.split('-');
-                                setSortBy(field as any);
-                                setSortOrder(order as any);
+                                setSortBy(field as typeof sortBy);
+                                setSortOrder(order as typeof sortOrder);
                               }}
                               className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
                             >
@@ -685,12 +685,12 @@ export const ProjectManagementApp = () => {
                                 <div className="flex flex-col gap-2">
                                   <StatusDropdown
                                     value={project.status}
-                                    onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
+                                    onChange={(newStatus) => updateProjectStatus(project.id, newStatus as Project['status'])}
                                     className="w-32"
                                   />
                                   <PriorityDropdown
                                     value={project.priority}
-                                    onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
+                                    onChange={(newPriority) => updateProjectPriority(project.id, newPriority as Project['priority'])}
                                     className="w-32"
                                   />
                                 </div>
