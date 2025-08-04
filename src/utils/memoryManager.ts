@@ -1,7 +1,7 @@
 // Memory Management Utilities
 export class MemoryManager {
   private static instance: MemoryManager;
-  private cache: Map<string, any> = new Map();
+  private cache: Map<string, { value: unknown; timestamp: number; size: number }> = new Map();
   private cacheSize: number = 0;
   private maxCacheSize: number = 100 * 1024 * 1024; // 100MB
   
@@ -13,7 +13,7 @@ export class MemoryManager {
   }
   
   // Cache management with size limits
-  set(key: string, value: any): void {
+  set(key: string, value: unknown): void {
     const size = this.getObjectSize(value);
     
     if (this.cacheSize + size > this.maxCacheSize) {
@@ -24,7 +24,7 @@ export class MemoryManager {
     this.cacheSize += size;
   }
   
-  get(key: string): any {
+  get(key: string): unknown {
     const entry = this.cache.get(key);
     if (entry) {
       // Update timestamp for LRU
@@ -62,7 +62,7 @@ export class MemoryManager {
   }
   
   // Rough object size calculation
-  private getObjectSize(obj: any): number {
+  private getObjectSize(obj: unknown): number {
     let size = 0;
     
     if (obj !== null && obj !== undefined) {
@@ -140,7 +140,7 @@ export const cleanupEventListeners = (element: Element) => {
   return clone;
 };
 
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) => {
@@ -152,7 +152,7 @@ export const debounce = <T extends (...args: any[]) => any>(
   };
 };
 
-export const throttle = <T extends (...args: any[]) => any>(
+export const throttle = <T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): ((...args: Parameters<T>) => void) => {

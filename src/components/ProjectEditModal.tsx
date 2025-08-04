@@ -90,7 +90,7 @@ export const ProjectEditModal = ({
     });
   };
 
-  const handleFieldChange = (field: keyof Project, value: any) => {
+  const handleFieldChange = (field: keyof Project, value: string | number | boolean | Date | undefined) => {
     setFormData(prev => prev ? { ...prev, [field]: value } : null);
   };
 

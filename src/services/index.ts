@@ -7,6 +7,7 @@ export * from './ExportService';
 // Legacy compatibility - keeping some of the old functions for backward compatibility
 import { TauriService } from './TauriService';
 import { ExportService as NewExportService } from './ExportService';
+import { Project, QuickTask } from '@/types';
 
 // Legacy ContactService functions
 export const ContactService = {
@@ -15,7 +16,7 @@ export const ContactService = {
   formatPhoneForInternational: (phone: string, defaultCountryCode: string = '972'): string => {
     if (!phone) return '';
     
-    let cleaned = phone.replace(/[^\d+]/g, '');
+    const cleaned = phone.replace(/[^\d+]/g, '');
     
     if (cleaned.startsWith('+')) {
       return cleaned;
@@ -102,8 +103,8 @@ export const FolderService = {
   },
 
   generateFolderPath: (projectName: string, clientName: string): string => {
-    const sanitizedProject = projectName.replace(/[^א-ת\w\s\-\.]/g, '').trim();
-    const sanitizedClient = clientName.replace(/[^א-ת\w\s\-\.]/g, '').trim();
+    const sanitizedProject = projectName.replace(/[^א-ת\w\s\-.]/g, '').trim();
+    const sanitizedClient = clientName.replace(/[^א-ת\w\s\-.]/g, '').trim();
     
     const homeDir = '/Users/' + (process.env.USER || 'User');
     return `${homeDir}/Documents/Projects/${sanitizedClient}/${sanitizedProject}`;
@@ -128,12 +129,12 @@ export const isTauriApp = (): boolean => {
 
 // Legacy ExportService - for backward compatibility
 export const ExportService = {
-  exportProjectsAdvanced: (projects: any[], format: 'csv' | 'json' = 'csv') => {
+  exportProjectsAdvanced: (projects: Project[], format: 'csv' | 'json' = 'csv') => {
     if (format === 'csv') {
       NewExportService.exportProjectsCSV(projects);
     }
   },
-  exportTasksAdvanced: (tasks: any[]) => {
+  exportTasksAdvanced: (tasks: QuickTask[]) => {
     NewExportService.exportQuickTasksTXT(tasks);
   }
 };

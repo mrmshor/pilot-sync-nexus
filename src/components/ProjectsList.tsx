@@ -41,7 +41,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
   }, [projects]);
 
   const filteredAndSortedProjects = useMemo(() => {
-    let filtered = projects.filter(project => {
+    const filtered = projects.filter(project => {
       const matchesSearch = 
         project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -55,12 +55,12 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
     });
 
     filtered.sort((a, b) => {
-      let aValue: any = a[sortBy as keyof Project];
-      let bValue: any = b[sortBy as keyof Project];
+      let aValue: string | number | Date = a[sortBy as keyof Project] as string | number | Date;
+      let bValue: string | number | Date = b[sortBy as keyof Project] as string | number | Date;
       
       if (sortBy === 'name' || sortBy === 'clientName') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
+        aValue = (aValue as string).toLowerCase();
+        bValue = (bValue as string).toLowerCase();
       }
       
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
@@ -142,7 +142,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
 
     const updatedProject = {
       ...project,
-      status: status as any,
+      status: status as Project['status'],
       updatedAt: new Date()
     };
 
@@ -155,7 +155,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
 
     const updatedProject = {
       ...project,
-      priority: priority as any,
+      priority: priority as Project['priority'],
       updatedAt: new Date()
     };
 

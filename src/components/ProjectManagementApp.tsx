@@ -103,7 +103,7 @@ export const ProjectManagementApp = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [projects]);
 
   // Scroll position preservation
   const saveScrollPosition = () => {
@@ -160,7 +160,7 @@ export const ProjectManagementApp = () => {
 
   // Optimized filter and sort projects with debounced search
   const filteredAndSortedProjects = useMemo(() => {
-    let filtered = projects.filter(project => {
+    const filtered = projects.filter(project => {
       const matchesSearch = debouncedSearchTerm === '' || 
         project.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
         project.clientName.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
@@ -174,19 +174,20 @@ export const ProjectManagementApp = () => {
 
     // Sort projects
     filtered.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
+      let aValue: string | number;
+      let bValue: string | number;
 
       switch (sortBy) {
         case 'name':
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
           break;
-        case 'priority':
+        case 'priority': {
           const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
           aValue = priorityOrder[a.priority];
           bValue = priorityOrder[b.priority];
           break;
+        }
         case 'status':
           aValue = a.status;
           bValue = b.status;
