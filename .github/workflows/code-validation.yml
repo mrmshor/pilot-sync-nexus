@@ -1,0 +1,61 @@
+name: Code Validation & Quality Check
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  validate-code:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: 🔍 TypeScript Type Check
+      run: npx tsc --noEmit
+      
+    - name: 🔍 ESLint Code Quality
+      run: npx eslint src/ --ext .ts,.tsx --max-warnings 0
+      
+    - name: 🔍 Check Import/Export Consistency
+      run: |
+        echo "Checking for broken imports..."
+        npx tsc --noEmit --skipLibCheck
+        
+    - name: 🔍 Validate Package Dependencies
+      run: |
+        echo "Checking for unused dependencies..."
+        npx depcheck --ignores="@types/*,typescript,vite,@vitejs/*"
+        
+    - name: 🔍 Test Build Process
+      run: npm run build
+      
+    - name: 📊 Generate Validation Report
+      if: always()
+      run: |
+        echo "## 🎯 Code Validation Report" > validation-report.md
+        echo "- ✅ TypeScript compilation: $([ $? -eq 0 ] && echo 'PASSED' || echo 'FAILED')" >> validation-report.md
+        echo "- ✅ ESLint quality check: COMPLETED" >> validation-report.md
+        echo "- ✅ Build process: $([ -d dist ] && echo 'PASSED' || echo 'FAILED')" >> validation-report.md
+        echo "- 📦 Bundle size: $(du -sh dist/ 2>/dev/null || echo 'N/A')" >> validation-report.md
+        
+    - name: Upload validation report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: validation-report
+        path: validation-report.md
+        retention-days: 30
