@@ -33,7 +33,8 @@
     "copyright": "Copyright © 2025 מערכת ניהול פרויקטים Pro",
     "longDescription": "מערכת ניהול פרויקטים מתקדמת עם תמיכה מלאה בעברית ושמירה מקומית",
     "shortDescription": "מערכת ניהול פרויקטים Pro",
-    "targets": "all"
+    "targets": "all",
+    "icon": []
   },
   "plugins": {
     "shell": {
