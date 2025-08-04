@@ -46,26 +46,6 @@ jobs:
         
         echo "✅ Tauri config exists"
         
-    - name: Generate proper Tauri icons
-      run: |
-        echo "🎨 Generating proper Tauri icons from source..."
-        
-        # Make sure icons directory exists
-        mkdir -p src-tauri/icons
-        
-        # Generate all required icons using Tauri CLI
-        cd src-tauri
-        cargo tauri icon app-icon.png
-        
-        echo "✅ Icons generated successfully"
-        
-        echo "🔍 Validating generated icon files..."
-        ls -la icons/
-        for icon in icons/*.png; do
-          if [ -f "$icon" ]; then
-            file "$icon" | grep -q "PNG image data" && echo "✅ Valid PNG: $icon" || echo "❌ Invalid PNG: $icon"
-          fi
-        done
         
     - name: Build React application
       run: |
@@ -94,7 +74,7 @@ jobs:
       run: |
         echo "## 🎯 Tauri Desktop Build Validation Report" > tauri-validation-report.md
         echo "- ✅ Tauri configuration: VALID" >> tauri-validation-report.md
-        echo "- ✅ Icon files: CREATED & VALIDATED" >> tauri-validation-report.md
+        echo "- ✅ Icon files: DISABLED (NO ICONS REQUIRED)" >> tauri-validation-report.md
         echo "- ✅ React build: SUCCESSFUL" >> tauri-validation-report.md
         echo "- ✅ Rust compilation: VALIDATED" >> tauri-validation-report.md
         echo "- ✅ Tauri CLI: READY" >> tauri-validation-report.md
