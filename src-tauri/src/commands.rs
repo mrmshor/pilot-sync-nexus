@@ -236,5 +236,6 @@ pub fn make_phone_call(phone: String) -> Result<String, String> {
         }
     }
 
-    Ok("Success".to_string())
+    // Fallback - shouldn't reach here due to platform-specific code above
+    Err("Platform not supported for phone calls".to_string())
 }
