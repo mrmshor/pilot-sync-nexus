@@ -80,7 +80,7 @@ pub fn run() {
 
             Ok(())
         })
-        .run(tauri::generate_context!())
+        .run(tauri::Builder::default().build(tauri::generate_context!()).expect("error while running tauri application"))
         .expect("error while running tauri application");
 }
 
