@@ -20,14 +20,7 @@
         "width": 1200,
         "minWidth": 800,
         "minHeight": 600,
-        "center": true,
-        "acceptFirstMouse": false,
-        "transparent": false,
-        "alwaysOnTop": false,
-        "decorations": true,
-        "maximized": false,
-        "visible": true,
-        "skipTaskbar": false
+        "center": true
       }
     ],
     "security": {
@@ -38,7 +31,6 @@
     "active": true,
     "category": "Productivity",
     "copyright": "Copyright © 2025 מערכת ניהול פרויקטים Pro",
-    "externalBin": [],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -46,36 +38,12 @@
       "icons/icon.png"
     ],
     "longDescription": "מערכת ניהול פרויקטים מתקדמת עם תמיכה מלאה בעברית ושמירה מקומית",
-    "macOS": {
-      "entitlements": null,
-      "exceptionDomain": "",
-      "frameworks": [],
-      "providerShortName": null,
-      "signingIdentity": null
-    },
-    "resources": [],
     "shortDescription": "מערכת ניהול פרויקטים Pro",
-    "targets": "all",
-    "windows": {
-      "certificateThumbprint": null,
-      "digestAlgorithm": "sha256",
-      "timestampUrl": ""
-    }
+    "targets": "all"
   },
   "plugins": {
     "shell": {
-      "open": true,
-      "scope": [
-        {
-          "name": "open",
-          "sidecar": false,
-          "args": [
-            {
-              "validator": "\\S+"
-            }
-          ]
-        }
-      ]
+      "open": true
     },
     "opener": {
       "enable": true

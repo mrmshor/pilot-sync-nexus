@@ -49,11 +49,18 @@ jobs:
     - name: Generate proper Tauri icons
       run: |
         echo "🎨 Generating proper Tauri icons from source..."
+        
+        # Make sure icons directory exists
+        mkdir -p src-tauri/icons
+        
+        # Generate all required icons using Tauri CLI
         cd src-tauri
         cargo tauri icon app-icon.png
+        
         echo "✅ Icons generated successfully"
         
         echo "🔍 Validating generated icon files..."
+        ls -la icons/
         for icon in icons/*.png; do
           if [ -f "$icon" ]; then
             file "$icon" | grep -q "PNG image data" && echo "✅ Valid PNG: $icon" || echo "❌ Invalid PNG: $icon"
