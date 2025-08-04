@@ -28,13 +28,7 @@
     }
   },
   "bundle": {
-    "active": true,
-    "category": "Productivity",
-    "copyright": "Copyright © 2025 מערכת ניהול פרויקטים Pro",
-    "longDescription": "מערכת ניהול פרויקטים מתקדמת עם תמיכה מלאה בעברית ושמירה מקומית",
-    "shortDescription": "מערכת ניהול פרויקטים Pro",
-    "targets": "all",
-    "icon": []
+    "active": false
   },
   "plugins": {
     "shell": {
