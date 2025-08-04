@@ -1,13 +1,42 @@
 import fs from 'fs';
 import path from 'path';
 
-// Valid minimal PNG data - 1x1 pixel transparent PNG
-const validPngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
-const validPngBuffer = Buffer.from(validPngBase64, 'base64');
+// Create minimal valid PNG files using raw PNG binary data
+// This is a valid 1x1 transparent PNG
+const minimalValidPng = Buffer.from([
+  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
+  0x00, 0x00, 0x00, 0x0D, // IHDR chunk length (13 bytes)
+  0x49, 0x48, 0x44, 0x52, // IHDR chunk type
+  0x00, 0x00, 0x00, 0x01, // Width: 1
+  0x00, 0x00, 0x00, 0x01, // Height: 1
+  0x08, 0x06, 0x00, 0x00, 0x00, // Bit depth 8, color type 6 (RGBA), compression 0, filter 0, interlace 0
+  0x1F, 0x15, 0xC4, 0x89, // IHDR CRC
+  0x00, 0x00, 0x00, 0x0B, // IDAT chunk length (11 bytes)
+  0x49, 0x44, 0x41, 0x54, // IDAT chunk type
+  0x78, 0x9C, 0x62, 0x00, 0x02, 0x00, 0x00, 0x05, 0x00, 0x01, 0xE2, // IDAT data
+  0x26, 0x05, 0x9B, // IDAT CRC
+  0x00, 0x00, 0x00, 0x00, // IEND chunk length (0 bytes)
+  0x49, 0x45, 0x4E, 0x44, // IEND chunk type
+  0xAE, 0x42, 0x60, 0x82  // IEND CRC
+]);
 
-// Simple 32x32 blue square PNG
-const icon32Base64 = 'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAiklEQVRYhe2XwQ6AIAwE6/8/2jdIE4hNOhyMneTGQfZMd0sIubBTBfjtgSVW2+1VBVQaBBo0Gn0j+XWt7PZqNBpNK/k1pdNo0Gg0bdLotJI/iEaj0bRJo9O0kj+IRqPRtJJf00p+TSv5Na3k17SSX9NKfk0r+TWt5Ne0kl/TSn5NK/k1reTXtJJf00p+TSv5NK3k17SSX0H+IA+gBw==';
-const icon32Buffer = Buffer.from(icon32Base64, 'base64');
+// Create a simple 32x32 icon with valid PNG structure
+const icon32x32 = Buffer.from([
+  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
+  0x00, 0x00, 0x00, 0x0D, // IHDR chunk length
+  0x49, 0x48, 0x44, 0x52, // IHDR chunk type
+  0x00, 0x00, 0x00, 0x20, // Width: 32
+  0x00, 0x00, 0x00, 0x20, // Height: 32
+  0x08, 0x06, 0x00, 0x00, 0x00, // Bit depth 8, color type 6 (RGBA)
+  0x73, 0x7A, 0x7A, 0xF4, // IHDR CRC
+  0x00, 0x00, 0x00, 0x0B, // IDAT chunk length
+  0x49, 0x44, 0x41, 0x54, // IDAT chunk type
+  0x78, 0x9C, 0x63, 0x00, 0x02, 0x00, 0x00, 0x05, 0x00, 0x01, 0xE2, // IDAT data
+  0x26, 0x05, 0x9B, // IDAT CRC
+  0x00, 0x00, 0x00, 0x00, // IEND chunk length
+  0x49, 0x45, 0x4E, 0x44, // IEND chunk type
+  0xAE, 0x42, 0x60, 0x82  // IEND CRC
+]);
 
 // Create icons directory if it doesn't exist
 const iconsDir = 'src-tauri/icons';
@@ -17,10 +46,10 @@ if (!fs.existsSync(iconsDir)) {
 
 // Create all required icon files
 const iconFiles = [
-    { path: 'src-tauri/icons/icon.png', buffer: validPngBuffer },
-    { path: 'src-tauri/icons/32x32.png', buffer: icon32Buffer },
-    { path: 'src-tauri/icons/128x128.png', buffer: validPngBuffer },
-    { path: 'src-tauri/icons/128x128@2x.png', buffer: validPngBuffer }
+    { path: 'src-tauri/icons/icon.png', buffer: minimalValidPng },
+    { path: 'src-tauri/icons/32x32.png', buffer: icon32x32 },
+    { path: 'src-tauri/icons/128x128.png', buffer: minimalValidPng },
+    { path: 'src-tauri/icons/128x128@2x.png', buffer: minimalValidPng }
 ];
 
 iconFiles.forEach(({ path, buffer }) => {
