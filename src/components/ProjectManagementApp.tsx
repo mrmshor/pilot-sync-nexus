@@ -77,22 +77,11 @@ export const ProjectManagementApp = () => {
     loadCustomLogo();
   }, []);
 
-  // Update favicon when logo changes
+  // Update app title when logo changes
   useEffect(() => {
-    if (customLogo && typeof window !== 'undefined') {
-      const favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
-      if (favicon) {
-        favicon.href = customLogo;
-      } else {
-        const newFavicon = document.createElement('link');
-        newFavicon.rel = 'icon';
-        newFavicon.href = customLogo;
-        document.head.appendChild(newFavicon);
-      }
-      
-      // Update app title with logo status
+    if (customLogo) {
       document.title = 'מערכת ניהול פרויקטים Pro • לוגו מותאם';
-      console.log('✅ Custom logo loaded and favicon updated');
+      console.log('✅ Custom logo loaded');
     } else {
       document.title = 'מערכת ניהול פרויקטים Pro';
     }
