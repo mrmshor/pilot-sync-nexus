@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { useDebounce, useOptimizedData } from '@/hooks/usePerformanceOptimizations';
-import { MemoryManager, debounce } from '@/utils/memoryManager';
+import { useDebounce, useOptimizedData } from '@/hooks/useSafeHooks';
+import { SafeMemoryManager } from '@/utils/safe-memory';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +60,9 @@ export const ProjectManagementApp = () => {
   // UI state
   const [activeTab, setActiveTab] = useState<'dashboard' | 'projects'>('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const debouncedSearch = useDebounce((term: string) => {
+    setSearchTerm(term);
+  }, 300);
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'priority' | 'status' | 'createdAt' | 'updatedAt'>('createdAt');
@@ -161,10 +163,10 @@ export const ProjectManagementApp = () => {
   // Optimized filter and sort projects with debounced search
   const filteredAndSortedProjects = useMemo(() => {
     const filtered = projects.filter(project => {
-      const matchesSearch = debouncedSearchTerm === '' || 
-        project.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        project.clientName.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (project.description && project.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
+      const matchesSearch = searchTerm === '' || 
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()));
       
       const matchesPriority = priorityFilter === 'all' || project.priority === priorityFilter;
       const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
@@ -211,10 +213,10 @@ export const ProjectManagementApp = () => {
     });
 
     return filtered;
-  }, [projects, debouncedSearchTerm, priorityFilter, statusFilter, sortBy, sortOrder]);
+  }, [projects, searchTerm, priorityFilter, statusFilter, sortBy, sortOrder]);
 
-  // Optimized data handling for large datasets
-  const { visibleData: visibleProjects } = useOptimizedData(filteredAndSortedProjects, 50);
+  // Use optimized data
+  const visibleProjects = useOptimizedData(filteredAndSortedProjects, searchTerm);
 
   // Contact handlers
   const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', value: string) => {
@@ -562,12 +564,12 @@ export const ProjectManagementApp = () => {
                           {/* Search Bar */}
                           <div className="relative w-full max-w-md mx-auto">
                             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              placeholder="חיפוש פרויקטים..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              className="pr-10"
-                            />
+                             <Input
+                               placeholder="חיפוש פרויקטים..."
+                               value={searchTerm}
+                               onChange={(e) => debouncedSearch(e.target.value)}
+                               className="pr-10"
+                             />
                           </div>
                           
                           {/* Filters and Actions - Centered */}

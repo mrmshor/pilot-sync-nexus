@@ -5,10 +5,10 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 8080,
-    host: true,
-    cors: true,
-    strictPort: true
+    port: 8080,        // ✅ Port קבוע
+    host: '0.0.0.0',   // ✅ חשוב ל-live reload
+    strictPort: true,  // ✅ נכשל אם Port תפוס
+    cors: true         // ✅ חשוב לCapacitor
   },
   resolve: {
     alias: {
@@ -22,14 +22,23 @@ export default defineConfig({
     target: 'esnext',
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom']
+        manualChunks: (id) => {
+          // ✅ Bundle splitting נכון
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'react'
+            if (id.includes('@capacitor')) return 'capacitor'
+            return 'vendor'
+          }
         }
       }
     }
   },
   optimizeDeps: {
-    include: ['react', 'react-dom']
+    include: [
+      'react',
+      'react-dom'
+    ],
+    exclude: ['@capacitor/ios'] // ✅ iOS רק בnative
   },
   define: {
     global: 'globalThis'
