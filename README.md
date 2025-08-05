@@ -1,16 +1,27 @@
 # Pilot Sync Nexus - Capacitor App
 
-## פקודות הרצה (מעודכנות):
+מערכת ניהול פרויקטים מתקדמת עם Capacitor.
 
-### פיתוח:
+## דרישות מערכת
+- Node.js 18+
+- npm 9+
+- Xcode 14+ (עבור iOS)
+- macOS Big Sur+ (עבור Mac)
+
+## התקנה והרצה
+
+### פיתוח מקומי:
 ```bash
+npm install
 npm run dev
+# יפתח על: http://localhost:8080
 ```
 
 ### בניה והרצה על Mac:
 ```bash
-npm run cap:build
-npm run cap:run:ios
+npm run cap:build     # בניה + סנכרון
+npm run cap:run:ios   # הרצה על Mac
+npm run cap:live      # עם live reload
 ```
 
 ### פתיחה ב-Xcode:
@@ -23,8 +34,21 @@ npm run cap:open:ios
 npm run cap:doctor
 ```
 
-## הערה חשובה:
-הפרויקט מבוסס על **Capacitor** ולא Tauri. השתמש בפקודות cap: במקום tauri.
+### תיקון בעיות:
+```bash
+node scripts/fix-project.js
+```
+
+## טכנולוגיות
+- **Frontend**: React 18 + TypeScript + Vite
+- **Mobile**: Capacitor 5
+- **Styling**: Tailwind CSS
+- **Platform**: macOS (Designed for iPad)
+
+## הערות חשובות
+- הפרויקט מותאם ל-**Capacitor** (לא Tauri)
+- רץ על פורט 8080 עם SWC עבור React
+- תומך ב-live reload על מכשירים נטיביים
 
 ## 🌟 תכונות עיקריות
 

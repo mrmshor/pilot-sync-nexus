@@ -6,7 +6,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 8080,
-    host: true
+    host: true,
+    cors: true,
+    strictPort: true
   },
   resolve: {
     alias: {
@@ -16,15 +18,27 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    minify: 'esbuild',
+    target: 'esnext',
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
+          capacitor: ['@capacitor/core', '@capacitor/app']
         }
       }
     }
   },
   optimizeDeps: {
-    include: ['@capacitor/core', '@capacitor/filesystem']
+    include: [
+      '@capacitor/core', 
+      '@capacitor/filesystem',
+      '@capacitor/app',
+      '@capacitor/keyboard',
+      '@capacitor/status-bar'
+    ]
+  },
+  define: {
+    global: 'globalThis'
   }
 })
