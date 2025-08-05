@@ -23,20 +23,13 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          capacitor: ['@capacitor/core', '@capacitor/app']
+          vendor: ['react', 'react-dom']
         }
       }
     }
   },
   optimizeDeps: {
-    include: [
-      '@capacitor/core', 
-      '@capacitor/filesystem',
-      '@capacitor/app',
-      '@capacitor/keyboard',
-      '@capacitor/status-bar'
-    ]
+    include: ['react', 'react-dom']
   },
   define: {
     global: 'globalThis'
