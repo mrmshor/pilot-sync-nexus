@@ -35,7 +35,7 @@ jobs:
     - name: 🎯 ESLint בדיקה
       run: |
         echo "🎯 מריץ ESLint..."
-        npx eslint . --ext .ts,.tsx,.js,.jsx --format=github --max-warnings=0
+        npx eslint . --max-warnings=0
         echo "✅ ESLint בדיקה הושלמה בהצלחה"
       continue-on-error: false
       
