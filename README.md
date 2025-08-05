@@ -1,6 +1,30 @@
-# מערכת ניהול פרויקטים Pro - לשולחן העבודה של Mac 🚀
+# Pilot Sync Nexus - Capacitor App
 
-מערכת ניהול פרויקטים מתקדמת עם ממשק עברי נטיב ותמיכה בפתיחת תיקיות מקומיות במחשב Mac.
+## פקודות הרצה (מעודכנות):
+
+### פיתוח:
+```bash
+npm run dev
+```
+
+### בניה והרצה על Mac:
+```bash
+npm run cap:build
+npm run cap:run:ios
+```
+
+### פתיחה ב-Xcode:
+```bash
+npm run cap:open:ios
+```
+
+### בדיקת תקינות:
+```bash
+npm run cap:doctor
+```
+
+## הערה חשובה:
+הפרויקט מבוסס על **Capacitor** ולא Tauri. השתמש בפקודות cap: במקום tauri.
 
 ## 🌟 תכונות עיקריות
 
