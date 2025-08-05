@@ -1,89 +1,79 @@
-# Pilot Sync Nexus
+# Pilot Sync Nexus - Capacitor App
 
-[![Capacitor Build Check](https://github.com/YOUR_USERNAME/pilot-sync-nexus/actions/workflows/capacitor-build.yml/badge.svg)](https://github.com/YOUR_USERNAME/pilot-sync-nexus/actions/workflows/capacitor-build.yml)
-[![Code Quality Check](https://github.com/YOUR_USERNAME/pilot-sync-nexus/actions/workflows/code-quality.yml/badge.svg)](https://github.com/YOUR_USERNAME/pilot-sync-nexus/actions/workflows/code-quality.yml)
+[![Capacitor CI](https://github.com/YOUR_USERNAME/pilot-sync-nexus/actions/workflows/capacitor-ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/pilot-sync-nexus/actions/workflows/capacitor-ci.yml)
 
-מערכת ניהול פרויקטים מתקדמת עם Capacitor + React + TypeScript.
+## 🚀 Quick Start (Fixed):
 
-## 🚀 פקודות נכונות:
-
-### פיתוח:
 ```bash
-npm run dev     # http://localhost:8080 (לא 5173!)
-```
+# Install dependencies
+npm install
 
-### בניה והרצה:
-```bash
-npm run build          # בניה
-npx cap sync           # סנכרון עם iOS
-npx cap run ios        # הרצה על Mac
-npx cap open ios       # פתיחה ב-Xcode
-```
+# Development server
+npm run dev
 
-### בדיקת תקינות:
-```bash
-npx cap doctor
-npm run lint
-npx tsc --noEmit
-```
-
-⚠️ **חשוב**: הפרויקט רץ על פורט 8080, לא 5173!
-
-## 🛠️ פתרון בעיות נפוצות
-
-### בעיית Build:
-```bash
-rm -rf dist
+# Build for production  
 npm run build
-npx cap sync ios
+
+# Add iOS platform (after build)
+npx cap add ios
+
+# Open in Xcode
+npx cap open ios
 ```
 
-### בעיית Dependencies:
+## ✅ Status: Fixed
+- ❌ Tauri removed completely
+- ✅ Capacitor working properly  
+- ✅ Entry module fixed
+- ✅ Import errors resolved
+- ✅ GitHub Actions optimized
+
+⚠️ **Important**: This is now a pure Capacitor project, not Tauri!
+
+## 🔧 Commands
+
 ```bash
-rm -rf node_modules package-lock.json
+npm run dev              # Development server (localhost:8080)
+npm run build            # Production build
+npm run type-check       # TypeScript validation
+npm run lint             # Code quality check
+npx cap doctor           # Capacitor health check
+npx cap add ios          # Add iOS platform
+npx cap sync             # Sync with native platforms
+npx cap open ios         # Open in Xcode
+```
+
+## 🛠️ Troubleshooting
+
+### Build Issues:
+```bash
+rm -rf dist node_modules
 npm install
 npm run build
 ```
 
-### בעיות iOS:
+### Capacitor Issues:
 ```bash
-npx cap clean ios
-npx cap add ios
-npx cap sync ios
+npx cap doctor
+npx cap sync
 ```
 
-## 📋 מבנה פרויקט
+## 📋 Project Structure
 ```
 pilot-sync-nexus/
 ├── src/
-│   ├── components/       # רכיבי React
-│   ├── hooks/           # Custom hooks + Capacitor optimizations
-│   ├── utils/           # כלים + Safe Memory
-│   └── main.tsx         # Entry point
-├── ios/                 # פרויקט iOS נטיבי
-├── capacitor.config.ts  # תצורת Capacitor
-├── vite.config.ts       # תצורת Vite
-└── scripts/            # סקריפטי עזר
+│   ├── main.tsx         # Entry point (fixed)
+│   ├── App.tsx          # Main component (simplified)
+│   └── index.css        # Styles
+├── .github/workflows/   # CI/CD (fixed)
+├── capacitor.config.ts  # Capacitor config
+└── vite.config.ts       # Vite config
 ```
 
-## 🎯 טכנולוגיות
+## 🎯 Technologies
 - **Frontend**: React 18 + TypeScript + Vite
-- **Mobile**: Capacitor 5 + iOS
-- **Platform**: macOS (Designed for iPad)
-- **Styling**: Tailwind CSS + SWC
+- **Mobile**: Capacitor 5
+- **Platform**: Web + iOS
 - **Port**: 8080
 
-## ⚡ פיצ'רים מתקדמים
-- ✅ TypeScript מלא עם Capacitor types
-- ✅ Error handling ו-Safe Memory management
-- ✅ Performance optimizations
-- ✅ Platform-specific optimizations
-- ✅ Health check ו-Diagnostics
-
-## 🔍 Debug ו-Troubleshooting
-- בדוק logs ב-Console
-- השתמש ב-SafeMemoryManager לניהול זיכרון
-- הרץ health-check.js לבדיקה מקיפה
-- בדוק cap doctor לבעיות Capacitor
-
-הפרויקט מותאם במיוחד ל-macOS עם אינטגרציה עמוקה של Capacitor.
+The project is now stable and optimized for Capacitor development.
