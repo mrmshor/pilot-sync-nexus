@@ -77,27 +77,30 @@ export const FolderService = {
 
   // פתיחת תיקיה קיימת במערכת - מקביל ל-shell.openPath() ב-Electron
   openFolder: async (folderPath: string, icloudLink?: string): Promise<void> => {
-    if (!folderPath) {
-      console.warn('No folder path provided');
-      return;
+    if (!folderPath && !icloudLink) {
+      throw new Error('לא צוין נתיב תיקיה או קישור');
     }
 
     try {
       if (isTauriApp()) {
-        // מקביל ל-shell.openPath() ב-Electron - פותח את התיקיה ישירות
-        const result = await invokeCommand('open_folder_native', { path: folderPath });
-        console.log('Folder opened successfully via Tauri native command:', result);
+        if (folderPath) {
+          // מקביל ל-shell.openPath() ב-Electron - פותח את התיקיה ישירות
+          const result = await invokeCommand('open_folder_native', { path: folderPath });
+          console.log('Folder opened successfully via Tauri native command:', result);
+          return;
+        }
       } else {
-        console.warn('Not running in Tauri app - folder opening only works on desktop');
+        throw new Error('פונקציונליות זו זמינה רק באפליקציית המחשב');
       }
     } catch (error) {
       console.error('Failed to open folder with Tauri command:', error);
       
       // אם הפקודה הראשונה נכשלה, נסה להציג את הפריט בתיקיה
       try {
-        if (isTauriApp()) {
+        if (isTauriApp() && folderPath) {
           const result = await invokeCommand('show_item_in_folder', { path: folderPath });
           console.log('Fallback: Item location shown in folder:', result);
+          return;
         }
       } catch (fallbackError) {
         console.error('Both folder opening methods failed:', fallbackError);
@@ -108,11 +111,14 @@ export const FolderService = {
             const opened = await openWithTauri(icloudLink);
             if (opened) {
               console.log('Opened iCloud link as fallback:', icloudLink);
+              return;
             }
           } catch (icloudError) {
             console.error('Failed to open iCloud link as fallback:', icloudError);
           }
         }
+        
+        throw new Error('לא ניתן לפתוח את התיקיה או הקישור');
       }
     }
   },
@@ -179,7 +185,7 @@ export const ContactService = {
       const formatted = ContactService.formatPhoneForInternational(phone);
       if (!ContactService.validatePhoneNumber(formatted)) {
         console.warn('Invalid phone number:', phone);
-        return;
+        throw new Error('מספר הטלפון אינו תקין');
       }
       
       if (isTauriApp()) {
@@ -194,11 +200,16 @@ export const ContactService = {
           const opened = await openWithTauri(telUrl);
           if (!opened) {
             console.warn('Unable to open tel: URL on this platform');
+            throw new Error('לא ניתן לבצע שיחה במחשב זה');
           }
         }
+      } else {
+        // אם זה לא אפליקציית Tauri, הצג הודעה ברורה
+        throw new Error('פונקציונליות זו זמינה רק באפליקציית המחשב');
       }
     } catch (error) {
       console.error('Error making phone call:', error);
+      throw error;
     }
   },
   
@@ -208,7 +219,7 @@ export const ContactService = {
       const formatted = ContactService.formatPhoneForInternational(phone);
       if (!ContactService.validatePhoneNumber(formatted)) {
         console.warn('Invalid phone number for WhatsApp:', phone);
-        return;
+        throw new Error('מספר הטלפון אינו תקין');
       }
       
       if (isTauriApp()) {
@@ -223,11 +234,16 @@ export const ContactService = {
           const opened = await openWithTauri(whatsappUrl);
           if (!opened) {
             console.warn('Unable to open WhatsApp on this platform');
+            throw new Error('לא ניתן לפתוח וואטסאפ במחשב זה');
           }
         }
+      } else {
+        // אם זה לא אפליקציית Tauri, הצג הודעה ברורה
+        throw new Error('פונקציונליות זו זמינה רק באפליקציית המחשב');
       }
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
+      throw error;
     }
   },
   

@@ -388,26 +388,45 @@ export const ProjectManagementApp = () => {
   const { visibleData: visibleProjects } = useOptimizedData(filteredAndSortedProjects, 50);
 
   // Contact handlers
-  const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', value: string) => {
-    if (!value) return;
+  const handleContactClick = async (type: 'phone' | 'whatsapp' | 'email', value: string) => {
+    if (!value) {
+      toast({
+        title: "שגיאה",
+        description: "לא נמצא מידע ליצירת קשר",
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
       switch (type) {
         case 'phone':
-          ContactService.makePhoneCall(value);
+          await ContactService.makePhoneCall(value);
+          toast({
+            title: "התקשרות",
+            description: `מתקשר אל ${value}`,
+          });
           break;
         case 'whatsapp':
-          ContactService.openWhatsApp(value);
+          await ContactService.openWhatsApp(value);
+          toast({
+            title: "וואטסאפ",
+            description: `פותח צ'אט עם ${value}`,
+          });
           break;
         case 'email':
-          ContactService.sendEmail(value);
+          await ContactService.sendEmail(value);
+          toast({
+            title: "אימייל",
+            description: `פותח אימייל אל ${value}`,
+          });
           break;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error handling ${type} contact:`, error);
       toast({
         title: "שגיאה",
-        description: `שגיאה בפתיחת ${type === 'whatsapp' ? 'וואטסאפ' : type === 'email' ? 'אימייל' : 'טלפון'}`,
+        description: error.message || `שגיאה בפתיחת ${type === 'whatsapp' ? 'וואטסאפ' : type === 'email' ? 'אימייל' : 'טלפון'}`,
         variant: "destructive",
       });
     }
@@ -415,30 +434,29 @@ export const ProjectManagementApp = () => {
 
   // Native folder opening for Tauri desktop app
   const openFolder = async (folderPath?: string, icloudLink?: string) => {
+    if (!folderPath && !icloudLink) {
+      toast({
+        title: "שגיאה",
+        description: "לא נמצא נתיב תיקיה או קישור לפתיחה",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
-      if (folderPath) {
+      if (folderPath || icloudLink) {
         // Use native Tauri command to open folder
-        await FolderService.openFolder(folderPath, icloudLink);
+        await FolderService.openFolder(folderPath || '', icloudLink);
         toast({
-          title: "תיקייה נפתחת",
-          description: `פותח ${folderPath}`,
-        });
-      } else if (icloudLink) {
-        // For iCloud links, use shell open
-        const opened = await openWithTauri(icloudLink);
-        if (!opened) {
-          console.warn('Failed to open iCloud link natively');
-        }
-        toast({
-          title: "קישור iCloud נפתח",
-          description: "נפתח באפליקציית ברירת המחדל",
+          title: "נפתח בהצלחה",
+          description: folderPath ? `פותח תיקיה: ${folderPath}` : `פותח קישור: ${icloudLink}`,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error opening folder:', error);
       toast({
         title: "שגיאה",
-        description: "לא ניתן לפתוח את התיקייה",
+        description: error.message || "לא ניתן לפתוח את התיקייה או הקישור",
         variant: "destructive"
       });
     }
