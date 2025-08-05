@@ -1,0 +1,47 @@
+name: Capacitor Build Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npm install @capacitor/cli @capacitor/core @capacitor/ios @capacitor/app
+        
+    - name: Build web assets
+      run: npm run build
+      
+    - name: Setup iOS development environment
+      run: |
+        sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+        
+    - name: Add iOS platform
+      run: npx cap add ios
+      
+    - name: Sync Capacitor
+      run: npx cap sync ios
+      
+    - name: Validate Capacitor project
+      run: npx cap doctor
+      
+    - name: Build iOS project
+      run: |
+        cd ios/App
+        xcodebuild -workspace App.xcworkspace -scheme App -destination generic/platform=macOS clean build

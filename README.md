@@ -1,8 +1,9 @@
-# Pilot Sync Nexus - Capacitor App
+# Pilot Sync Nexus
+
+[![Capacitor Build Check](https://github.com/YOUR_USERNAME/pilot-sync-nexus/actions/workflows/capacitor-build.yml/badge.svg)](https://github.com/YOUR_USERNAME/pilot-sync-nexus/actions/workflows/capacitor-build.yml)
+[![Code Quality Check](https://github.com/YOUR_USERNAME/pilot-sync-nexus/actions/workflows/code-quality.yml/badge.svg)](https://github.com/YOUR_USERNAME/pilot-sync-nexus/actions/workflows/code-quality.yml)
 
 מערכת ניהול פרויקטים מתקדמת עם Capacitor + React + TypeScript.
-
-## 🔧 הוראות התקנה והרצה
 
 ### דרישות מערכת:
 - Node.js 18+
