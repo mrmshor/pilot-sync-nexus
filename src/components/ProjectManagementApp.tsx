@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { useDebounce, useOptimizedData } from '@/hooks/useSafeHooks';
-import { SafeMemoryManager } from '@/utils/safe-memory';
+import { useDebounce, useOptimizedData } from '@/hooks/usePerformanceOptimizations';
+import { MemoryManager, debounce } from '@/utils/memoryManager';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,11 +15,8 @@ import {
   FileText, ArrowUpDown, ListTodo, ChevronDown, List
 } from 'lucide-react';
 import { Project, ProjectTask, QuickTask } from '@/types';
-import { ContactService, FolderService, ExportService, TauriService } from '@/services';
+import { ContactService, FolderService, openWithTauri } from '@/services';
 import { useToast } from '@/hooks/use-toast';
-import { useProjectManager } from '@/hooks/useProjectManager';
-import { useQuickTasks } from '@/hooks/useQuickTasks';
-import { useAppSettings } from '@/hooks/useAppSettings';
 import { CreateProjectModal } from './CreateProjectModal';
 import { StatusDropdown } from './StatusDropdown';
 import { PriorityDropdown } from './PriorityDropdown';
@@ -30,39 +27,11 @@ import { EnhancedDashboard } from './EnhancedDashboard';
 import { AppSidebar } from './AppSidebar';
 
 export const ProjectManagementApp = () => {
-  // Core state management using custom hooks
-  const { 
-    projects, 
-    loading: projectsLoading, 
-    createProject, 
-    updateProject, 
-    deleteProject,
-    addProjectTask,
-    toggleProjectTask,
-    deleteProjectTask 
-  } = useProjectManager();
-  
-  const { 
-    quickTasks, 
-    loading: tasksLoading, 
-    addQuickTask, 
-    toggleQuickTask, 
-    deleteQuickTask 
-  } = useQuickTasks();
-  
-  const { 
-    settings, 
-    loading: settingsLoading, 
-    uploadLogo, 
-    removeLogo 
-  } = useAppSettings();
-
-  // UI state
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [quickTasks, setQuickTasks] = useState<QuickTask[]>([]);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'projects'>('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearch = useDebounce((term: string) => {
-    setSearchTerm(term);
-  }, 300);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300); // Debounced search
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'priority' | 'status' | 'createdAt' | 'updatedAt'>('createdAt');
@@ -72,11 +41,62 @@ export const ProjectManagementApp = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [preserveScroll, setPreserveScroll] = useState<number | null>(null);
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const { toast } = useToast();
 
-  // Loading state
-  const loading = projectsLoading || tasksLoading || settingsLoading;
+  // Load custom logo on startup using Tauri
+  useEffect(() => {
+    const loadCustomLogo = async () => {
+      try {
+        if (typeof window !== 'undefined' && '__TAURI__' in window) {
+          // For Tauri app - use native file system
+          try {
+            const tauri = (window as any).__TAURI__;
+            if (tauri && tauri.fs) {
+              const logoData = await tauri.fs.readTextFile('custom-logo.txt', { dir: 13 }); // AppConfig dir
+              setCustomLogo(logoData);
+            }
+          } catch (error) {
+            // Logo doesn't exist yet - this is normal
+            console.log('No custom logo found yet');
+          }
+        } else {
+          // Fallback to localStorage for development
+          const savedLogo = localStorage.getItem('customLogo');
+          if (savedLogo) {
+            setCustomLogo(savedLogo);
+          }
+        }
+      } catch (error) {
+        console.log('Logo loading failed:', error);
+        console.log('No custom logo found, using default');
+      }
+    };
+    
+    loadCustomLogo();
+  }, []);
+
+  // Update favicon when logo changes
+  useEffect(() => {
+    if (customLogo && typeof window !== 'undefined') {
+      const favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+      if (favicon) {
+        favicon.href = customLogo;
+      } else {
+        const newFavicon = document.createElement('link');
+        newFavicon.rel = 'icon';
+        newFavicon.href = customLogo;
+        document.head.appendChild(newFavicon);
+      }
+      
+      // Update app title with logo status
+      document.title = 'מערכת ניהול פרויקטים Pro • לוגו מותאם';
+      console.log('✅ Custom logo loaded and favicon updated');
+    } else {
+      document.title = 'מערכת ניהול פרויקטים Pro';
+    }
+  }, [customLogo]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -89,7 +109,7 @@ export const ProjectManagementApp = () => {
       // CMD+E for export
       if ((event.metaKey || event.ctrlKey) && event.key === 'e') {
         event.preventDefault();
-        ExportService.exportProjectsAdvanced(projects, 'csv');
+        handleExportCSV();
       }
       // CMD+1 for dashboard
       if ((event.metaKey || event.ctrlKey) && event.key === '1') {
@@ -105,13 +125,14 @@ export const ProjectManagementApp = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [projects]);
+  }, []);
 
-  // Scroll position preservation
+  // שמירת מיקום גלילה
   const saveScrollPosition = () => {
     setPreserveScroll(window.scrollY);
   };
 
+  // שחזור מיקום גלילה
   useEffect(() => {
     if (preserveScroll !== null) {
       const timeoutId = setTimeout(() => {
@@ -122,16 +143,176 @@ export const ProjectManagementApp = () => {
     }
   }, [preserveScroll, projects]);
 
-  // Logo upload handler
+  // Load sample data
+  useEffect(() => {
+    const sampleProjects: Project[] = [
+      {
+        id: '1',
+        name: 'פיתוח אתר אינטרנט עסקי מתקדם',
+        description: 'פיתוח אתר תדמית עסקי מתקדם עם מערכת ניהול תוכן ומערכת הזמנות מקוונת',
+        clientName: 'אליעזר שפירא',
+        phone1: '+972-54-628-2522',
+        phone2: '',
+        whatsapp1: '+972-54-628-2522',
+        whatsapp2: '',
+        email: 'eliezer@business.co.il',
+        folderPath: '/Users/Projects/WebDev/Eliezer',
+        icloudLink: 'https://icloud.com/project1',
+        status: 'in-progress',
+        priority: 'high',
+        price: 15000,
+        currency: 'ILS',
+        paid: false,
+        completed: false,
+        deadline: new Date('2024-02-28'),
+        createdAt: new Date('2024-01-15'),
+        updatedAt: new Date(),
+        tasks: [
+          { id: '1', title: 'לחזור בקרוב', completed: false, createdAt: new Date('2024-01-16') },
+          { id: '2', title: 'לבצע עיצוב ראשוני', completed: true, createdAt: new Date('2024-01-20'), completedAt: new Date('2024-01-25') },
+          { id: '3', title: 'להזמין חומר', completed: false, createdAt: new Date('2024-01-21') },
+          { id: '4', title: 'לעדכן מחיר', completed: false, createdAt: new Date('2024-01-21') },
+          { id: '5', title: 'לתקן קבצים לשליחה לאישור סופי', completed: false, createdAt: new Date('2024-01-21') }
+        ],
+        subtasks: []
+      },
+      {
+        id: '2',
+        name: 'עיצוב לוגו וזהות חזותית',
+        description: 'יצירת לוגו מקצועי וחבילת זהות חזותית מלאה כולל כרטיסי ביקור וניירת',
+        clientName: 'אברהם קורן',
+        phone1: '+972-50-123-4567',
+        phone2: '',
+        whatsapp1: '+972-50-123-4567',
+        whatsapp2: '',
+        email: 'avraham@company.com',
+        folderPath: '',
+        icloudLink: '',
+        status: 'on-hold',
+        priority: 'medium',
+        price: 8000,
+        currency: 'ILS',
+        paid: false,
+        completed: false,
+        deadline: new Date('2024-02-10'),
+        createdAt: new Date('2024-02-01'),
+        updatedAt: new Date('2024-02-15'),
+        tasks: [],
+        subtasks: []
+      },
+      {
+        id: '3',
+        name: 'פאציים עור לבגדים',
+        description: 'תיקון והוספת פאציים עור איכותיים לפריטי ביגוד שונים',
+        clientName: 'שלמה קויץ',
+        phone1: '+972-52-877-3801',
+        phone2: '+972-53-340-8665',
+        whatsapp1: '+972-52-877-3801',
+        whatsapp2: '+972-53-340-8665',
+        email: 'shlomo@leather.co.il',
+        folderPath: '',
+        icloudLink: 'https://icloud.com/leather-project',
+        status: 'in-progress',
+        priority: 'high',
+        price: 4030,
+        currency: 'ILS',
+        paid: false,
+        completed: false,
+        deadline: new Date('2024-02-05'),
+        createdAt: new Date('2024-01-20'),
+        updatedAt: new Date('2024-02-10'),
+        tasks: [
+          { id: '1', title: 'מדידת הבגדים', completed: true, createdAt: new Date('2024-01-21'), completedAt: new Date('2024-01-25') },
+          { id: '2', title: 'הזמנת חומרי גלם', completed: false, createdAt: new Date('2024-01-26') }
+        ],
+        subtasks: []
+      }
+    ];
+
+    console.log('🔄 Before setProjects - current count:', projects.length);
+    setProjects(sampleProjects);
+    console.log('✅ Projects set successfully - new count should be:', sampleProjects.length);
+    console.log('📊 Stats calculated:', {
+      total: sampleProjects.length,
+      completed: sampleProjects.filter(p => p.completed).length,
+      inProgress: sampleProjects.filter(p => p.status === 'in-progress').length
+    });
+    toast({
+      title: "מערכת נטענה בהצלחה",
+      description: `נטענו ${sampleProjects.length} פרויקטים`,
+    });
+  }, [toast]);
+
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      try {
-        await uploadLogo(file);
-      } catch (error) {
-        console.error('Error uploading logo:', error);
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        toast({
+          title: "שגיאה",
+          description: "גודל הקובץ גדול מדי. אנא בחר קובץ קטן מ-2MB",
+          variant: "destructive",
+        });
+        return;
       }
+      
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const result = e.target?.result as string;
+        setCustomLogo(result);
+        
+        try {
+          if (typeof window !== 'undefined' && '__TAURI__' in window) {
+            // Save to filesystem for Tauri app
+            const tauri = (window as any).__TAURI__;
+            if (tauri && tauri.fs) {
+              await tauri.fs.writeTextFile('custom-logo.txt', result, { dir: 13 }); // AppConfig dir
+            }
+          } else {
+            // Fallback to localStorage for development
+            localStorage.setItem('customLogo', result);
+          }
+          
+          toast({
+            title: "הלוגו הועלה בהצלחה",
+            description: "הלוגו החדש נשמר במערכת לצמיתות",
+          });
+        } catch (error) {
+          console.error('Error saving logo:', error);
+          // Fallback to localStorage even on native
+          localStorage.setItem('customLogo', result);
+          toast({
+            title: "הלוגו הועלה בהצלחה",
+            description: "הלוגו החדש נשמר במערכת",
+          });
+        }
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const removeLogo = async () => {
+    setCustomLogo(null);
+    
+    try {
+      if (typeof window !== 'undefined' && '__TAURI__' in window) {
+        // Remove from filesystem for Tauri app
+        const tauri = (window as any).__TAURI__;
+        if (tauri && tauri.fs) {
+          await tauri.fs.removeFile('custom-logo.txt', { dir: 13 }); // AppConfig dir
+        }
+      } else {
+        // Remove from localStorage for development
+        localStorage.removeItem('customLogo');
+      }
+    } catch (error) {
+      // File might not exist, that's ok
+      localStorage.removeItem('customLogo');
+    }
+    
+    toast({
+      title: "הלוגו הוסר",
+      description: "חזרנו ללוגו הברירת מחדל",
+    });
   };
 
   // Calculate statistics
@@ -162,11 +343,11 @@ export const ProjectManagementApp = () => {
 
   // Optimized filter and sort projects with debounced search
   const filteredAndSortedProjects = useMemo(() => {
-    const filtered = projects.filter(project => {
-      const matchesSearch = searchTerm === '' || 
-        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    let filtered = projects.filter(project => {
+      const matchesSearch = debouncedSearchTerm === '' || 
+        project.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        project.clientName.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        (project.description && project.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
       
       const matchesPriority = priorityFilter === 'all' || project.priority === priorityFilter;
       const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
@@ -176,20 +357,19 @@ export const ProjectManagementApp = () => {
 
     // Sort projects
     filtered.sort((a, b) => {
-      let aValue: string | number;
-      let bValue: string | number;
+      let aValue: any;
+      let bValue: any;
 
       switch (sortBy) {
         case 'name':
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
           break;
-        case 'priority': {
+        case 'priority':
           const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
           aValue = priorityOrder[a.priority];
           bValue = priorityOrder[b.priority];
           break;
-        }
         case 'status':
           aValue = a.status;
           bValue = b.status;
@@ -213,10 +393,10 @@ export const ProjectManagementApp = () => {
     });
 
     return filtered;
-  }, [projects, searchTerm, priorityFilter, statusFilter, sortBy, sortOrder]);
+  }, [projects, debouncedSearchTerm, priorityFilter, statusFilter, sortBy, sortOrder]);
 
-  // Use optimized data
-  const visibleProjects = useOptimizedData(filteredAndSortedProjects, searchTerm);
+  // Optimized data handling for large datasets
+  const { visibleData: visibleProjects } = useOptimizedData(filteredAndSortedProjects, 50);
 
   // Contact handlers
   const handleContactClick = (type: 'phone' | 'whatsapp' | 'email', value: string) => {
@@ -255,8 +435,11 @@ export const ProjectManagementApp = () => {
           description: `פותח ${folderPath}`,
         });
       } else if (icloudLink) {
-        // For iCloud links, use TauriService
-        await TauriService.openUrl(icloudLink);
+        // For iCloud links, use shell open
+        const opened = await openWithTauri(icloudLink);
+        if (!opened) {
+          console.warn('Failed to open iCloud link natively');
+        }
         toast({
           title: "קישור iCloud נפתח",
           description: "נפתח באפליקציית ברירת המחדל",
@@ -342,54 +525,155 @@ export const ProjectManagementApp = () => {
     }
   };
 
-  const handleCreateProject = async (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => {
-    try {
-      await createProject(projectData);
-      setShowCreateModal(false);
-    } catch (error) {
-      console.error('Error creating project:', error);
-    }
+  const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => {
+    const newProject: Project = {
+      ...projectData,
+      id: Date.now().toString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      tasks: [],
+      subtasks: []
+    };
+    
+    setProjects(prev => [...prev, newProject]);
+    setShowCreateModal(false);
+    toast({
+      title: "פרויקט נוצר בהצלחה",
+      description: `פרויקט "${newProject.name}" נוסף למערכת`,
+    });
   };
 
-  const handleUpdateProject = async (updatedProject: Project) => {
-    try {
-      await updateProject(updatedProject);
-    } catch (error) {
-      console.error('Error updating project:', error);
-    }
+  const handleUpdateProject = (updatedProject: Project) => {
+    saveScrollPosition();
+    setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+    toast({
+      title: "פרויקט עודכן בהצלחה",
+      description: `הפרויקט "${updatedProject.name}" עודכן במערכת`,
+    });
   };
 
-  const handleDeleteProject = async (projectId: string) => {
+  const handleDeleteProject = (projectId: string) => {
     const project = projects.find(p => p.id === projectId);
     if (project && window.confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${project.name}"?`)) {
-      try {
-        await deleteProject(projectId);
-      } catch (error) {
-        console.error('Error deleting project:', error);
-      }
+      setProjects(prev => prev.filter(p => p.id !== projectId));
+      toast({
+        title: "פרויקט נמחק",
+        description: `הפרויקט "${project.name}" נמחק מהמערכת`,
+      });
     }
   };
 
-  // Project update handlers
-  const updateProjectStatus = async (projectId: string, newStatus: Project['status']) => {
-    const project = projects.find(p => p.id === projectId);
-    if (project) {
-      await updateProject({ ...project, status: newStatus, updatedAt: new Date() });
-    }
+  // Quick Tasks handlers
+  const handleAddQuickTask = (title: string) => {
+    const newTask: QuickTask = {
+      id: Date.now().toString(),
+      title,
+      completed: false,
+      createdAt: new Date()
+    };
+    setQuickTasks(prev => [newTask, ...prev]);
   };
 
-  const updateProjectPriority = async (projectId: string, newPriority: Project['priority']) => {
-    const project = projects.find(p => p.id === projectId);
-    if (project) {
-      await updateProject({ ...project, priority: newPriority, updatedAt: new Date() });
-    }
+  const handleToggleQuickTask = (taskId: string) => {
+    setQuickTasks(prev => prev.map(task => 
+      task.id === taskId 
+        ? { 
+            ...task, 
+            completed: !task.completed,
+            completedAt: !task.completed ? new Date() : undefined
+          }
+        : task
+    ));
   };
 
-  const toggleProjectPaid = async (projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    if (project) {
-      await updateProject({ ...project, paid: !project.paid, updatedAt: new Date() });
-    }
+  const handleDeleteQuickTask = (taskId: string) => {
+    setQuickTasks(prev => prev.filter(task => task.id !== taskId));
+  };
+
+  // Project Tasks handlers
+  const handleAddProjectTask = (projectId: string, title: string) => {
+    saveScrollPosition();
+    const newTask: ProjectTask = {
+      id: Date.now().toString(),
+      title,
+      completed: false,
+      createdAt: new Date()
+    };
+    
+    setProjects(prev => prev.map(project => 
+      project.id === projectId 
+        ? { ...project, tasks: [newTask, ...project.tasks], updatedAt: new Date() }
+        : project
+    ));
+  };
+
+  const handleToggleProjectTask = (projectId: string, taskId: string) => {
+    saveScrollPosition();
+    setProjects(prev => prev.map(project => 
+      project.id === projectId 
+        ? {
+            ...project,
+            tasks: project.tasks.map(task => 
+              task.id === taskId 
+                ? { 
+                    ...task, 
+                    completed: !task.completed,
+                    completedAt: !task.completed ? new Date() : undefined
+                  }
+                : task
+            )
+          }
+        : project
+    ));
+  };
+
+  const handleDeleteProjectTask = (projectId: string, taskId: string) => {
+    saveScrollPosition();
+    setProjects(prev => prev.map(project => 
+      project.id === projectId 
+        ? {
+            ...project,
+            tasks: project.tasks.filter(task => task.id !== taskId),
+            updatedAt: new Date()
+          }
+        : project
+    ));
+  };
+
+  // Status and Priority handlers for external buttons
+  const updateProjectStatus = (projectId: string, newStatus: Project['status']) => {
+    saveScrollPosition();
+    setProjects(prev => prev.map(project => 
+      project.id === projectId 
+        ? { ...project, status: newStatus }
+        : project
+    ));
+    toast({
+      title: "סטטוס עודכן",
+      description: "סטטוס הפרויקט עודכן בהצלחה",
+    });
+  };
+
+  const updateProjectPriority = (projectId: string, newPriority: Project['priority']) => {
+    saveScrollPosition();
+    setProjects(prev => prev.map(project => 
+      project.id === projectId 
+        ? { ...project, priority: newPriority }
+        : project
+    ));
+    toast({
+      title: "עדיפות עודכנה",
+      description: "עדיפות הפרויקט עודכנה בהצלחה",
+    });
+  };
+
+  const toggleProjectPaid = (projectId: string) => {
+    saveScrollPosition();
+    setProjects(prev => prev.map(project => 
+      project.id === projectId 
+        ? { ...project, paid: !project.paid }
+        : project
+    ));
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -456,9 +740,9 @@ export const ProjectManagementApp = () => {
         <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg fixed top-0 right-0 z-30">
           <QuickTasksSidebar
             quickTasks={quickTasks}
-            onAddTask={addQuickTask}
-            onToggleTask={toggleQuickTask}
-            onDeleteTask={deleteQuickTask}
+            onAddTask={handleAddQuickTask}
+            onToggleTask={handleToggleQuickTask}
+            onDeleteTask={handleDeleteQuickTask}
           />
         </div>
 
@@ -472,9 +756,9 @@ export const ProjectManagementApp = () => {
                 <div className="flex items-center justify-center gap-4 mb-4">
                   <div className="relative group">
                     <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-macos overflow-hidden">
-                      {settings.customLogo ? (
+                      {customLogo ? (
                         <img 
-                          src={settings.customLogo} 
+                          src={customLogo} 
                           alt="לוגו מותאם אישית" 
                           className="w-full h-full object-cover"
                         />
@@ -498,7 +782,7 @@ export const ProjectManagementApp = () => {
                     </div>
                     
                     {/* Remove logo button */}
-                    {settings.customLogo && (
+                    {customLogo && (
                       <button
                         onClick={removeLogo}
                         className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs transition-colors"
@@ -520,7 +804,7 @@ export const ProjectManagementApp = () => {
                 {/* Export Button - Left Side */}
                 <Button
                   variant="outline"
-                  onClick={() => ExportService.exportProjectsAdvanced(projects, 'csv')}
+                  onClick={handleExportCSV}
                   className="gap-2"
                   title="ייצוא נתונים לקובץ CSV (⌘E)"
                 >
@@ -564,12 +848,12 @@ export const ProjectManagementApp = () => {
                           {/* Search Bar */}
                           <div className="relative w-full max-w-md mx-auto">
                             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
-                             <Input
-                               placeholder="חיפוש פרויקטים..."
-                               value={searchTerm}
-                               onChange={(e) => debouncedSearch(e.target.value)}
-                               className="pr-10"
-                             />
+                            <Input
+                              placeholder="חיפוש פרויקטים..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              className="pr-10"
+                            />
                           </div>
                           
                           {/* Filters and Actions - Centered */}
@@ -602,8 +886,8 @@ export const ProjectManagementApp = () => {
                               value={`${sortBy}-${sortOrder}`}
                               onChange={(e) => {
                                 const [field, order] = e.target.value.split('-');
-                                setSortBy(field as typeof sortBy);
-                                setSortOrder(order as typeof sortOrder);
+                                setSortBy(field as any);
+                                setSortOrder(order as any);
                               }}
                               className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 min-w-[140px]"
                             >
@@ -687,12 +971,12 @@ export const ProjectManagementApp = () => {
                                 <div className="flex flex-col gap-2">
                                   <StatusDropdown
                                     value={project.status}
-                                    onChange={(newStatus) => updateProjectStatus(project.id, newStatus as Project['status'])}
+                                    onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
                                     className="w-32"
                                   />
                                   <PriorityDropdown
                                     value={project.priority}
-                                    onChange={(newPriority) => updateProjectPriority(project.id, newPriority as Project['priority'])}
+                                    onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
                                     className="w-32"
                                   />
                                 </div>
@@ -768,7 +1052,7 @@ export const ProjectManagementApp = () => {
                                               }`}
                                               onClick={(e) => {
                                                 e.stopPropagation();
-                                                toggleProjectTask(project.id, task.id);
+                                                handleToggleProjectTask(project.id, task.id);
                                               }}
                                             >
                                               {task.completed && <CheckCircle2 className="w-2 h-2 text-white" />}
@@ -916,9 +1200,9 @@ export const ProjectManagementApp = () => {
                 open={showTasksModal}
                 onOpenChange={setShowTasksModal}
                 project={selectedProject ? projects.find(p => p.id === selectedProject.id) || selectedProject : null}
-          onAddTask={addProjectTask}
-          onToggleTask={toggleProjectTask}
-          onDeleteTask={deleteProjectTask}
+                onAddTask={handleAddProjectTask}
+                onToggleTask={handleToggleProjectTask}
+                onDeleteTask={handleDeleteProjectTask}
               />
 
               <ProjectEditModal

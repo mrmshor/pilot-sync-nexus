@@ -42,21 +42,16 @@ export const useOptimizedProjects = () => {
     if (savedProjects) {
       try {
         const parsed = JSON.parse(savedProjects);
-        const projectsWithDates = parsed.map((project: Project & { 
-          createdAt: string; 
-          updatedAt: string; 
-          tasks?: Array<{ createdAt: string; completedAt?: string }>;
-          subtasks?: Array<{ createdAt?: string }>;
-        }) => ({
+        const projectsWithDates = parsed.map((project: any) => ({
           ...project,
           createdAt: new Date(project.createdAt),
           updatedAt: new Date(project.updatedAt),
-          tasks: project.tasks?.map((task: { createdAt: string; completedAt?: string }) => ({
+          tasks: project.tasks?.map((task: any) => ({
             ...task,
             createdAt: new Date(task.createdAt),
             completedAt: task.completedAt ? new Date(task.completedAt) : undefined
           })) || [],
-          subtasks: project.subtasks?.map((task: { createdAt?: string }) => ({
+          subtasks: project.subtasks?.map((task: any) => ({
             ...task,
             createdAt: task.createdAt ? new Date(task.createdAt) : new Date()
           })) || []
@@ -109,20 +104,19 @@ export const useOptimizedProjects = () => {
 
     // Sort projects
     filtered.sort((a, b) => {
-      let aValue: string | number;
-      let bValue: string | number;
+      let aValue: any;
+      let bValue: any;
 
       switch (sortBy) {
         case 'name':
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
           break;
-        case 'priority': {
+        case 'priority':
           const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
           aValue = priorityOrder[a.priority];
           bValue = priorityOrder[b.priority];
           break;
-        }
         case 'status':
           aValue = a.status;
           bValue = b.status;

@@ -1,0 +1,94 @@
+name: Build Native Desktop App with Tauri
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-tauri-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+        
+    - name: Install Rust dependencies
+      run: |
+        rustup target add x86_64-apple-darwin
+        rustup target add aarch64-apple-darwin
+        
+    - name: Install Node dependencies
+      run: npm ci
+      
+    - name: Install Tauri CLI
+      run: |
+        cargo install tauri-cli --version "^2.0"
+        
+    - name: Build React application
+      run: npm run build
+      
+    - name: Build native Mac desktop app with Tauri
+      run: |
+        # Build for both Intel and Apple Silicon
+        cargo tauri build --target x86_64-apple-darwin
+        cargo tauri build --target aarch64-apple-darwin
+        
+    - name: Create universal DMG
+      run: |
+        # Create staging directory
+        mkdir -p dmg-staging
+        
+        # Find and copy the universal app (Tauri creates universal builds)
+        if [ -f "src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_x64.dmg" ]; then
+          cp "src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_x64.dmg" "ProjectManager-Native-Desktop-Intel.dmg"
+        fi
+        
+        if [ -f "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_aarch64.dmg" ]; then
+          cp "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/מערכת ניהול פרויקטים Pro_1.0.0_aarch64.dmg" "ProjectManager-Native-Desktop-AppleSilicon.dmg"
+        fi
+        
+        # List all built files for debugging
+        echo "=== Intel build files ==="
+        find src-tauri/target/x86_64-apple-darwin -name "*.dmg" -o -name "*.app" || echo "No Intel builds found"
+        echo "=== Apple Silicon build files ==="
+        find src-tauri/target/aarch64-apple-darwin -name "*.dmg" -o -name "*.app" || echo "No Apple Silicon builds found"
+        echo "=== Final DMG files ==="
+        ls -la *.dmg || echo "No final DMG files"
+        
+    - name: Upload Intel DMG
+      uses: actions/upload-artifact@v4
+      with:
+        name: ProjectManager-Native-Desktop-Intel
+        path: ProjectManager-Native-Desktop-Intel.dmg
+        retention-days: 30
+      if: hashFiles('ProjectManager-Native-Desktop-Intel.dmg') != ''
+        
+    - name: Upload Apple Silicon DMG
+      uses: actions/upload-artifact@v4
+      with:
+        name: ProjectManager-Native-Desktop-AppleSilicon
+        path: ProjectManager-Native-Desktop-AppleSilicon.dmg
+        retention-days: 30
+      if: hashFiles('ProjectManager-Native-Desktop-AppleSilicon.dmg') != ''
+        
+    - name: Debug - List all build outputs
+      if: failure()
+      run: |
+        echo "=== Tauri build directory structure ==="
+        find src-tauri/target -type f -name "*.dmg" -o -name "*.app" 2>/dev/null || echo "No DMG or APP files found"
+        echo "=== Current directory ==="
+        ls -la
+        echo "=== Bundle directory ==="
+        find src-tauri/target -path "*/bundle/*" -type f 2>/dev/null || echo "No bundle files found"

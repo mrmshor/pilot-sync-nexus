@@ -27,10 +27,10 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
     email: '',
     folderPath: '',
     icloudLink: '',
-    status: 'not-started' as Project['status'],
-    priority: 'medium' as Project['priority'],
+    status: 'not-started' as const,
+    priority: 'medium' as const,
     price: 0,
-    currency: 'ILS' as Project['currency'],
+    currency: 'ILS' as const,
     paid: false,
     completed: false,
     deadline: undefined as Date | undefined
@@ -94,10 +94,10 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
       email: '',
       folderPath: '',
       icloudLink: '',
-      status: 'not-started' as Project['status'],
-      priority: 'medium' as Project['priority'],
+      status: 'not-started',
+      priority: 'medium',
       price: 0,
-      currency: 'ILS' as Project['currency'],
+      currency: 'ILS',
       paid: false,
       completed: false,
       deadline: undefined
@@ -155,7 +155,7 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
                     <select
                       id="status"
                       value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as Project['status'] }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
                       className="w-full px-3 py-2 border border-blue-200 dark:border-blue-800 focus:border-blue-500 rounded-lg text-sm"
                     >
                       <option value="not-started">לא התחיל</option>
@@ -171,7 +171,7 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
                     <select
                       id="priority"
                       value={formData.priority}
-                      onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value as Project['priority'] }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value as any }))}
                       className="w-full px-3 py-2 border border-blue-200 dark:border-blue-800 focus:border-blue-500 rounded-lg text-sm"
                     >
                       <option value="low">נמוכה</option>
@@ -200,7 +200,7 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
                     <select
                       id="currency"
                       value={formData.currency}
-                      onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value as Project['currency'] }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value as any }))}
                       className="w-full px-3 py-2 border border-blue-200 dark:border-blue-800 focus:border-blue-500 rounded-lg text-sm"
                     >
                       <option value="ILS">שקל (₪)</option>

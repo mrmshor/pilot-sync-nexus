@@ -19,7 +19,7 @@ export const useLocalFolders = () => {
       console.error('Error selecting folder:', error);
       return null;
     }
-  }, []);
+  }, [isTauri]);
 
   const attemptAutoOpen = useCallback(async (path: string): Promise<boolean> => {
     try {

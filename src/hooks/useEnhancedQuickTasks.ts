@@ -13,7 +13,7 @@ export const useQuickTasks = () => {
     if (savedTasks) {
       try {
         const parsed = JSON.parse(savedTasks);
-        const tasksWithDates = parsed.map((task: QuickTask & { createdAt: string; completedAt?: string }) => ({
+        const tasksWithDates = parsed.map((task: any) => ({
           ...task,
           createdAt: new Date(task.createdAt),
           completedAt: task.completedAt ? new Date(task.completedAt) : undefined
