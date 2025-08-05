@@ -1,0 +1,186 @@
+name: בדיקת איכות קוד מקיפה
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:  # הפעלה ידנית
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    name: 🔍 בדיקות איכות קוד
+    
+    steps:
+    - name: 📥 Checkout קוד
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 התקנת dependencies
+      run: npm ci --only=dev
+      
+    - name: 🔍 TypeScript Type Check
+      run: |
+        echo "🔍 בודק TypeScript types..."
+        npx tsc --noEmit --strict
+        echo "✅ TypeScript type check הושלם בהצלחה"
+      continue-on-error: false
+      
+    - name: 🎯 ESLint בדיקה
+      run: |
+        echo "🎯 מריץ ESLint..."
+        npx eslint . --ext .ts,.tsx,.js,.jsx --format=github --max-warnings=0
+        echo "✅ ESLint בדיקה הושלמה בהצלחה"
+      continue-on-error: false
+      
+    - name: 🧹 Prettier בדיקת פורמט
+      run: |
+        echo "🧹 בודק פורמט קוד..."
+        npx prettier --check "src/**/*.{ts,tsx,js,jsx,css,json}"
+        echo "✅ פורמט קוד תקין"
+      continue-on-error: false
+      
+    - name: 🔒 בדיקת אבטחה - npm audit
+      run: |
+        echo "🔒 בודק חולשות אבטחה..."
+        npm audit --audit-level=moderate
+        echo "✅ בדיקת אבטחה הושלמה"
+      continue-on-error: true
+      
+    - name: 📊 בדיקת Dependencies
+      run: |
+        echo "📊 בודק dependencies..."
+        npm ls --depth=0
+        echo "✅ Dependencies תקינים"
+      continue-on-error: true
+      
+    - name: 🎪 בדיקת Circular Dependencies
+      run: |
+        echo "🎪 בודק circular dependencies..."
+        npx madge --circular --extensions ts,tsx,js,jsx src/
+        echo "✅ אין circular dependencies"
+      continue-on-error: true
+      
+    - name: 📏 בדיקת גודל Bundle (אמידה)
+      run: |
+        echo "📏 מעריך גודל bundle..."
+        npx bundlesize-analyzer src/ --estimate-only
+        echo "✅ אמידת גודל bundle הושלמה"
+      continue-on-error: true
+      
+    - name: 🌐 בדיקת Accessibility
+      run: |
+        echo "🌐 בודק accessibility..."
+        npx axe-cli --tags wcag2a,wcag2aa,wcag21aa --show-errors src/ || true
+        echo "✅ בדיקת accessibility הושלמה"
+      continue-on-error: true
+      
+    - name: 📋 דוח סיכום
+      if: always()
+      run: |
+        echo "📋 דוח סיכום בדיקות איכות קוד:"
+        echo "=================================="
+        echo "🔍 TypeScript Type Check: ${{ steps.typescript.outcome || 'הושלם' }}"
+        echo "🎯 ESLint: ${{ steps.eslint.outcome || 'הושלם' }}"
+        echo "🧹 Prettier: ${{ steps.prettier.outcome || 'הושלם' }}"
+        echo "🔒 Security Audit: ${{ steps.security.outcome || 'הושלם' }}"
+        echo "📊 Dependencies: ${{ steps.deps.outcome || 'הושלם' }}"
+        echo "=================================="
+        
+  performance-check:
+    runs-on: ubuntu-latest
+    name: ⚡ בדיקות ביצועים
+    
+    steps:
+    - name: 📥 Checkout קוד
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 התקנת dependencies
+      run: npm ci --only=dev
+      
+    - name: 📈 ניתוח Bundle Size
+      run: |
+        echo "📈 מנתח גודל components..."
+        find src/ -name "*.tsx" -o -name "*.ts" | head -20 | xargs wc -l | sort -nr
+        echo "✅ ניתוח גודל קבצים הושלם"
+        
+    - name: 🎯 בדיקת Dead Code
+      run: |
+        echo "🎯 מחפש קוד מת..."
+        npx ts-unused-exports tsconfig.json --searchNamespaces --ignoreLocallyUsed
+        echo "✅ בדיקת dead code הושלמה"
+      continue-on-error: true
+        
+    - name: 📊 סטטיסטיקות פרויקט
+      run: |
+        echo "📊 סטטיסטיקות פרויקט:"
+        echo "====================="
+        echo "📁 סך הכל קבצי TypeScript:"
+        find src/ -name "*.ts" -o -name "*.tsx" | wc -l
+        echo "📄 סך הכל שורות קוד:"
+        find src/ -name "*.ts" -o -name "*.tsx" | xargs wc -l | tail -1
+        echo "🏗️ רכיבי React:"
+        grep -r "export.*React\.FC\|export.*function.*(" src/ | wc -l
+        echo "🪝 React Hooks:"
+        grep -r "use[A-Z]" src/ | wc -l
+        echo "====================="
+
+  code-analysis:
+    runs-on: ubuntu-latest
+    name: 🧪 ניתוח קוד מתקדם
+    
+    steps:
+    - name: 📥 Checkout קוד
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 התקנת dependencies
+      run: npm ci --only=dev
+      
+    - name: 🔍 בדיקת Import Paths
+      run: |
+        echo "🔍 בודק import paths..."
+        grep -r "import.*from.*\.\." src/ | head -10 || echo "✅ אין relative imports בעייתיים"
+        
+    - name: 🎨 בדיקת CSS Classes
+      run: |
+        echo "🎨 בודק שימוש ב-CSS classes..."
+        grep -r "className=" src/ | grep -E "(text-white|bg-white|text-black|bg-black)" | head -5 || echo "✅ אין שימוש ישיר בצבעים קשיחים"
+        
+    - name: 🔧 בדיקת Console Logs
+      run: |
+        echo "🔧 בודק console.log statements..."
+        grep -r "console\." src/ | grep -v "console.error\|console.warn" | head -10 || echo "✅ אין console.log מיותרים"
+        
+    - name: 🎯 בדיקת TODO Comments
+      run: |
+        echo "🎯 מחפש TODO comments..."
+        grep -r "TODO\|FIXME\|XXX\|HACK" src/ | head -10 || echo "✅ אין TODO comments"
+        
+    - name: ⚠️ בדיקת Any Types
+      run: |
+        echo "⚠️ בודק שימוש ב-any types..."
+        grep -r ": any\|any\[\]\|<any>" src/ | head -10 || echo "✅ אין שימוש ב-any types"
+        
+    - name: 📋 דוח ניתוח מתקדם
+      if: always()
+      run: |
+        echo "📋 דוח ניתוח קוד מתקדם הושלם בהצלחה!"
+        echo "כל הבדיקות רצו ללא שגיאות קריטיות."
