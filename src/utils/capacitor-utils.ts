@@ -1,11 +1,9 @@
-// import { Capacitor } from '@capacitor/core';
-
 export const isNativePlatform = (): boolean => {
   return typeof window !== 'undefined' && window.Capacitor?.isNativePlatform() || false;
 };
 
 export const getPlatform = (): string => {
-  return window.Capacitor?.getPlatform() || 'web';
+  return typeof window !== 'undefined' && window.Capacitor?.getPlatform() || 'web';
 };
 
 export const isReady = (): Promise<boolean> => {

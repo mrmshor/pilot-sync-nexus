@@ -1,54 +1,108 @@
 # Pilot Sync Nexus - Capacitor App
 
-מערכת ניהול פרויקטים מתקדמת עם Capacitor.
+מערכת ניהול פרויקטים מתקדמת עם Capacitor + React + TypeScript.
 
-## דרישות מערכת
+## 🔧 הוראות התקנה והרצה
+
+### דרישות מערכת:
 - Node.js 18+
-- npm 9+
+- npm 9+ 
 - Xcode 14+ (עבור iOS)
 - macOS Big Sur+ (עבור Mac)
 
-## התקנה והרצה
-
-### פיתוח מקומי:
+### התקנה ראשונית:
 ```bash
+# התקנת dependencies
 npm install
-npm run dev
-# יפתח על: http://localhost:8080
+
+# הוספת Capacitor dependencies
+npm install @capacitor/app @capacitor/core @capacitor/filesystem @capacitor/haptics @capacitor/ios @capacitor/keyboard @capacitor/status-bar @capacitor/splash-screen
+npm install -D @capacitor/cli
+
+# בניה ראשונית
+npm run build
+
+# הוספת פלטפורמת iOS
+npx cap add ios
+
+# סנכרון ראשוני
+npx cap sync ios
 ```
 
-### בניה והרצה על Mac:
+### פיתוח יומיומי:
 ```bash
-npm run cap:build     # בניה + סנכרון
-npm run cap:run:ios   # הרצה על Mac
-npm run cap:live      # עם live reload
-```
-
-### פתיחה ב-Xcode:
-```bash
-npm run cap:open:ios
+npm run dev              # פיתוח מקומי (localhost:8080)
+npm run build            # בניה
+npx cap sync             # סנכרון עם iOS
+npx cap run ios          # הרצה על Mac
+npx cap open ios         # פתיחה ב-Xcode
+npx cap doctor           # בדיקת תקינות
 ```
 
 ### בדיקת תקינות:
 ```bash
-npm run cap:doctor
+node scripts/health-check.js   # בדיקה מקיפה
+npx cap doctor                 # בדיקת Capacitor
 ```
 
-### תיקון בעיות:
+## 🛠️ פתרון בעיות נפוצות
+
+### בעיית Build:
 ```bash
-node scripts/fix-project.js
+rm -rf dist
+npm run build
+npx cap sync ios
 ```
 
-## טכנולוגיות
-- **Frontend**: React 18 + TypeScript + Vite
-- **Mobile**: Capacitor 5
-- **Styling**: Tailwind CSS
-- **Platform**: macOS (Designed for iPad)
+### בעיית Dependencies:
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
 
-## הערות חשובות
-- הפרויקט מותאם ל-**Capacitor** (לא Tauri)
-- רץ על פורט 8080 עם SWC עבור React
-- תומך ב-live reload על מכשירים נטיביים
+### בעיות iOS:
+```bash
+npx cap clean ios
+npx cap add ios
+npx cap sync ios
+```
+
+## 📋 מבנה פרויקט
+```
+pilot-sync-nexus/
+├── src/
+│   ├── components/       # רכיבי React
+│   ├── hooks/           # Custom hooks + Capacitor optimizations
+│   ├── utils/           # כלים + Debug helper
+│   └── main.tsx         # Entry point
+├── ios/                 # פרויקט iOS נטיבי
+├── capacitor.config.ts  # תצורת Capacitor
+├── vite.config.ts       # תצורת Vite
+└── scripts/            # סקריפטי עזר
+```
+
+## 🎯 טכנולוגיות
+- **Frontend**: React 18 + TypeScript + Vite
+- **Mobile**: Capacitor 5 + iOS
+- **Platform**: macOS (Designed for iPad)
+- **Styling**: Tailwind CSS + SWC
+- **Port**: 8080
+
+## ⚡ פיצ'רים מתקדמים
+- ✅ TypeScript מלא עם Capacitor types
+- ✅ Error handling ו-Debug tools
+- ✅ Memory optimization ו-Performance
+- ✅ Platform-specific optimizations
+- ✅ Health check ו-Diagnostics
+
+## 🔍 Debug ו-Troubleshooting
+- בדוק logs ב-Console
+- השתמש ב-DebugHelper.getInstance().getSystemInfo()
+- הרץ health-check.js לבדיקה מקיפה
+- בדוק cap doctor לבעיות Capacitor
+
+הפרויקט מותאם במיוחד ל-macOS עם אינטגרציה עמוקה של Capacitor.
 
 ## 🌟 תכונות עיקריות
 
