@@ -12,7 +12,7 @@ import { ProjectTasksModal } from '../components/ProjectTasksModal';
 
 const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showTasksModal, setShowTasksModal] = useState(false);
@@ -389,51 +389,7 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="p-6">
-        {/* Navigation Tabs */}
-        <div className="grid grid-cols-2 w-full max-w-md mx-auto bg-white/90 backdrop-blur p-1.5 rounded-xl shadow-lg mb-8 border border-gray-200/50">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
-              activeTab === 'dashboard' 
-                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105' 
-                : 'text-gray-600 hover:text-blue-600 hover:bg-white/50'
-            }`}
-          >
-            <BarChart3 className="h-4 w-4 mr-2 inline" />
-            לוח בקרה Pro
-          </button>
-          <button
-            onClick={() => setActiveTab('projects')}
-            className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
-              activeTab === 'projects' 
-                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105' 
-                : 'text-gray-600 hover:text-blue-600 hover:bg-white/50'
-            }`}
-          >
-            <Briefcase className="h-4 w-4 mr-2 inline" />
-            פרויקטים מתקדם
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <div className="transition-all duration-500 ease-in-out">
-          {activeTab === 'dashboard' && (
-            <ProjectPulseDashboard projects={projects} stats={stats} />
-          )}
-
-          {activeTab === 'projects' && (
-            <ProjectsList 
-              projects={projects}
-              onUpdateProject={handleUpdateProject}
-              onDeleteProject={handleDeleteProject}
-              selectedProjectId={selectedProjectId}
-              onProjectSelect={(projectId) => {
-                setSelectedProjectId(projectId);
-                setShowTasksModal(true);
-              }}
-            />
-          )}
-        </div>
+        <ProjectPulseDashboard projects={projects} stats={stats} />
       </main>
 
       {/* Create Project Modal */}
