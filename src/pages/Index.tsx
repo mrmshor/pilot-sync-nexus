@@ -7,7 +7,7 @@ import { ExportService } from '../services';
 import { Button } from '../components/ui/button';
 import { CreateProjectModal } from '../components/CreateProjectModal';
 import { ProjectsList } from '../components/ProjectsList';
-import { EnhancedDashboard } from '../components/EnhancedDashboard';
+import { ProjectPulseDashboard } from '../components/ProjectPulseDashboard';
 import { ProjectTasksModal } from '../components/ProjectTasksModal';
 
 const App: React.FC = () => {
@@ -418,7 +418,7 @@ const App: React.FC = () => {
         {/* Tab Content */}
         <div className="transition-all duration-500 ease-in-out">
           {activeTab === 'dashboard' && (
-            <EnhancedDashboard projects={projects} stats={stats} />
+            <ProjectPulseDashboard projects={projects} stats={stats} />
           )}
 
           {activeTab === 'projects' && (
