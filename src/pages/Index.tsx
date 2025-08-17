@@ -12,7 +12,7 @@ import { ProjectTasksModal } from '../components/ProjectTasksModal';
 
 const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [activeTab, setActiveTab] = useState('projects');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showTasksModal, setShowTasksModal] = useState(false);
