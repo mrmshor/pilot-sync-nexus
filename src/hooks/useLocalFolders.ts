@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { FolderService } from '../services';
-import { downloadHelperFiles } from '../utils/folderHelpers';
 
 export interface FolderResult {
   success: boolean;
@@ -9,22 +8,18 @@ export interface FolderResult {
 }
 
 export const useLocalFolders = () => {
-  const [isTauri] = useState(typeof window !== 'undefined' && '__TAURI__' in window);
 
   const selectFolder = useCallback(async (): Promise<string | null> => {
     try {
-      // Use Tauri native folder selection
       return await FolderService.selectFolder();
     } catch (error) {
       console.error('Error selecting folder:', error);
       return null;
     }
-  }, [isTauri]);
+  }, []);
 
   const attemptAutoOpen = useCallback(async (path: string): Promise<boolean> => {
     try {
-      // Use Tauri shell to open file/folder natively
-      const { FolderService } = await import('../services');
       await FolderService.openFolder(path);
       return true;
     } catch (error) {
@@ -35,7 +30,6 @@ export const useLocalFolders = () => {
 
   const openFolder = useCallback(async (folderPath: string, icloudLink?: string): Promise<boolean> => {
     try {
-      // Use Tauri native folder opening
       if (folderPath) {
         await FolderService.openFolder(folderPath, icloudLink);
         return true;
@@ -49,7 +43,6 @@ export const useLocalFolders = () => {
 
   const showItemInFolder = useCallback(async (itemPath: string): Promise<boolean> => {
     try {
-      // Use Tauri native show in folder
       return await attemptAutoOpen(itemPath);
     } catch (error) {
       console.error('Error showing item in folder:', error);
@@ -57,17 +50,12 @@ export const useLocalFolders = () => {
     }
   }, [attemptAutoOpen]);
 
-  const handleDownloadHelperFiles = useCallback(async () => {
-    return await downloadHelperFiles();
-  }, []);
-
   return {
     selectFolder,
     openFolder,
     showItemInFolder,
     attemptAutoOpen,
-    downloadHelperFiles: handleDownloadHelperFiles,
-    isElectron: false, // Not using Electron
-    isTauri,
+    isElectron: false,
+    isTauri: false, // Browser only
   };
 };

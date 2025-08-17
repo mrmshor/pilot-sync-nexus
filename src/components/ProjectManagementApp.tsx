@@ -15,7 +15,7 @@ import {
   FileText, ArrowUpDown, ListTodo, ChevronDown, List
 } from 'lucide-react';
 import { Project, ProjectTask, QuickTask } from '@/types';
-import { ContactService, FolderService, openWithTauri } from '@/services';
+import { ContactService, FolderService } from '@/services';
 import { useToast } from '@/hooks/use-toast';
 import { CreateProjectModal } from './CreateProjectModal';
 import { StatusDropdown } from './StatusDropdown';
@@ -45,28 +45,13 @@ export const ProjectManagementApp = () => {
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const { toast } = useToast();
 
-  // Load custom logo on startup using Tauri
+  // Load custom logo on startup
   useEffect(() => {
     const loadCustomLogo = async () => {
       try {
-        if (typeof window !== 'undefined' && '__TAURI__' in window) {
-          // For Tauri app - use native file system
-          try {
-            const tauri = (window as any).__TAURI__;
-            if (tauri && tauri.fs) {
-              const logoData = await tauri.fs.readTextFile('custom-logo.txt', { dir: 13 }); // AppConfig dir
-              setCustomLogo(logoData);
-            }
-          } catch (error) {
-            // Logo doesn't exist yet - this is normal
-            console.log('No custom logo found yet');
-          }
-        } else {
-          // Fallback to localStorage for development
-          const savedLogo = localStorage.getItem('customLogo');
-          if (savedLogo) {
-            setCustomLogo(savedLogo);
-          }
+        const savedLogo = localStorage.getItem('customLogo');
+        if (savedLogo) {
+          setCustomLogo(savedLogo);
         }
       } catch (error) {
         console.log('Logo loading failed:', error);
@@ -250,28 +235,17 @@ export const ProjectManagementApp = () => {
         setCustomLogo(result);
         
         try {
-          if (typeof window !== 'undefined' && '__TAURI__' in window) {
-            // Save to filesystem for Tauri app
-            const tauri = (window as any).__TAURI__;
-            if (tauri && tauri.fs) {
-              await tauri.fs.writeTextFile('custom-logo.txt', result, { dir: 13 }); // AppConfig dir
-            }
-          } else {
-            // Fallback to localStorage for development
-            localStorage.setItem('customLogo', result);
-          }
-          
-          toast({
-            title: "הלוגו הועלה בהצלחה",
-            description: "הלוגו החדש נשמר במערכת לצמיתות",
-          });
-        } catch (error) {
-          console.error('Error saving logo:', error);
-          // Fallback to localStorage even on native
           localStorage.setItem('customLogo', result);
           toast({
             title: "הלוגו הועלה בהצלחה",
             description: "הלוגו החדש נשמר במערכת",
+          });
+        } catch (error) {
+          console.error('Error saving logo:', error);
+          toast({
+            title: "שגיאה בשמירת הלוגו",
+            description: "אנא נסה שוב",
+            variant: "destructive",
           });
         }
       };
@@ -283,19 +257,9 @@ export const ProjectManagementApp = () => {
     setCustomLogo(null);
     
     try {
-      if (typeof window !== 'undefined' && '__TAURI__' in window) {
-        // Remove from filesystem for Tauri app
-        const tauri = (window as any).__TAURI__;
-        if (tauri && tauri.fs) {
-          await tauri.fs.removeFile('custom-logo.txt', { dir: 13 }); // AppConfig dir
-        }
-      } else {
-        // Remove from localStorage for development
-        localStorage.removeItem('customLogo');
-      }
-    } catch (error) {
-      // File might not exist, that's ok
       localStorage.removeItem('customLogo');
+    } catch (error) {
+      console.error('Error removing logo:', error);
     }
     
     toast({

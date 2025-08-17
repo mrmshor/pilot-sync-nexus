@@ -1,125 +1,40 @@
 import { Project, QuickTask } from '../types';
 
-// Helper function to detect if running in Tauri
-export const isTauriApp = (): boolean => {
-  return typeof window !== 'undefined' && '__TAURI__' in window;
-};
-
-// Safe Tauri invoke function using Tauri 2.0 API
-const invokeCommand = async (cmd: string, args?: any): Promise<any> => {
-  try {
-    if (!isTauriApp()) throw new Error('Not in Tauri environment');
-    
-    // Use Tauri 2.0 core API
-    const { invoke } = await import('@tauri-apps/api/core');
-    return await invoke(cmd, args || {});
-  } catch (error) {
-    console.warn(`Tauri command ${cmd} failed:`, error);
-    throw error;
-  }
-};
-
-// Safe Tauri shell open function using Tauri 2.0 plugin
-export const openWithTauri = async (url: string): Promise<boolean> => {
-  try {
-    if (!isTauriApp()) return false;
-    
-    // Use Tauri 2.0 shell plugin
-    const { open } = await import('@tauri-apps/plugin-shell');
-    await open(url);
-    return true;
-  } catch (error) {
-    console.warn('Tauri shell plugin not available:', error);
-    return false;
-  }
-};
-
 export const FolderService = {
-  // פתיחת Finder לבחירת תיקיה חדשה
+  // פתיחת תיקיה עם HTML file input (רק בדפדפן)
   selectFolder: async (): Promise<string | null> => {
-    try {
-      if (!isTauriApp()) {
-        console.warn('Not running in Tauri - folder selection not available');
-        return null;
-      }
-
-      console.log('Attempting to open folder dialog using Tauri command...');
-      
-      try {
-        // מקביל ל-dialog.showOpenDialog() ב-Electron - פותח דיאלוג בחירת תיקיה עם Tauri 2.0
-        const { open } = await import('@tauri-apps/plugin-dialog');
-        console.log('Opening native folder selection dialog via Tauri 2.0...');
-        const selected = await open({
-          directory: true,
-          multiple: false,
-          title: 'בחר תיקיה לפרויקט'
-        });
-        
-        console.log('Native dialog result:', selected);
-        
-        if (selected && typeof selected === 'string') {
-          console.log('Folder successfully selected:', selected);
-          return selected;
-        } else if (selected === null) {
-          console.log('User cancelled folder selection');
-          return null;
-        }
-      } catch (error) {
-        console.error('Error opening native folder dialog:', error);
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Error selecting folder with Tauri:', error);
-      return null;
-    }
+    console.warn('Folder selection not available in browser environment');
+    return null;
   },
 
-  // פתיחת תיקיה קיימת במערכת - מקביל ל-shell.openPath() ב-Electron
+  // פתיחת תיקיה/קישור בדפדפן
   openFolder: async (folderPath: string, icloudLink?: string): Promise<void> => {
     if (!folderPath && !icloudLink) {
       throw new Error('לא צוין נתיב תיקיה או קישור');
     }
 
     try {
-      if (isTauriApp()) {
-        if (folderPath) {
-          // מקביל ל-shell.openPath() ב-Electron - פותח את התיקיה ישירות
-          const result = await invokeCommand('open_folder_native', { path: folderPath });
-          console.log('Folder opened successfully via Tauri native command:', result);
+      if (icloudLink && icloudLink.startsWith('http')) {
+        window.open(icloudLink, '_blank');
+        console.log('Opened iCloud link:', icloudLink);
+        return;
+      }
+      
+      if (folderPath) {
+        // ניסיון לפתוח כ-URL אם נראה כמו אחד
+        if (folderPath.startsWith('http')) {
+          window.open(folderPath, '_blank');
+          console.log('Opened URL:', folderPath);
           return;
         }
-      } else {
-        throw new Error('פונקציונליות זו זמינה רק באפליקציית המחשב');
+        
+        // בדפדפן - הצג הודעה על הנתיב
+        console.log('Folder path (browser only):', folderPath);
+        throw new Error(`נתיב תיקיה: ${folderPath}\nפונקציונליות זו זמינה רק באפליקציית שולחן העבודה`);
       }
     } catch (error) {
-      console.error('Failed to open folder with Tauri command:', error);
-      
-      // אם הפקודה הראשונה נכשלה, נסה להציג את הפריט בתיקיה
-      try {
-        if (isTauriApp() && folderPath) {
-          const result = await invokeCommand('show_item_in_folder', { path: folderPath });
-          console.log('Fallback: Item location shown in folder:', result);
-          return;
-        }
-      } catch (fallbackError) {
-        console.error('Both folder opening methods failed:', fallbackError);
-        
-        // אם גם זה נכשל ויש קישור iCloud, נסה לפתוח אותו
-        if (icloudLink && icloudLink.startsWith('http')) {
-          try {
-            const opened = await openWithTauri(icloudLink);
-            if (opened) {
-              console.log('Opened iCloud link as fallback:', icloudLink);
-              return;
-            }
-          } catch (icloudError) {
-            console.error('Failed to open iCloud link as fallback:', icloudError);
-          }
-        }
-        
-        throw new Error('לא ניתן לפתוח את התיקיה או הקישור');
-      }
+      console.error('Error opening folder/link:', error);
+      throw error;
     }
   },
 
@@ -188,25 +103,10 @@ export const ContactService = {
         throw new Error('מספר הטלפון אינו תקין');
       }
       
-      if (isTauriApp()) {
-        // השתמש בפקודה native של Tauri להתקשרות טלפונית במחשב
-        try {
-          await invokeCommand('make_phone_call', { phone: formatted });
-          console.log('Phone call initiated via native command with phone:', formatted);
-        } catch (error) {
-          console.error('Failed to initiate call via native command:', error);
-          // חלופה - השתמש ב-tel protocol דרך Tauri shell
-          const telUrl = `tel:+${formatted}`;
-          const opened = await openWithTauri(telUrl);
-          if (!opened) {
-            console.warn('Unable to open tel: URL on this platform');
-            throw new Error('לא ניתן לבצע שיחה במחשב זה');
-          }
-        }
-      } else {
-        // אם זה לא אפליקציית Tauri, הצג הודעה ברורה
-        throw new Error('פונקציונליות זו זמינה רק באפליקציית המחשב');
-      }
+      // פתיחת לינק tel: בדפדפן
+      const telUrl = `tel:+${formatted}`;
+      window.open(telUrl, '_self');
+      console.log('Phone call initiated via tel: protocol:', formatted);
     } catch (error) {
       console.error('Error making phone call:', error);
       throw error;
@@ -222,25 +122,10 @@ export const ContactService = {
         throw new Error('מספר הטלפון אינו תקין');
       }
       
-      if (isTauriApp()) {
-        // השתמש בפקודה native של Tauri להפעלת WhatsApp במחשב
-        try {
-          await invokeCommand('open_whatsapp_with_phone', { phone: formatted });
-          console.log('WhatsApp opened via native command with phone:', formatted);
-        } catch (error) {
-          console.error('Failed to open WhatsApp via native command:', error);
-          // חלופה - השתמש ב-whatsapp protocol דרך Tauri shell
-          const whatsappUrl = `whatsapp://send?phone=${formatted}`;
-          const opened = await openWithTauri(whatsappUrl);
-          if (!opened) {
-            console.warn('Unable to open WhatsApp on this platform');
-            throw new Error('לא ניתן לפתוח וואטסאפ במחשב זה');
-          }
-        }
-      } else {
-        // אם זה לא אפליקציית Tauri, הצג הודעה ברורה
-        throw new Error('פונקציונליות זו זמינה רק באפליקציית המחשב');
-      }
+      // פתיחת WhatsApp Web או אפליקציה
+      const whatsappUrl = `https://wa.me/${formatted}`;
+      window.open(whatsappUrl, '_blank');
+      console.log('WhatsApp opened via web URL with phone:', formatted);
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
       throw error;
@@ -257,22 +142,7 @@ export const ContactService = {
       
       console.log('Sending email to:', email, 'with subject:', subject);
       
-      if (isTauriApp()) {
-        try {
-          // השתמש בפקודה native מתקדמת למייל
-          const result = await invokeCommand('send_email_native', { 
-            email, 
-            subject: subject || null, 
-            body: body || null 
-          });
-          console.log('Email client opened via native command:', result);
-          return;
-        } catch (error) {
-          console.error('Failed to open email via native command:', error);
-        }
-      }
-      
-      // גיבוי - בניית URL מייל מתקדם עם נושא וגוף ההודעה
+      // בניית URL מייל עם נושא וגוף ההודעה
       let mailtoUrl = `mailto:${email}`;
       const params = [];
       
@@ -288,18 +158,7 @@ export const ContactService = {
       }
       
       console.log('Opening email with URL:', mailtoUrl);
-      
-      if (isTauriApp()) {
-        const opened = await openWithTauri(mailtoUrl);
-        if (opened) {
-          console.log('Email client opened successfully via shell');
-        } else {
-          console.warn('Unable to open email client on this platform');
-        }
-      } else {
-        // גיבוי לדפדפן
-        window.open(mailtoUrl, '_blank');
-      }
+      window.open(mailtoUrl, '_blank');
     } catch (error) {
       console.error('Error sending email:', error);
     }

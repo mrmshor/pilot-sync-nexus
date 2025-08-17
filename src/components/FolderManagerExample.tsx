@@ -8,7 +8,7 @@ export const FolderManagerExample = () => {
     openFolder, 
     showItemInFolder,
     attemptAutoOpen,
-    downloadHelperFiles,
+    
     isTauri 
   } = useLocalFolders();
 
@@ -37,13 +37,6 @@ export const FolderManagerExample = () => {
     }
   };
 
-  // הורדת קבצי עזר
-  const handleDownloadHelpers = async () => {
-    const success = await downloadHelperFiles();
-    if (success) {
-      console.log('Helper files downloaded successfully');
-    }
-  };
 
   return (
     <div className="space-y-4 p-4">
@@ -69,23 +62,10 @@ export const FolderManagerExample = () => {
           הצג קובץ בתיקיה
         </Button>
 
-        {!isTauri && (
-          <Button 
-            onClick={handleDownloadHelpers}
-            variant="outline"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            הורד קבצי עזר
-          </Button>
-        )}
       </div>
 
       <div className="text-sm text-muted-foreground">
-        {isTauri ? (
-          <p>🚀 פועל באפליקציית שולחן עבודה - תמיכה מלאה בפתיחת תיקיות</p>
-        ) : (
-          <p>🌐 פועל בדפדפן - תמיכה מוגבלת, השתמש בקבצי העזר לפתיחת תיקיות</p>
-        )}
+        <p>🌐 פועל בדפדפן - קישורים יפתחו בטאב חדש</p>
       </div>
     </div>
   );
