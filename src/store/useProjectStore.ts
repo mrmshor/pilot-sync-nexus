@@ -275,27 +275,11 @@ export const useProjectStore = create<ProjectStore>()(
             isSyncing: false
           }));
           
-          console.log('Project added to Supabase successfully:', newProject);
+          console.log('Project added successfully:', newProject);
         } catch (error) {
           console.error('Error adding project:', error);
           set({ isSyncing: false, lastSyncError: 'שגיאה ביצירת פרויקט' });
-          
-          // Add locally as fallback
-          const localProject = {
-            ...projectData,
-            id: `local-${Date.now()}`,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            tasks: [],
-            subtasks: []
-          };
-          
-          set((state) => ({
-            projects: [localProject, ...state.projects],
-          }));
-          
-          // Re-throw error to be handled by UI
-          throw error;
+          throw error; // Re-throw for UI handling
         }
       },
 
