@@ -840,13 +840,13 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen xl:mx-80 flex flex-col px-0">{/* Removed any default padding */}
+        <div className="flex-1 min-h-screen xl:mx-80 flex flex-col">
           {/* Mobile Header - Collapsible */}
-          <div className={`xl:hidden sticky top-0 z-30 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm transition-transform duration-300 w-full m-0 ${
+          <div className={`xl:hidden sticky top-0 z-30 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm transition-transform duration-300 ${
             headerVisible ? 'translate-y-0' : '-translate-y-full'
-          }`}>{/* Force full width */}
-            <div className="w-full px-0 py-3 ios-safe-top">{/* Zero padding for full width */}
-              <div className="flex items-center justify-between px-4">{/* Add padding only to inner content */}
+          }`}>
+            <div className="container mx-auto px-4 py-3 ios-safe-top">
+              <div className="flex items-center justify-between">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -882,7 +882,7 @@ export const ProjectManagementApp = () => {
           </div>
 
           {/* Desktop Header and Navigation */}
-          <div className="hidden xl:block sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm xl:w-screen xl:relative xl:left-1/2 xl:right-1/2 xl:-ml-[50vw] xl:-mr-[50vw]">
+          <div className="hidden xl:block sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm">
             <div className="container mx-auto px-4 py-6 md:py-8 lg:py-8">
               {/* Header */}
               <header className="text-center mb-6 md:mb-8 relative">
@@ -1057,7 +1057,7 @@ export const ProjectManagementApp = () => {
 
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto">
-            <div className="w-full px-2 md:px-4 py-6 pb-16 md:pb-6 max-w-full">{/* Full width container with minimal padding */}{/* Reduced padding on mobile, more bottom space */}
+            <div className="container mx-auto px-4 py-6 pb-16 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
               {/* Content */}
               <main>
                 {activeTab === 'dashboard' && (
@@ -1525,7 +1525,7 @@ export const ProjectManagementApp = () => {
                 {activeTab === 'projects' && (
                   <div className="space-y-6">
                     {/* Projects Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">{/* Smaller gaps on mobile */}
                       {filteredAndSortedProjects.map((project) => {
                         const completedTasks = project.tasks.filter(t => t.completed).length;
                         const totalTasks = project.tasks.length;
