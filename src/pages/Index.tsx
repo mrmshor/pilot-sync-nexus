@@ -6,11 +6,14 @@ import { Progress } from '@/components/ui/progress';
 import { AdvancedDashboard } from '@/components/AdvancedDashboard';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
 import { he } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const App = () => {
   const projects = useProjectStore((state) => state.projects);
   const tasks = useProjectStore((state) => state.tasks);
   const { tasks: personalTasks } = usePersonalTasksStore();
+  const navigate = useNavigate();
 
   // חישובי סטטיסטיקות מתקדמות
   const totalTasks = tasks.length + personalTasks.length;
@@ -121,6 +124,15 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir="rtl">
+      <header className="sticky top-0 z-20 bg-white/70 backdrop-blur-sm border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="text-xl font-semibold">מערכת ניהול פרויקטים</div>
+          <Button size="sm" onClick={() => navigate('/projects')} className="flex items-center gap-2">
+            <FolderOpen className="w-4 h-4" />
+            כניסה לפרויקטים
+          </Button>
+        </div>
+      </header>
       <main className="p-6">
         <div className="space-y-8 animate-fade-in">
           {/* כותרת מעוצבת */}
