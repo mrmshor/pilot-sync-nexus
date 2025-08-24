@@ -252,7 +252,37 @@ export const useProjectStore = create<ProjectStore>()(
             return;
           }
 
-          const projects = projectsData?.map(convertFromSupabase) || [];
+          // Fetch project tasks
+          const { data: tasksData, error: tasksError } = await supabase
+            .from('project_tasks')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (tasksError) {
+            console.error('Tasks fetch error:', tasksError);
+            set({ isSyncing: false, lastSyncError: 'שגיאה בטעינת משימות' });
+            return;
+          }
+
+          // Convert projects and associate tasks with them
+          const projects = (projectsData || []).map(projectData => {
+            const project = convertFromSupabase(projectData);
+            // Find tasks for this project
+            const projectTasks = (tasksData || [])
+              .filter(task => task.project_id === project.id)
+              .map(task => ({
+                id: task.id,
+                title: task.title,
+                completed: task.completed,
+                createdAt: new Date(task.created_at),
+                completedAt: task.completed_at ? new Date(task.completed_at) : undefined,
+              }));
+            
+            return {
+              ...project,
+              tasks: projectTasks
+            };
+          });
           
           set({ projects, isSyncing: false, lastSyncError: null });
           console.log('Successfully synced projects:', projects.length);
