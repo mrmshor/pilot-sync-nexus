@@ -390,7 +390,8 @@ All colors MUST be HSL.
 
   /* iOS Safe Area Support */
   .ios-safe-area {
-    /* Avoid side gaps on mobile header */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
     padding-bottom: env(safe-area-inset-bottom);
   }
 
