@@ -1,10 +1,8 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Project } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { secureStorage } from '@/utils/secureStorage';
-import { logger } from '@/utils/logger';
 
-const STORAGE_KEY = 'project-data';
+const STORAGE_KEY = 'enhanced_project_management_data';
 
 // Debounce hook for performance
 function useDebounce<T>(value: T, delay: number): T {
@@ -38,16 +36,13 @@ export const useOptimizedProjects = () => {
   // Debounced search for better performance
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Load projects from secure storage on mount
+  // Load projects from localStorage on mount
   useEffect(() => {
-    try {
-      // Try to migrate from old plain storage first
-      const migrated = secureStorage.migrateFromPlainStorage('enhanced_project_management_data', STORAGE_KEY);
-      
-      const savedProjects = secureStorage.getItem<any[]>(STORAGE_KEY);
-      
-      if (savedProjects && Array.isArray(savedProjects)) {
-        const projectsWithDates = savedProjects.map((project: any) => ({
+    const savedProjects = localStorage.getItem(STORAGE_KEY);
+    if (savedProjects) {
+      try {
+        const parsed = JSON.parse(savedProjects);
+        const projectsWithDates = parsed.map((project: any) => ({
           ...project,
           createdAt: new Date(project.createdAt),
           updatedAt: new Date(project.updatedAt),
@@ -62,26 +57,22 @@ export const useOptimizedProjects = () => {
           })) || []
         }));
         setProjects(projectsWithDates);
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        toast({
+          title: "שגיאה בטעינת נתונים",
+          description: "לא ניתן לטעון את הפרויקטים השמורים",
+          variant: "destructive"
+        });
       }
-    } catch (error) {
-      logger.error('Error loading projects:', error);
-      toast({
-        title: "שגיאה בטעינת נתונים",
-        description: "לא ניתן לטעון את הפרויקטים השמורים",
-        variant: "destructive"
-      });
     }
     setLoading(false);
   }, [toast]);
 
-  // Save projects to secure storage whenever projects change
+  // Save projects to localStorage whenever projects change
   useEffect(() => {
-    if (!loading && projects.length >= 0) {
-      try {
-        secureStorage.setItem(STORAGE_KEY, projects);
-      } catch (error) {
-        logger.error('Error saving projects:', error);
-      }
+    if (!loading) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
     }
   }, [projects, loading]);
 
@@ -171,7 +162,7 @@ export const useOptimizedProjects = () => {
 
       return newProject;
     } catch (error) {
-      logger.error('Error in createProject:', error);
+      console.error('Error in createProject:', error);
       toast({
         title: "שגיאה ביצירת פרויקט",
         description: "לא ניתן ליצור את הפרויקט",
@@ -271,7 +262,7 @@ export const useOptimizedProjects = () => {
         description: "הנתונים יוצאו בהצלחה לקובץ CSV",
       });
     } catch (error) {
-      logger.error('Error exporting CSV:', error);
+      console.error('Error exporting CSV:', error);
       toast({
         title: "שגיאה בייצוא",
         description: "לא ניתן לייצא את הנתונים",

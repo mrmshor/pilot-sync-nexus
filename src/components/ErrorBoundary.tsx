@@ -1,5 +1,4 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { logger } from '@/utils/logger';
 import { Button } from "@/components/ui/button";
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
@@ -22,7 +21,13 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    logger.error('Uncaught application error:', { error: error.message, stack: error.stack, errorInfo });
+    console.error('Uncaught error:', error, errorInfo);
+    
+    // Log to external service in production
+    if (process.env.NODE_ENV === 'production') {
+      // Send error to logging service
+      console.error('Production error:', { error, errorInfo });
+    }
   }
 
   private handleReload = () => {
