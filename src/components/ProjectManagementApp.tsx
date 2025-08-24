@@ -840,12 +840,12 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen xl:mx-80 flex flex-col">
+        <div className="flex-1 min-h-screen xl:mx-80 flex flex-col px-0">{/* Removed any default padding */}
           {/* Mobile Header - Collapsible */}
           <div className={`xl:hidden sticky top-0 z-30 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm transition-transform duration-300 ${
             headerVisible ? 'translate-y-0' : '-translate-y-full'
           }`}>
-            <div className="container mx-auto px-4 py-3 ios-safe-top">
+            <div className="w-full px-2 md:px-4 py-3 ios-safe-top">{/* Full width mobile header */}
               <div className="flex items-center justify-between">
                 <Button
                   variant="ghost"
@@ -1057,7 +1057,7 @@ export const ProjectManagementApp = () => {
 
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto">
-            <div className="container mx-auto px-2 md:px-4 py-6 pb-16 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
+            <div className="w-full px-2 md:px-4 py-6 pb-16 md:pb-6 max-w-full">{/* Full width container with minimal padding */}{/* Reduced padding on mobile, more bottom space */}
               {/* Content */}
               <main>
                 {activeTab === 'dashboard' && (
