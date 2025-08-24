@@ -79,7 +79,7 @@ export function Dashboard() {
 
   // פרויקטים אחרונים עם יותר פרטי
   const recentProjects = projects
-    .sort((a, b) => new Date(b.id).getTime() - new Date(a.id).getTime())
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     .slice(0, 3);
 
   // משימות פעילות עם יותר פרטי
@@ -101,12 +101,6 @@ export function Dashboard() {
         return 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200';
       case 'בהמתנה':
         return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-200';
-      case 'ממתין':
-        return 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border-yellow-200';
-      case 'בעבודה':
-        return 'bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 border-indigo-200';
-      case 'הושלם':
-        return 'bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 border-emerald-200';
       default:
         return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-200';
     }
@@ -128,18 +122,18 @@ export function Dashboard() {
   return (
     <div className="space-y-8 animate-fade-in" dir="rtl">
       {/* כותרת מעוצבת */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-blue-50 to-cyan-50 p-8 border border-primary/10">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-blue-50 to-cyan-50 p-8 border border-primary/10 animate-scale-in">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="relative">
           <div className="flex items-center gap-4 mb-4">
-            <div className="relative">
+            <div className="relative hover-scale">
               <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <BarChart3 className="w-6 h-6 text-white" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-blue-600 to-cyan-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-blue-600 to-cyan-600 bg-clip-text text-transparent story-link">
                 לוח בקרה ראשי
               </h1>
               <p className="text-lg text-muted-foreground mt-1">
@@ -150,11 +144,11 @@ export function Dashboard() {
           
           {/* נתון מהיר */}
           <div className="flex items-center gap-6 mt-6">
-            <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-white/20 shadow-sm">
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-white/20 shadow-sm hover-scale">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-sm font-medium text-green-700">מערכת פעילה</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-white/20 shadow-sm">
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-white/20 shadow-sm hover-scale">
               <TrendingUp className="w-4 h-4 text-blue-600" />
               <span className="text-sm font-medium text-blue-700">התקדמות: {Math.round(completionRate)}%</span>
             </div>
@@ -164,14 +158,18 @@ export function Dashboard() {
 
       {/* סטטיסטיקות מעוצבות */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, _index) => (
-          <Card key={stat.title} className={`relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${stat.alert ? 'ring-2 ring-red-500/20 animate-pulse' : ''}`}>
+        {statCards.map((stat, index) => (
+          <Card 
+            key={stat.title} 
+            className={`relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in ${stat.alert ? 'ring-2 ring-red-500/20 animate-pulse' : ''}`}
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgColor} opacity-60`}></div>
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-10`}></div>
             <CardHeader className="relative pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg hover-scale`}>
                     <stat.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -185,7 +183,7 @@ export function Dashboard() {
             <CardContent className="relative">
               <div className="space-y-3">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold text-foreground">
+                  <span className="text-3xl font-bold text-foreground animate-scale-in">
                     {stat.value}
                   </span>
                   {stat.alert && (
@@ -200,10 +198,6 @@ export function Dashboard() {
                 <Progress 
                   value={stat.progress} 
                   className="h-2 bg-white/50" 
-                  style={{
-                    // @ts-ignore
-                    '--progress-background': `linear-gradient(to right, ${stat.color.replace('from-', '').replace('to-', ', ')})`
-                  }}
                 />
               </div>
             </CardContent>
@@ -214,11 +208,11 @@ export function Dashboard() {
       {/* תוכן עיקרי - רשתה דינמית */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* פרויקטים אחרונים */}
-        <Card className="xl:col-span-2 border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30">
+        <Card className="xl:col-span-2 border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30 animate-slide-in-right">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg hover-scale">
                   <FolderOpen className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -234,22 +228,23 @@ export function Dashboard() {
           <CardContent>
             <div className="space-y-4">
               {recentProjects.length === 0 ? (
-                <div className="text-center py-8">
+                <div className="text-center py-8 animate-fade-in">
                   <FolderOpen className="w-16 h-16 text-muted-foreground mx-auto mb-3 opacity-50" />
                   <p className="text-muted-foreground font-medium">אין פרויקטים עדיין</p>
                   <p className="text-sm text-muted-foreground mt-1">התחל ליצור פרויקטים חדשים</p>
                 </div>
               ) : (
-                recentProjects.map((project, _index) => (
+                recentProjects.map((project, index) => (
                   <div
                     key={project.id}
-                    className="group relative p-4 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
+                    className="group relative p-4 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl hover:shadow-md transition-all duration-200 hover:scale-[1.02] animate-fade-in"
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-foreground truncate">{project.name}</h3>
-                          <span className={`px-2 py-1 text-xs rounded-full border ${getPriorityColor(project.priority)}`}>
+                          <h3 className="font-semibold text-foreground truncate story-link">{project.name}</h3>
+                          <span className={`px-2 py-1 text-xs rounded-full border ${getPriorityColor(project.priority)} hover-scale`}>
                             {project.priority}
                           </span>
                         </div>
@@ -257,11 +252,11 @@ export function Dashboard() {
                           {project.description}
                         </p>
                         <div className="flex items-center gap-2">
-                          <span className={`px-3 py-1 text-xs rounded-full border ${getStatusColor(project.status)}`}>
+                          <span className={`px-3 py-1 text-xs rounded-full border ${getStatusColor(project.status)} hover-scale`}>
                             {project.status}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {format(new Date(), 'dd/MM/yyyy', { locale: he })}
+                            {format(new Date(project.updatedAt), 'dd/MM/yyyy', { locale: he })}
                           </span>
                         </div>
                       </div>
@@ -275,11 +270,11 @@ export function Dashboard() {
         </Card>
 
         {/* משימות פעילות */}
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-white via-green-50/30 to-emerald-50/30">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-white via-green-50/30 to-emerald-50/30 animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg">
+                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg hover-scale">
                   <CheckSquare className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -295,26 +290,30 @@ export function Dashboard() {
           <CardContent>
             <div className="space-y-3">
               {recentTasks.length === 0 ? (
-                <div className="text-center py-8">
+                <div className="text-center py-8 animate-fade-in">
                   <CheckSquare className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
                   <p className="text-muted-foreground font-medium">כל המשימות הושלמו! 🎉</p>
                   <p className="text-sm text-muted-foreground mt-1">עבודה מצוינת</p>
                 </div>
               ) : (
-                recentTasks.map((task, _index) => (
-                  <div key={task.id || _index} className="group p-3 bg-white/60 backdrop-blur-sm border border-white/40 rounded-lg hover:shadow-sm transition-all duration-200">
+                recentTasks.map((task, index) => (
+                  <div 
+                    key={task.id || index} 
+                    className="group p-3 bg-white/60 backdrop-blur-sm border border-white/40 rounded-lg hover:shadow-sm transition-all duration-200 hover-scale animate-fade-in"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
                     <div className="flex items-start gap-3">
                       <div className={`w-2 h-2 rounded-full mt-2 ${
-                        task.priority === 'גבוהה' ? 'bg-red-500' :
+                        task.priority === 'גבוהה' ? 'bg-red-500 animate-pulse' :
                         task.priority === 'בינונית' ? 'bg-yellow-500' :
                         'bg-green-500'
                       }`}></div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm text-foreground truncate">
+                        <h4 className="font-medium text-sm text-foreground truncate story-link">
                           {task.title}
                         </h4>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className={`px-2 py-0.5 text-xs rounded-full ${getPriorityColor(task.priority)}`}>
+                          <span className={`px-2 py-0.5 text-xs rounded-full ${getPriorityColor(task.priority)} hover-scale`}>
                             {task.priority}
                           </span>
                           {('dueDate' in task && task.dueDate) && (
@@ -335,7 +334,9 @@ export function Dashboard() {
       </div>
 
       {/* לוח בקרה מתקדם */}
-      <AdvancedDashboard />
+      <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+        <AdvancedDashboard />
+      </div>
     </div>
   );
 }
