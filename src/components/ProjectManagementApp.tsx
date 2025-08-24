@@ -23,7 +23,7 @@ import { PriorityDropdown } from './PriorityDropdown';
 import { QuickTasksSidebar } from './QuickTasksSidebar';
 import { ProjectTasksModal } from './ProjectTasksModal';
 import { ProjectEditModal } from './ProjectEditModal';
-import { EnhancedDashboard } from './EnhancedDashboard';
+import { AdvancedDashboard } from './AdvancedDashboard';
 import { AppSidebar } from './AppSidebar';
 
 export const ProjectManagementApp = () => {
@@ -897,20 +897,7 @@ export const ProjectManagementApp = () => {
               <main>
                 {activeTab === 'dashboard' && (
                   <div>
-                    <EnhancedDashboard 
-                      projects={projects} 
-                      stats={{
-                        total: stats.total,
-                        completed: stats.completed,
-                        inProgress: stats.inProgress,
-                        paid: stats.paid,
-                        unpaid: stats.unpaid,
-                        totalRevenue: stats.totalRevenue,
-                        pendingRevenue: stats.pendingRevenue,
-                        completionRate: stats.completionRate,
-                        paymentRate: stats.paymentRate
-                      }}
-                    />
+                    <AdvancedDashboard />
                   </div>
                 )}
 
