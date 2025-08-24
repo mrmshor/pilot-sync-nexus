@@ -845,8 +845,8 @@ export const ProjectManagementApp = () => {
           <div className={`xl:hidden sticky top-0 z-30 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm transition-transform duration-300 ${
             headerVisible ? 'translate-y-0' : '-translate-y-full'
           }`}>
-            <div className="w-full px-2 md:px-4 py-3 ios-safe-top">{/* Full width mobile header */}
-              <div className="flex items-center justify-between">
+            <div className="w-full px-0 py-3 ios-safe-top">{/* Zero padding for full width */}
+              <div className="flex items-center justify-between px-4">{/* Add padding only to inner content */}
                 <Button
                   variant="ghost"
                   size="sm"
