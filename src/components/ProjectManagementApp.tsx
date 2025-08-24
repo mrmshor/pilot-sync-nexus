@@ -868,12 +868,12 @@ export const ProjectManagementApp = () => {
     <SidebarProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full ios-safe-area" dir="rtl">
         {/* Desktop Tasks Sidebar - Right Side */}
-        <div className="hidden xl:block">
+        <div className="hidden xl:block fixed right-0 top-0 h-full w-80 z-10">
           <TasksSidebar />
         </div>
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen xl:mr-80 flex flex-col">
+        <div className="flex-1 min-h-screen xl:mx-80 flex flex-col">
           {/* Mobile Header - Collapsible */}
           <div className={`xl:hidden sticky top-0 z-30 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm transition-transform duration-300 ${
             headerVisible ? 'translate-y-0' : '-translate-y-full'
@@ -1828,7 +1828,7 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Projects Sidebar - Left Side (appears last due to RTL) */}
-        <div className="hidden xl:block">
+        <div className="hidden xl:block fixed left-0 top-0 h-full w-80 z-10">
           <ProjectsSidebar />
         </div>
         
