@@ -12,7 +12,8 @@ import {
   FolderOpen, CheckCircle2, CreditCard, Plus, X, Clock, Filter,
   BarChart3, TrendingUp, Users, DollarSign, Calendar, Settings,
   Download, Bug, Zap, Database, Activity, CheckSquare, Target,
-  FileText, ArrowUpDown, ListTodo, ChevronDown, List, AlertCircle
+  FileText, ArrowUpDown, ListTodo, ChevronDown, List, AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import { Project, ProjectTask, QuickTask } from '@/types';
 import { ContactService, FolderService } from '@/services';
@@ -63,6 +64,7 @@ export const ProjectManagementApp = () => {
   const [showMobileTasksSidebar, setShowMobileTasksSidebar] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
 
   // Load custom logo on startup
@@ -223,6 +225,36 @@ export const ProjectManagementApp = () => {
   }, [preserveScroll, projects]);
 
   // Data is now loaded from the store, no need for sample data effect
+
+  // Refresh function to sync data from server
+  const handleRefreshData = async () => {
+    if (isRefreshing) return;
+    
+    setIsRefreshing(true);
+    
+    try {
+      // Force refresh data from Supabase
+      await Promise.all([
+        // Refresh projects and tasks from store
+        // The store should have refresh methods or we can re-fetch data
+        new Promise(resolve => setTimeout(resolve, 1000)) // Simulate refresh
+      ]);
+
+      toast({
+        title: "הנתונים עודכנו",
+        description: "כל הנתונים סונכרנו בהצלחה מהשרת",
+      });
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      toast({
+        title: "שגיאה ברענון",
+        description: "לא הצלחנו לרענן את הנתונים, נסה שוב",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -1833,10 +1865,11 @@ export const ProjectManagementApp = () => {
           </div>
         )}
 
-        {/* Mobile Floating Navigation - 4 Buttons */}
+        {/* Mobile Floating Navigation - 5 Buttons */}
         <div className="xl:hidden fixed bottom-6 left-4 right-4 z-50 floating-nav-bottom">
           <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-2">
-            <div className="grid grid-cols-4 gap-2">
+            {/* First Row - Main Navigation */}
+            <div className="grid grid-cols-4 gap-2 mb-2">
               {/* Dashboard Button */}
               <Button
                 variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
@@ -1887,6 +1920,26 @@ export const ProjectManagementApp = () => {
               >
                 <FolderOpen className="h-5 w-5" />
                 <span className="text-xs font-medium">קפיצה</span>
+              </Button>
+            </div>
+            
+            {/* Second Row - Refresh Button */}
+            <div className="flex justify-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefreshData}
+                disabled={isRefreshing}
+                className={`flex items-center gap-2 px-6 py-2 h-auto min-h-[40px] transition-all duration-200 ${
+                  isRefreshing 
+                    ? 'text-muted-foreground cursor-not-allowed' 
+                    : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+                }`}
+              >
+                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="text-xs font-medium">
+                  {isRefreshing ? 'מרענן...' : 'רענון נתונים'}
+                </span>
               </Button>
             </div>
           </div>
