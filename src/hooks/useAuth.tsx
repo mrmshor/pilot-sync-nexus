@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/logger';
 
 interface AuthContextType {
   user: User | null;
@@ -32,14 +33,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth event:', event, session?.user?.email || 'no user');
+        logger.authEvent(event, session);
         
         if (event === 'SIGNED_IN') {
-          console.log('User signed in successfully');
+          logger.info('User signed in successfully');
         } else if (event === 'TOKEN_REFRESHED') {
-          console.log('Token refreshed');
+          logger.debug('Token refreshed');
         } else if (event === 'SIGNED_OUT') {
-          console.log('User signed out');
+          logger.info('User signed out');
         }
         
         setSession(session);
@@ -61,7 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Error signing out:', error);
+      logger.error('Error signing out:', error);
       throw error;
     }
   };
