@@ -126,26 +126,41 @@ export const ContactService = {
         console.warn('Invalid phone number for WhatsApp:', phone);
         throw new Error('מספר הטלפון אינו תקין');
       }
-      
-      // פתיחת WhatsApp עם תמיכה במובייל
-      const whatsappUrl = `https://wa.me/${formatted}`;
-      console.log('WhatsApp URL:', whatsappUrl);
-      console.log('Is native platform:', Capacitor.isNativePlatform());
+
+      // Use digits-only phone for wa.me/api URLs (must NOT include '+')
+      const numeric = formatted.replace(/[^\d]/g, '');
+      const deepLink = `whatsapp://send?phone=${numeric}`;
+      const apiUrl = `https://api.whatsapp.com/send?phone=${numeric}`;
+      const waUrl = `https://wa.me/${numeric}`;
+      console.log('URLs:', { deepLink, apiUrl, waUrl, isNative: Capacitor.isNativePlatform() });
       
       if (Capacitor.isNativePlatform()) {
-        // באפליקציית מובייל - שימוש ב-Capacitor Browser
-        console.log('Attempting to open WhatsApp via Capacitor Browser...');
-        await Browser.open({ 
-          url: whatsappUrl,
-          presentationStyle: 'popover' 
-        });
-        console.log('WhatsApp opened via Capacitor Browser on mobile:', formatted);
+        // Native: try deep link first, then fallback to in-app browser
+        try {
+          // Attempt to open the WhatsApp app
+          window.location.href = deepLink;
+          // Fallback to Browser after short delay
+          setTimeout(async () => {
+            try {
+              await Browser.open({ url: apiUrl, presentationStyle: 'popover' });
+            } catch (e) {
+              console.error('Browser.open fallback failed', e);
+            }
+          }, 700);
+        } catch (e) {
+          console.warn('Deep link failed, opening via Browser', e);
+          await Browser.open({ url: apiUrl, presentationStyle: 'popover' });
+        }
       } else {
-        // בדפדפן - שימוש רגיל
-        console.log('Attempting to open WhatsApp via window.open...');
-        window.open(whatsappUrl, '_blank');
-        console.log('WhatsApp opened via web URL:', formatted);
+        // Web: prefer wa.me without '+'; handle popup blockers
+        console.log('Attempting to open wa.me URL via window.open...');
+        const newWin = window.open(waUrl, '_blank', 'noopener,noreferrer');
+        if (!newWin) {
+          console.warn('Popup blocked, navigating current tab to api.whatsapp.com');
+          window.location.href = apiUrl;
+        }
       }
+      console.log('WhatsApp open triggered');
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
       throw error;
