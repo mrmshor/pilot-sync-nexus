@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useDebounce, useOptimizedData } from '@/hooks/usePerformanceOptimizations';
 import { MemoryManager, debounce } from '@/utils/memoryManager';
@@ -12,7 +12,7 @@ import {
   FolderOpen, CheckCircle2, CreditCard, Plus, X, Clock, Filter,
   BarChart3, TrendingUp, Users, DollarSign, Calendar, Settings,
   Download, Bug, Zap, Database, Activity, CheckSquare, Target,
-  FileText, ArrowUpDown, ListTodo, ChevronDown, List, AlertCircle,
+  FileText, ArrowUpDown, ListTodo, ChevronDown, ChevronUp, List, AlertCircle,
   RefreshCw
 } from 'lucide-react';
 import { Project, ProjectTask, QuickTask } from '@/types';
@@ -67,6 +67,8 @@ export const ProjectManagementApp = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
+  const mobileBarTouchStartY = useRef(0);
+  const [mobileBarHidden, setMobileBarHidden] = useState(false);
 
   // Load custom logo on startup
   useEffect(() => {
@@ -230,17 +232,28 @@ export const ProjectManagementApp = () => {
   // Refresh function to sync data from server
   const handleRefreshData = async () => {
     if (isRefreshing) return;
-    
     setIsRefreshing(true);
-    
+
     try {
-      // Force refresh data from store
+      // 1) ריענון נתונים מהחנות (למשימות/מידע שמסתנכרן)
       await refreshStoreData();
 
+      // 2) טוסט שמייד נעלם במובייל
+      const isMobile = window.innerWidth < 768;
       toast({
         title: "הנתונים עודכנו",
-        description: "כל הנתונים סונכרנו בהצלחה מהשרת",
+        description: "הסנכרון הושלם",
+        duration: isMobile ? 1 : 1500,
       });
+
+      // 3) ריענון אפליקציה עם Cache Bust במובייל כדי לראות שינויים מהדסקטופ
+      if (isMobile) {
+        setTimeout(() => {
+          const url = new URL(window.location.href);
+          url.searchParams.set('ts', Date.now().toString());
+          window.location.replace(url.toString());
+        }, 50);
+      }
     } catch (error) {
       console.error('Error refreshing data:', error);
       toast({
@@ -1868,7 +1881,11 @@ export const ProjectManagementApp = () => {
         )}
 
         {/* Mobile Floating Navigation - 5 Buttons */}
-        <div className="xl:hidden fixed bottom-6 left-4 right-4 z-50 floating-nav-bottom">
+        <div 
+          className={`xl:hidden fixed bottom-6 left-4 right-4 z-50 floating-nav-bottom transform transition-all duration-300 ${mobileBarHidden ? 'translate-y-[140%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}
+          onTouchStart={(e) => { if (e.touches && e.touches[0]) mobileBarTouchStartY.current = e.touches[0].clientY; }}
+          onTouchEnd={(e) => { const endY = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : 0; if (endY - mobileBarTouchStartY.current > 40) setMobileBarHidden(true); }}
+        >
           <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-2">
             {/* First Row - Main Navigation */}
             <div className="grid grid-cols-4 gap-2 mb-2">
@@ -1947,6 +1964,21 @@ export const ProjectManagementApp = () => {
           </div>
         </div>
 
+        {/* Toggle back handle when hidden */}
+        {mobileBarHidden && (
+          <div className="xl:hidden fixed bottom-2 left-1/2 -translate-x-1/2 z-50">
+            <Button
+              variant="glass"
+              size="icon"
+              onClick={() => setMobileBarHidden(false)}
+              className="rounded-full h-9 w-9 shadow-2xl"
+            >
+              <ChevronUp className="h-4 w-4" />
+              <span className="sr-only">הצג סרגל</span>
+            </Button>
+          </div>
+        )}
+ 
         {/* Swipe Indicators - Show on first visit */}
         {!showMobileTasksSidebar && !showMobileProjectsSidebar && (
           <>
