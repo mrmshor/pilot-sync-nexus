@@ -213,15 +213,28 @@ export const useProjectStore = create<ProjectStore>()(
         }
       },
 
-      // Sync with Supabase
+      // Sync with Supabase - robust implementation
       syncWithSupabase: async () => {
+        const currentState = get();
+        if (currentState.isSyncing) {
+          console.log('Sync already in progress, skipping...');
+          return;
+        }
+
         set({ isSyncing: true, lastSyncError: null });
+        
         try {
-          // Check if user is authenticated
+          // Check authentication first
           const { data: { user }, error: authError } = await supabase.auth.getUser();
           
-          if (authError || !user) {
-            console.warn('User not authenticated, skipping sync');
+          if (authError) {
+            console.warn('Auth error during sync:', authError);
+            set({ isSyncing: false, lastSyncError: null });
+            return;
+          }
+
+          if (!user) {
+            console.warn('No authenticated user, skipping sync');
             set({ isSyncing: false, lastSyncError: null });
             return;
           }
@@ -234,27 +247,40 @@ export const useProjectStore = create<ProjectStore>()(
 
           if (projectsError) {
             console.error('Projects fetch error:', projectsError);
-            throw projectsError;
+            // Don't clear projects on error - keep existing data
+            set({ isSyncing: false, lastSyncError: 'שגיאה בטעינת פרויקטים' });
+            return;
           }
 
           const projects = projectsData?.map(convertFromSupabase) || [];
           
-          set({ projects, isSyncing: false });
-          console.log('Synced projects from Supabase:', projects);
+          set({ projects, isSyncing: false, lastSyncError: null });
+          console.log('Successfully synced projects:', projects.length);
+          
         } catch (error) {
-          console.error('Sync error:', error);
-          // Don't clear projects on sync error - keep existing data
-          set((state) => ({ 
-            isSyncing: false, 
-            lastSyncError: 'שגיאה בסנכרון נתונים - הנתונים המקומיים נשמרו'
-          }));
+          console.error('Unexpected sync error:', error);
+          // Preserve existing data on error
+          set({ isSyncing: false, lastSyncError: 'שגיאה בסנכרון נתונים' });
         }
       },
 
-      // Add new project with Supabase sync
+      // Add new project - bulletproof implementation  
       addProject: async (projectData) => {
+        const currentState = get();
+        if (currentState.isSyncing) {
+          throw new Error('פעולה אחרת בתהליך, נסה שוב בעוד מספר שניות');
+        }
+
         set({ isSyncing: true, lastSyncError: null });
+        
         try {
+          // Verify user authentication
+          const { data: { user }, error: authError } = await supabase.auth.getUser();
+          
+          if (authError || !user) {
+            throw new Error('יש להתחבר למערכת כדי ליצור פרויקט');
+          }
+
           const supabaseData = await convertToSupabase(projectData);
           
           const { data, error } = await supabase
@@ -265,21 +291,24 @@ export const useProjectStore = create<ProjectStore>()(
 
           if (error) {
             console.error('Supabase insert error:', error);
-            throw error;
+            throw new Error('שגיאה ביצירת פרויקט בשרת');
           }
 
           const newProject = convertFromSupabase(data);
           
+          // Add to local state
           set((state) => ({
             projects: [newProject, ...state.projects],
-            isSyncing: false
+            isSyncing: false,
+            lastSyncError: null
           }));
           
-          console.log('Project added successfully:', newProject);
+          console.log('Project created successfully:', newProject.name);
+          
         } catch (error) {
           console.error('Error adding project:', error);
-          set({ isSyncing: false, lastSyncError: 'שגיאה ביצירת פרויקט' });
-          throw error; // Re-throw for UI handling
+          set({ isSyncing: false, lastSyncError: error.message || 'שגיאה ביצירת פרויקט' });
+          throw error;
         }
       },
 
