@@ -198,6 +198,33 @@ export type Database = {
         Args: { p_project_id: string; p_user_id: string }
         Returns: boolean
       }
+      get_project_safe_view: {
+        Args: { p_project_id: string }
+        Returns: {
+          client_name: string
+          completed: boolean
+          created_at: string
+          created_by: string
+          currency: string
+          deadline: string
+          description: string
+          email: string
+          folder_path: string
+          has_sensitive_access: boolean
+          icloud_link: string
+          id: string
+          name: string
+          paid: boolean
+          phone1: string
+          phone2: string
+          price: number
+          priority: string
+          status: string
+          updated_at: string
+          whatsapp1: string
+          whatsapp2: string
+        }[]
+      }
       get_user_projects: {
         Args: Record<PropertyKey, never>
         Returns: {

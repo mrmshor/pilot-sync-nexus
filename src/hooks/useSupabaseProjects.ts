@@ -32,26 +32,28 @@ export const useSupabaseProjects = () => {
         name: project.name,
         description: project.description || '',
         // Only include client data if user has access (will be null for regular members)
-        clientName: project.client_name || '',
-        phone1: project.phone1 || '',
-        phone2: project.phone2 || '',
-        whatsapp1: project.whatsapp1 || '',
-        whatsapp2: project.whatsapp2 || '',
-        email: project.email || '',
+        clientName: project.client_name || '[מוגבל - יש צורך בהרשאת בעלים/מנהל]',
+        phone1: project.phone1 || (project.has_sensitive_access === false ? '[מוגבל]' : ''),
+        phone2: project.phone2 || (project.has_sensitive_access === false ? '[מוגבל]' : ''),
+        whatsapp1: project.whatsapp1 || (project.has_sensitive_access === false ? '[מוגבל]' : ''),
+        whatsapp2: project.whatsapp2 || (project.has_sensitive_access === false ? '[מוגבל]' : ''),
+        email: project.email || (project.has_sensitive_access === false ? '[מוגבל]' : ''),
         folderPath: project.folder_path || '',
         icloudLink: project.icloud_link || '',
         status: project.status as Project['status'],
         priority: project.priority as Project['priority'],
         // Only include financial data if user has access
-        price: Number(project.price) || 0,
-        currency: project.currency as Project['currency'],
-        paid: project.paid || false,
+        price: project.has_sensitive_access ? (Number(project.price) || 0) : 0,
+        currency: project.currency as Project['currency'] || 'ILS',
+        paid: project.has_sensitive_access ? (project.paid || false) : false,
         completed: project.completed || false,
         deadline: project.deadline ? new Date(project.deadline) : undefined,
         createdAt: new Date(project.created_at),
         updatedAt: new Date(project.updated_at),
         tasks: [], // Load tasks separately to maintain security
-        subtasks: [] // Will be added later if needed
+        subtasks: [], // Will be added later if needed
+        // Add security metadata for UI rendering
+        hasSensitiveAccess: project.has_sensitive_access || false
       }));
 
       // Load project tasks separately for each project
@@ -74,6 +76,12 @@ export const useSupabaseProjects = () => {
       }
 
       setProjects(formattedProjects);
+      
+      // Log security info for debugging
+      const restrictedProjects = formattedProjects.filter(p => !p.hasSensitiveAccess);
+      if (restrictedProjects.length > 0) {
+        logger.info(`User has restricted access to ${restrictedProjects.length} project(s) - sensitive client data hidden`);
+      }
     } catch (error: any) {
       logger.error('Error loading projects:', error);
       toast.error('שגיאה בטעינת הפרויקטים');
@@ -126,36 +134,47 @@ export const useSupabaseProjects = () => {
   // Update project
   const updateProject = async (id: string, updates: Partial<Project>) => {
     try {
+      // Only include sensitive fields if the user has access to them
+      const updateData: any = {
+        name: updates.name,
+        description: updates.description,
+        folder_path: updates.folderPath,
+        icloud_link: updates.icloudLink,
+        status: updates.status,
+        priority: updates.priority,
+        completed: updates.completed,
+        deadline: updates.deadline?.toISOString(),
+      };
+
+      // Only include sensitive fields if user has access
+      // We'll let the backend handle this validation, but provide a clear error message
+      if (updates.clientName !== undefined) updateData.client_name = updates.clientName;
+      if (updates.phone1 !== undefined) updateData.phone1 = updates.phone1;
+      if (updates.phone2 !== undefined) updateData.phone2 = updates.phone2;
+      if (updates.whatsapp1 !== undefined) updateData.whatsapp1 = updates.whatsapp1;
+      if (updates.whatsapp2 !== undefined) updateData.whatsapp2 = updates.whatsapp2;
+      if (updates.email !== undefined) updateData.email = updates.email;
+      if (updates.price !== undefined) updateData.price = updates.price;
+      if (updates.currency !== undefined) updateData.currency = updates.currency;
+      if (updates.paid !== undefined) updateData.paid = updates.paid;
+
       const { error } = await supabase
         .from('projects')
-        .update({
-          name: updates.name,
-          description: updates.description,
-          client_name: updates.clientName,
-          phone1: updates.phone1,
-          phone2: updates.phone2,
-          whatsapp1: updates.whatsapp1,
-          whatsapp2: updates.whatsapp2,
-          email: updates.email,
-          folder_path: updates.folderPath,
-          icloud_link: updates.icloudLink,
-          status: updates.status,
-          priority: updates.priority,
-          price: updates.price,
-          currency: updates.currency,
-          paid: updates.paid,
-          completed: updates.completed,
-          deadline: updates.deadline?.toISOString(),
-        })
+        .update(updateData)
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('policy')) {
+          throw new Error('אין לך הרשאה לעדכן פרטים רגישים בפרויקט זה. נדרשת הרשאת בעלים או מנהל.');
+        }
+        throw error;
+      }
 
       toast.success('הפרויקט עודכן בהצלחה');
       loadProjects(); // Reload projects
     } catch (error: any) {
       logger.error('Error updating project:', error);
-      toast.error('שגיאה בעדכון הפרויקט');
+      toast.error(error.message || 'שגיאה בעדכון הפרויקט');
     }
   };
 

@@ -27,6 +27,8 @@ export interface Project {
   updatedAt: Date;
   tasks: ProjectTask[];
   subtasks?: TaskItem[];
+  // Security metadata to track user access level
+  hasSensitiveAccess?: boolean;
 }
 
 export interface ProjectTask {

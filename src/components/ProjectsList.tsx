@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { logger } from '@/utils/logger';
 import {
-  Search, Edit, Trash2, User, FolderOpen,
+  Search, Edit, Trash2, User, FolderOpen, AlertTriangle,
   CheckCircle2, CreditCard, Plus, X, Calendar, Clock, Filter, SortAsc, SortDesc
 } from 'lucide-react';
 import { Project, ProjectTask } from '../types';
@@ -358,64 +358,80 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 </div>
               )}
 
-              {/* Price Section */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200/50">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold text-green-600">
-                    {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
+              {/* Price Section - Only show if user has access */}
+              {project.hasSensitiveAccess !== false && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200/50">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold text-green-600">
+                      {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={project.paid ? "success" : "destructive"}
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePaid(project.id);
+                        }}
+                        className="text-xs"
+                      >
+                        <CreditCard className="h-3 w-3 mr-1" />
+                        {project.paid ? 'שולם' : 'לא שולם'}
+                      </Button>
+                      {project.completed && (
+                        <Badge variant="success" className="text-xs">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          הושלם
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={project.paid ? "success" : "destructive"}
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        togglePaid(project.id);
-                      }}
-                      className="text-xs"
-                    >
-                      <CreditCard className="h-3 w-3 mr-1" />
-                      {project.paid ? 'שולם' : 'לא שולם'}
-                    </Button>
-                    {project.completed && (
-                      <Badge variant="success" className="text-xs">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        הושלם
-                      </Badge>
+                </div>
+              )}
+
+              {/* Restricted Access Notice */}
+              {project.hasSensitiveAccess === false && (
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg border border-amber-200/50">
+                  <div className="flex items-center gap-2 text-amber-700">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm font-medium">
+                      גישה מוגבלת - פרטי לקוח ומחירים זמינים רק לבעלי הפרויקט ומנהלים
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Actions - Only show if not restricted */}
+              {(project.hasSensitiveAccess !== false) && (
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
+                  <div 
+                    className="flex flex-wrap gap-2" 
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ContactButtons
+                      phone={project.phone1}
+                      whatsapp={project.whatsapp1}
+                      email={project.email}
+                      className="flex-wrap"
+                    />
+                    {(project.folderPath || project.icloudLink) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await openFolder(project.folderPath || '', project.icloudLink);
+                        }}
+                        className="text-xs hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
+                        title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}
+                      >
+                        <FolderOpen className="h-3 w-3 mr-1" />
+                        {project.folderPath ? 'תיקיה' : 'ענן'}
+                      </Button>
                     )}
                   </div>
                 </div>
-              </div>
-
-              {/* Contact Actions */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
-                <div 
-                  className="flex flex-wrap gap-2" 
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ContactButtons
-                    phone={project.phone1}
-                    whatsapp={project.whatsapp1}
-                    email={project.email}
-                    className="flex-wrap"
-                  />
-                  {(project.folderPath || project.icloudLink) && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        await openFolder(project.folderPath || '', project.icloudLink);
-                      }}
-                      className="text-xs hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
-                      title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}
-                    >
-                      <FolderOpen className="h-3 w-3 mr-1" />
-                      {project.folderPath ? 'תיקיה' : 'ענן'}
-                    </Button>
-                  )}
-                </div>
-              </div>
+              )}
 
               {/* Tasks Section */}
               <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-lg border border-indigo-200/50">
