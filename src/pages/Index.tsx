@@ -1,268 +1,351 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Apple, Rocket, Gauge, Database, Download, BarChart3, Briefcase, Plus, X, List, ChevronDown
-} from 'lucide-react';
-import { Project } from '../types';
-import { ExportService } from '../services';
-import { Button } from '../components/ui/button';
-import { CreateProjectModal } from '../components/CreateProjectModal';
-import { ProjectsList } from '../components/ProjectsList';
-import { ProjectPulseDashboard } from '../components/ProjectPulseDashboard';
-import { ProjectTasksModal } from '../components/ProjectTasksModal';
+import { FolderOpen, CheckSquare, TrendingUp, Clock, Target, BarChart3, Calendar, AlertCircle } from 'lucide-react';
+import { useProjectStore } from '@/store/useProjectStore';
+import { usePersonalTasksStore } from '@/store/usePersonalTasksStore';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { AdvancedDashboard } from '@/components/AdvancedDashboard';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
+import { he } from 'date-fns/locale';
 
-const App: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+export function Dashboard() {
+  const projects = useProjectStore((state) => state.projects);
+  const tasks = useProjectStore((state) => state.tasks);
+  const { tasks: personalTasks } = usePersonalTasksStore();
+
+  // חישובי סטטיסטיקות מתקדמות
+  const totalTasks = tasks.length + personalTasks.length;
+  const completedTasks = tasks.filter(t => t.status === 'הושלם').length + personalTasks.filter(t => t.completed).length;
+  const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
   
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showTasksModal, setShowTasksModal] = useState(false);
-  const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
-  const [customLogo, setCustomLogo] = useState<string | null>(
-    localStorage.getItem('customLogo')
-  );
+  // משימות חשובות (עדיפות גבוהה)
+  const urgentTasks = [
+    ...tasks.filter(t => t.status !== 'הושלם' && t.priority === 'גבוהה'),
+    ...personalTasks.filter(t => !t.completed && t.priority === 'גבוהה')
+  ];
+  
+  // משימות שמסתיימות השבוע
+  const weekStart = startOfWeek(new Date(), { weekStartsOn: 0 });
+  const weekEnd = endOfWeek(new Date(), { weekStartsOn: 0 });
+  const duingWeek = tasks.filter(t => 
+    t.dueDate && 
+    t.status !== 'הושלם' &&
+    new Date(t.dueDate) >= weekStart && 
+    new Date(t.dueDate) <= weekEnd
+  ).length;
 
-  // Sample data initialization
-  useEffect(() => {
-    console.log('🔄 Loading sample data...');
-    const sampleProjects: Project[] = [
-      {
-        id: '1',
-        name: 'פיתוח אתר אינטרנט עסקי מתקדם',
-        description: 'פיתוח אתר תדמית עסקי מתקדם עם מערכת ניהול תוכן ומערכת הזמנות מקוונת',
-        clientName: 'אליעזר שפירא',
-        phone1: '+972-54-628-2522',
-        phone2: '',
-        whatsapp1: '+972-54-628-2522',
-        whatsapp2: '',
-        email: 'eliezer@business.co.il',
-        folderPath: '/Users/Projects/WebDev/Eliezer',
-        icloudLink: 'https://icloud.com/project1',
-        status: 'in-progress',
-        priority: 'high',
-        price: 15000,
-        currency: 'ILS',
-        paid: false,
-        completed: false,
-        deadline: new Date('2024-02-28'),
-        createdAt: new Date('2024-01-15'),
-        updatedAt: new Date(),
-        tasks: [
-          { id: '1', title: 'לחזור בקרוב', completed: false, createdAt: new Date('2024-01-16') },
-          { id: '2', title: 'לבצע עיצוב ראשוני', completed: true, createdAt: new Date('2024-01-20'), completedAt: new Date('2024-01-25') },
-          { id: '3', title: 'להזמין חומר', completed: false, createdAt: new Date('2024-01-21') },
-          { id: '4', title: 'לעדכן מחיר', completed: false, createdAt: new Date('2024-01-21') },
-          { id: '5', title: 'לתקן קבצים לשליחה לאישור סופי', completed: false, createdAt: new Date('2024-01-21') }
-        ]
-      },
-      {
-        id: '2',
-        name: 'עיצוב לוגו וזהות חזותית',
-        description: 'יצירת לוגו מקצועי וחבילת זהות חזותית מלאה כולל כרטיסי ביקור וניירת',
-        clientName: 'אברהם קורן',
-        phone1: '+972-50-123-4567',
-        phone2: '',
-        whatsapp1: '+972-50-123-4567',
-        whatsapp2: '',
-        email: 'avraham@company.com',
-        folderPath: '',
-        icloudLink: '',
-        status: 'on-hold',
-        priority: 'medium',
-        price: 8000,
-        currency: 'ILS',
-        paid: false,
-        completed: false,
-        deadline: new Date('2024-02-10'),
-        createdAt: new Date('2024-02-01'),
-        updatedAt: new Date('2024-02-15'),
-        tasks: []
-      },
-      {
-        id: '3',
-        name: 'פאציים עור לבגדים',
-        description: 'תיקון והוספת פאציים עור איכותיים לפריטי ביגוד שונים',
-        clientName: 'שלמה קויץ',
-        phone1: '+972-52-877-3801',
-        phone2: '+972-53-340-8665',
-        whatsapp1: '+972-52-877-3801',
-        whatsapp2: '+972-53-340-8665',
-        email: 'shlomo@leather.co.il',
-        folderPath: '',
-        icloudLink: 'https://icloud.com/leather-project',
-        status: 'in-progress',
-        priority: 'high',
-        price: 4030,
-        currency: 'ILS',
-        paid: false,
-        completed: false,
-        deadline: new Date('2024-02-05'),
-        createdAt: new Date('2024-01-20'),
-        updatedAt: new Date('2024-02-10'),
-        tasks: [
-          { id: '1', title: 'מדידת הבגדים', completed: true, createdAt: new Date('2024-01-21'), completedAt: new Date('2024-01-25') },
-          { id: '2', title: 'הזמנת חומרי גלם', completed: false, createdAt: new Date('2024-01-26') }
-        ]
-      }
-    ];
+  // פרויקטים פעילים
+  const activeProjects = projects.filter(p => p.status === 'פעיל');
+  const projectsProgress = projects.length > 0 ? (activeProjects.length / projects.length) * 100 : 0;
 
-    console.log('📊 Sample projects created:', sampleProjects.length, 'projects');
-    setProjects(sampleProjects);
-    console.log('✅ Projects state updated');
-  }, []);
+  const statCards = [
+    {
+      title: 'סה"כ פרויקטים',
+      value: projects.length,
+      subValue: `${activeProjects.length} פעילים`,
+      icon: FolderOpen,
+      color: 'from-blue-500 to-cyan-500',
+      bgColor: 'from-blue-50 to-cyan-50',
+      progress: projectsProgress,
+    },
+    {
+      title: 'שיעור השלמה',
+      value: `${Math.round(completionRate)}%`,
+      subValue: `${completedTasks} מתוך ${totalTasks}`,
+      icon: Target,
+      color: 'from-green-500 to-emerald-500',
+      bgColor: 'from-green-50 to-emerald-50',
+      progress: completionRate,
+    },
+    {
+      title: 'משימות דחופות',
+      value: urgentTasks.length,
+      subValue: 'עדיפות גבוהה',
+      icon: AlertCircle,
+      color: 'from-red-500 to-pink-500',
+      bgColor: 'from-red-50 to-pink-50',
+      progress: urgentTasks.length > 0 ? 100 : 0,
+      alert: urgentTasks.length > 0,
+    },
+    {
+      title: 'השבוע',
+      value: duingWeek,
+      subValue: 'משימות לסיום',
+      icon: Calendar,
+      color: 'from-purple-500 to-indigo-500',
+      bgColor: 'from-purple-50 to-indigo-50',
+      progress: duingWeek > 0 ? 75 : 0,
+    },
+  ];
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) { // 2MB limit
-        alert('גודל הקובץ גדול מדי. אנא בחר קובץ קטן מ-2MB');
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setCustomLogo(result);
-        localStorage.setItem('customLogo', result);
-      };
-      reader.readAsDataURL(file);
+  // פרויקטים אחרונים עם יותר פרטי
+  const recentProjects = projects
+    .sort((a, b) => new Date(b.id).getTime() - new Date(a.id).getTime())
+    .slice(0, 3);
+
+  // משימות פעילות עם יותר פרטי
+  const recentTasks = [...tasks.filter(task => task.status !== 'הושלם'), ...personalTasks.filter(t => !t.completed)]
+    .sort((a, b) => {
+      const aPriority = a.priority === 'גבוהה' ? 3 : a.priority === 'בינונית' ? 2 : 1;
+      const bPriority = b.priority === 'גבוהה' ? 3 : b.priority === 'בינונית' ? 2 : 1;
+      return bPriority - aPriority;
+    })
+    .slice(0, 5);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'תכנון':
+        return 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 border-amber-200';
+      case 'פעיל':
+        return 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border-blue-200';
+      case 'הושלם':
+        return 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200';
+      case 'בהמתנה':
+        return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-200';
+      case 'ממתין':
+        return 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border-yellow-200';
+      case 'בעבודה':
+        return 'bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 border-indigo-200';
+      case 'הושלם':
+        return 'bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 border-emerald-200';
+      default:
+        return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-200';
     }
   };
 
-  const removeLogo = () => {
-    setCustomLogo(null);
-    localStorage.removeItem('customLogo');
-  };
-
-  const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks'>) => {
-    const newProject: Project = {
-      ...projectData,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      tasks: []
-    };
-    
-    setProjects(prev => [newProject, ...prev]);
-    setShowCreateModal(false);
-  };
-
-  const handleAddProjectTask = (projectId: string, title: string) => {
-    const project = projects.find(p => p.id === projectId);
-    if (!project) return;
-
-    const newTask = {
-      id: Date.now().toString(),
-      title,
-      completed: false,
-      createdAt: new Date()
-    };
-
-    const updatedProject = {
-      ...project,
-      tasks: [...project.tasks, newTask],
-      updatedAt: new Date()
-    };
-
-    handleUpdateProject(updatedProject);
-  };
-
-  const handleToggleProjectTask = (projectId: string, taskId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    if (!project) return;
-
-    const updatedTasks = project.tasks.map(task => 
-      task.id === taskId 
-        ? { 
-            ...task, 
-            completed: !task.completed,
-            completedAt: !task.completed ? new Date() : undefined
-          }
-        : task
-    );
-
-    const updatedProject = {
-      ...project,
-      tasks: updatedTasks,
-      updatedAt: new Date()
-    };
-
-    handleUpdateProject(updatedProject);
-  };
-
-  const handleProjectSelect = (project: Project) => {
-    setSelectedProjectId(project.id);
-    setShowTasksModal(true);
-    setShowProjectsDropdown(false);
-  };
-
-  const handleDeleteProjectTask = (projectId: string, taskId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    if (!project) return;
-
-    const updatedProject = {
-      ...project,
-      tasks: project.tasks.filter(task => task.id !== taskId),
-      updatedAt: new Date()
-    };
-
-    handleUpdateProject(updatedProject);
-  };
-
-  const handleUpdateProject = (updatedProject: Project) => {
-    setProjects(prev => prev.map(p => 
-      p.id === updatedProject.id 
-        ? { ...updatedProject, updatedAt: new Date() }
-        : p
-    ));
-  };
-
-  const handleDeleteProject = (id: string) => {
-    setProjects(prev => prev.filter(p => p.id !== id));
-    alert('הפרויקט נמחק בהצלחה ממערכת macOS!');
-  };
-
-  const handleExportCSV = () => {
-    ExportService.exportProjectsAdvanced(projects, 'csv');
-    alert('ייצוא CSV הושלם בהצלחה עם עמודות מפורטות במיוחד עבור macOS! 🍎');
-  };
-
-  console.log('🔍 Current projects state:', projects.length, 'projects');
-  const stats = {
-    total: projects.length,
-    completed: projects.filter(p => p.completed).length,
-    inProgress: projects.filter(p => p.status === 'in-progress').length,
-    paid: projects.filter(p => p.paid).length,
-    unpaid: projects.filter(p => !p.paid).length,
-    totalRevenue: projects.reduce((sum, p) => sum + (p.paid ? p.price : 0), 0),
-    pendingRevenue: projects.reduce((sum, p) => sum + (p.paid ? 0 : p.price), 0),
-    completionRate: projects.length > 0 ? (projects.filter(p => p.completed).length / projects.length) * 100 : 0,
-    paymentRate: projects.length > 0 ? (projects.filter(p => p.paid).length / projects.length) * 100 : 0
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'נמוכה':
+        return 'text-green-600 bg-green-100 border border-green-200';
+      case 'בינונית':
+        return 'text-amber-600 bg-amber-100 border border-amber-200';
+      case 'גבוהה':
+        return 'text-red-600 bg-red-100 border border-red-200';
+      default:
+        return 'text-gray-600 bg-gray-100 border border-gray-200';
+    }
   };
 
   return (
+    <div className="space-y-8 animate-fade-in" dir="rtl">
+      {/* כותרת מעוצבת */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-blue-50 to-cyan-50 p-8 border border-primary/10">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div className="relative">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <BarChart3 className="w-6 h-6 text-white" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                לוח בקרה ראשי
+              </h1>
+              <p className="text-lg text-muted-foreground mt-1">
+                סקירה כללית של כל הפעילות שלך • {format(new Date(), 'EEEE, dd MMMM yyyy', { locale: he })}
+              </p>
+            </div>
+          </div>
+          
+          {/* נתון מהיר */}
+          <div className="flex items-center gap-6 mt-6">
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-white/20 shadow-sm">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-green-700">מערכת פעילה</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-white/20 shadow-sm">
+              <TrendingUp className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-700">התקדמות: {Math.round(completionRate)}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* סטטיסטיקות מעוצבות */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {statCards.map((stat, _index) => (
+          <Card key={stat.title} className={`relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${stat.alert ? 'ring-2 ring-red-500/20 animate-pulse' : ''}`}>
+            <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgColor} opacity-60`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-10`}></div>
+            <CardHeader className="relative pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
+                    <stat.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-sm text-muted-foreground font-medium">
+                      {stat.title}
+                    </CardTitle>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="space-y-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-foreground">
+                    {stat.value}
+                  </span>
+                  {stat.alert && (
+                    <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium animate-pulse">
+                      דרוש טיפול
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground font-medium">
+                  {stat.subValue}
+                </p>
+                <Progress 
+                  value={stat.progress} 
+                  className="h-2 bg-white/50" 
+                  style={{
+                    // @ts-ignore
+                    '--progress-background': `linear-gradient(to right, ${stat.color.replace('from-', '').replace('to-', ', ')})`
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* תוכן עיקרי - רשתה דינמית */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* פרויקטים אחרונים */}
+        <Card className="xl:col-span-2 border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg">
+                  <FolderOpen className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">פרויקטים אחרונים</CardTitle>
+                  <p className="text-sm text-muted-foreground">הפרויקטים החדישים שלך</p>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground bg-white/80 px-2 py-1 rounded-full">
+                {projects.length} פרויקטים
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recentProjects.length === 0 ? (
+                <div className="text-center py-8">
+                  <FolderOpen className="w-16 h-16 text-muted-foreground mx-auto mb-3 opacity-50" />
+                  <p className="text-muted-foreground font-medium">אין פרויקטים עדיין</p>
+                  <p className="text-sm text-muted-foreground mt-1">התחל ליצור פרויקטים חדשים</p>
+                </div>
+              ) : (
+                recentProjects.map((project, _index) => (
+                  <div
+                    key={project.id}
+                    className="group relative p-4 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-foreground truncate">{project.name}</h3>
+                          <span className={`px-2 py-1 text-xs rounded-full border ${getPriorityColor(project.priority)}`}>
+                            {project.priority}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                          {project.description}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 text-xs rounded-full border ${getStatusColor(project.status)}`}>
+                            {project.status}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(), 'dd/MM/yyyy', { locale: he })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-primary/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* משימות פעילות */}
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-white via-green-50/30 to-emerald-50/30">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg">
+                  <CheckSquare className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">משימות פעילות</CardTitle>
+                  <p className="text-sm text-muted-foreground">משימות שדורשות תשומת לב</p>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground bg-white/80 px-2 py-1 rounded-full">
+                {recentTasks.length} משימות
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {recentTasks.length === 0 ? (
+                <div className="text-center py-8">
+                  <CheckSquare className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+                  <p className="text-muted-foreground font-medium">כל המשימות הושלמו! 🎉</p>
+                  <p className="text-sm text-muted-foreground mt-1">עבודה מצוינת</p>
+                </div>
+              ) : (
+                recentTasks.map((task, _index) => (
+                  <div key={task.id || _index} className="group p-3 bg-white/60 backdrop-blur-sm border border-white/40 rounded-lg hover:shadow-sm transition-all duration-200">
+                    <div className="flex items-start gap-3">
+                      <div className={`w-2 h-2 rounded-full mt-2 ${
+                        task.priority === 'גבוהה' ? 'bg-red-500' :
+                        task.priority === 'בינונית' ? 'bg-yellow-500' :
+                        'bg-green-500'
+                      }`}></div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm text-foreground truncate">
+                          {task.title}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`px-2 py-0.5 text-xs rounded-full ${getPriorityColor(task.priority)}`}>
+                            {task.priority}
+                          </span>
+                          {('dueDate' in task && task.dueDate) && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {format(new Date(task.dueDate), 'dd/MM', { locale: he })}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* לוח בקרה מתקדם */}
+      <AdvancedDashboard />
+    </div>
+  );
+}
+
+const App = () => {
+  return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir="rtl">
-
-      {/* Main Content */}
       <main className="p-6">
-        <ProjectPulseDashboard projects={projects} stats={stats} />
+        <Dashboard />
       </main>
-
-      {/* Create Project Modal */}
-      <CreateProjectModal
-        open={showCreateModal}
-        onOpenChange={setShowCreateModal}
-        onCreateProject={handleCreateProject}
-      />
-
-      {/* Project Tasks Modal */}
-      <ProjectTasksModal
-        open={showTasksModal}
-        onOpenChange={setShowTasksModal}
-        project={selectedProjectId ? projects.find(p => p.id === selectedProjectId) || null : null}
-        onAddTask={handleAddProjectTask}
-        onToggleTask={handleToggleProjectTask}
-        onDeleteTask={handleDeleteProjectTask}
-      />
     </div>
   );
 };
