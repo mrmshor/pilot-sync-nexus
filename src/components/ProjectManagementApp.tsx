@@ -1747,8 +1747,88 @@ export const ProjectManagementApp = () => {
               className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
               onClick={() => setShowMobileProjectsSidebar(false)}
             ></div>
-            <div className="absolute left-0 top-0 h-full w-80 bg-white dark:bg-gray-900 shadow-2xl border-r border-border transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-left">
-              <ProjectsSidebar />
+            <div className="absolute left-0 top-0 h-full w-48 max-w-[50vw] bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl border-r border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-left">
+              <div className="h-screen overflow-hidden flex flex-col ios-scroll-fix">
+                <div className="flex-1 overflow-y-auto">
+                  {/* Minimal Header */}
+                  <div className="p-3 border-b bg-white/50 dark:bg-gray-800/50 sticky top-0">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">קפיצה מהירה</h3>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setShowMobileProjectsSidebar(false)}
+                        className="p-1 h-6 w-6"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Ultra Minimal Projects List */}
+                  <div className="p-2 space-y-1">
+                    {projects.map((project, index) => (
+                      <button 
+                        key={project.id}
+                        className="w-full text-right p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-xs group border-b border-gray-100/50 dark:border-gray-700/50 last:border-b-0"
+                        onClick={() => {
+                          // Scroll to project in main view
+                          setSelectedProject(project);
+                          setActiveTab('projects');
+                          setShowMobileProjectsSidebar(false);
+                          
+                          // Scroll to specific project after tab switch
+                          setTimeout(() => {
+                            const projectElement = document.getElementById(`project-${project.id}`);
+                            if (projectElement) {
+                              projectElement.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                              });
+                              // Add highlight effect
+                              projectElement.classList.add('ring-2', 'ring-blue-400/50');
+                              setTimeout(() => {
+                                projectElement.classList.remove('ring-2', 'ring-blue-400/50');
+                              }, 2000);
+                            }
+                          }, 100);
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 text-right">
+                            <div className="font-medium text-gray-800 dark:text-gray-200 truncate text-xs leading-tight">
+                              {project.name.length > 20 ? `${project.name.substring(0, 20)}...` : project.name}
+                            </div>
+                            {project.clientName && (
+                              <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                                {project.clientName.length > 15 ? `${project.clientName.substring(0, 15)}...` : project.clientName}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Minimal Status Dot */}
+                          <div className={`w-2 h-2 rounded-full ml-2 flex-shrink-0 ${
+                            project.status === 'in-progress' ? 'bg-blue-500' :
+                            project.status === 'completed' ? 'bg-green-500' :
+                            'bg-gray-400'
+                          }`}></div>
+                        </div>
+                        
+                        {/* Project Number */}
+                        <div className="text-[8px] text-gray-400 mt-1 text-right font-mono">
+                          #{index + 1}
+                        </div>
+                      </button>
+                    ))}
+                    
+                    {projects.length === 0 && (
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <div className="text-xs">אין פרויקטים</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
