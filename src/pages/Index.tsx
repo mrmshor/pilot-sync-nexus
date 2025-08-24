@@ -3,7 +3,6 @@ import { useProjectStore } from '@/store/useProjectStore';
 import { usePersonalTasksStore } from '@/store/usePersonalTasksStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AdvancedDashboard } from '@/components/AdvancedDashboard';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
@@ -347,9 +346,9 @@ const App = () => {
             </Card>
           </div>
 
-          {/* לוח בקרה מתקדם */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <AdvancedDashboard />
+          {/* לוח בקרה מתקדם - הועבר למערכת ניהול הפרויקטים */}
+          <div className="animate-fade-in text-center py-8" style={{ animationDelay: '0.4s' }}>
+            <div className="text-muted-foreground">הדשבורד המתקדם זמין במסך הפרויקטים</div>
           </div>
         </div>
       </main>
