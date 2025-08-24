@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Project, ProjectTask } from '@/types';
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Task {
   id: string;
@@ -13,21 +14,74 @@ export interface Task {
   updatedAt: Date;
 }
 
+// Convert from Supabase format to app format
+const convertFromSupabase = (data: any): Project => ({
+  id: data.id,
+  name: data.name,
+  description: data.description || '',
+  clientName: data.client_name || '',
+  phone1: data.phone1 || '',
+  phone2: data.phone2 || '',
+  whatsapp1: data.whatsapp1 || '',
+  whatsapp2: data.whatsapp2 || '',
+  email: data.email || '',
+  folderPath: data.folder_path || '',
+  icloudLink: data.icloud_link || '',
+  status: data.status as Project['status'],
+  priority: data.priority as Project['priority'],
+  price: data.price || 0,
+  currency: data.currency as Project['currency'],
+  paid: data.paid || false,
+  completed: data.completed || false,
+  deadline: data.deadline ? new Date(data.deadline) : undefined,
+  createdAt: new Date(data.created_at),
+  updatedAt: new Date(data.updated_at),
+  tasks: [], // Tasks are handled separately now
+  subtasks: []
+});
+
+// Convert to Supabase format
+const convertToSupabase = (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => ({
+  name: project.name,
+  description: project.description,
+  client_name: project.clientName,
+  phone1: project.phone1,
+  phone2: project.phone2,
+  whatsapp1: project.whatsapp1,
+  whatsapp2: project.whatsapp2,
+  email: project.email,
+  folder_path: project.folderPath,
+  icloud_link: project.icloudLink,
+  status: project.status,
+  priority: project.priority,
+  price: project.price,
+  currency: project.currency,
+  paid: project.paid,
+  completed: project.completed,
+  deadline: project.deadline?.toISOString(),
+  created_by: 'dc0b20c7-8f24-4f8a-9a5c-e35a5e247c80' // Fixed for demo
+});
+
 interface ProjectStore {
   projects: Project[];
   tasks: Task[];
+  isLoading: boolean;
+  isSyncing: boolean;
+  lastSyncError: string | null;
   refreshData: () => Promise<void>;
-  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => void;
-  updateProject: (id: string, updates: Partial<Project>) => void;
-  deleteProject: (id: string) => void;
+  initializeSupabase: () => Promise<void>;
+  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => Promise<void>;
+  updateProject: (id: string, updates: Partial<Project>) => Promise<void>;
+  deleteProject: (id: string) => Promise<void>;
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
+  syncWithSupabase: () => Promise<void>;
 }
 
 export const useProjectStore = create<ProjectStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       projects: [
         {
           id: '1',
@@ -112,33 +166,194 @@ export const useProjectStore = create<ProjectStore>()(
           updatedAt: new Date(),
         },
       ],
-      addProject: (projectData) =>
-        set((state) => ({
-          projects: [
-            ...state.projects,
-            {
-              ...projectData,
-              id: Date.now().toString(),
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              tasks: [],
-              subtasks: []
-            },
-          ],
-        })),
-      updateProject: (id, updates) =>
-        set((state) => ({
-          projects: state.projects.map((project) =>
-            project.id === id
-              ? { ...project, ...updates, updatedAt: new Date() }
-              : project
-          ),
-        })),
-      deleteProject: (id) =>
-        set((state) => ({
-          projects: state.projects.filter((project) => project.id !== id),
-          tasks: state.tasks.filter((task) => task.projectId !== id),
-        })),
+      isLoading: false,
+      isSyncing: false,
+      lastSyncError: null,
+      
+      // Initialize Supabase connection and realtime sync
+      initializeSupabase: async () => {
+        set({ isLoading: true });
+        try {
+          await get().syncWithSupabase();
+          
+          // Set up realtime subscription for projects
+          const projectsChannel = supabase
+            .channel('projects-changes')
+            .on('postgres_changes', 
+              { event: '*', schema: 'public', table: 'projects' },
+              async (payload) => {
+                console.log('Projects realtime change:', payload);
+                await get().syncWithSupabase();
+              }
+            )
+            .subscribe();
+
+          // Set up realtime subscription for project tasks
+          const tasksChannel = supabase
+            .channel('project-tasks-changes')
+            .on('postgres_changes', 
+              { event: '*', schema: 'public', table: 'project_tasks' },
+              async (payload) => {
+                console.log('Project tasks realtime change:', payload);
+                await get().syncWithSupabase();
+              }
+            )
+            .subscribe();
+
+          set({ isLoading: false });
+        } catch (error) {
+          console.error('Failed to initialize Supabase:', error);
+          set({ isLoading: false, lastSyncError: 'שגיאה בחיבור לשרת' });
+        }
+      },
+
+      // Sync with Supabase
+      syncWithSupabase: async () => {
+        set({ isSyncing: true, lastSyncError: null });
+        try {
+          // Fetch projects
+          const { data: projectsData, error: projectsError } = await supabase
+            .from('projects')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (projectsError) throw projectsError;
+
+          const projects = projectsData?.map(convertFromSupabase) || [];
+          
+          set({ projects, isSyncing: false });
+          console.log('Synced projects from Supabase:', projects);
+        } catch (error) {
+          console.error('Sync error:', error);
+          set({ isSyncing: false, lastSyncError: 'שגיאה בסנכרון נתונים' });
+        }
+      },
+
+      // Add new project with Supabase sync
+      addProject: async (projectData) => {
+        set({ isSyncing: true });
+        try {
+          const supabaseData = convertToSupabase(projectData);
+          
+          const { data, error } = await supabase
+            .from('projects')
+            .insert([supabaseData])
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          const newProject = convertFromSupabase(data);
+          
+          set((state) => ({
+            projects: [newProject, ...state.projects],
+            isSyncing: false
+          }));
+          
+          console.log('Project added to Supabase:', newProject);
+        } catch (error) {
+          console.error('Error adding project:', error);
+          set({ isSyncing: false, lastSyncError: 'שגיאה ביצירת פרויקט' });
+          // Add locally as fallback
+          set((state) => ({
+            projects: [
+              ...state.projects,
+              {
+                ...projectData,
+                id: Date.now().toString(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                tasks: [],
+                subtasks: []
+              },
+            ],
+          }));
+        }
+      },
+
+      // Update project with Supabase sync
+      updateProject: async (id, updates) => {
+        set({ isSyncing: true });
+        try {
+          const { error } = await supabase
+            .from('projects')
+            .update({
+              name: updates.name,
+              description: updates.description,
+              client_name: updates.clientName,
+              phone1: updates.phone1,
+              phone2: updates.phone2,
+              whatsapp1: updates.whatsapp1,
+              whatsapp2: updates.whatsapp2,
+              email: updates.email,
+              folder_path: updates.folderPath,
+              icloud_link: updates.icloudLink,
+              status: updates.status,
+              priority: updates.priority,
+              price: updates.price,
+              currency: updates.currency,
+              paid: updates.paid,
+              completed: updates.completed,
+              deadline: updates.deadline?.toISOString()
+            })
+            .eq('id', id);
+
+          if (error) throw error;
+
+          set((state) => ({
+            projects: state.projects.map((project) =>
+              project.id === id
+                ? { ...project, ...updates, updatedAt: new Date() }
+                : project
+            ),
+            isSyncing: false
+          }));
+          
+          console.log('Project updated in Supabase');
+        } catch (error) {
+          console.error('Error updating project:', error);
+          set({ isSyncing: false, lastSyncError: 'שגיאה בעדכון פרויקט' });
+          // Update locally as fallback
+          set((state) => ({
+            projects: state.projects.map((project) =>
+              project.id === id
+                ? { ...project, ...updates, updatedAt: new Date() }
+                : project
+            ),
+          }));
+        }
+      },
+
+      // Delete project with Supabase sync
+      deleteProject: async (id) => {
+        set({ isSyncing: true });
+        try {
+          const { error } = await supabase
+            .from('projects')
+            .delete()
+            .eq('id', id);
+
+          if (error) throw error;
+
+          set((state) => ({
+            projects: state.projects.filter((project) => project.id !== id),
+            tasks: state.tasks.filter((task) => task.projectId !== id),
+            isSyncing: false
+          }));
+          
+          console.log('Project deleted from Supabase');
+        } catch (error) {
+          console.error('Error deleting project:', error);
+          set({ isSyncing: false, lastSyncError: 'שגיאה במחיקת פרויקט' });
+          // Delete locally as fallback
+          set((state) => ({
+            projects: state.projects.filter((project) => project.id !== id),
+            tasks: state.tasks.filter((task) => task.projectId !== id),
+          }));
+        }
+      },
+
+      // Keep legacy task methods for backward compatibility
       addTask: (taskData) =>
         set((state) => ({
           tasks: [
@@ -163,15 +378,19 @@ export const useProjectStore = create<ProjectStore>()(
         set((state) => ({
           tasks: state.tasks.filter((task) => task.id !== id),
         })),
+
+      // Enhanced refresh function
       refreshData: async () => {
-        // For now, just a placeholder since we're using local data
-        // In the future, this will fetch from Supabase
-        console.log('Refreshing data from store');
-        return Promise.resolve();
+        console.log('Refreshing data from Supabase...');
+        await get().syncWithSupabase();
       },
     }),
     {
       name: 'project-store',
+      partialize: (state) => ({ 
+        projects: state.projects,
+        tasks: state.tasks 
+      }),
     }
   )
 );

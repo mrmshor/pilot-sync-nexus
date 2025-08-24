@@ -43,7 +43,10 @@ export const ProjectManagementApp = () => {
     addTask: addProjectTask,
     updateTask: updateProjectTask,
     deleteTask: deleteProjectTask,
-    refreshData: refreshStoreData
+    refreshData: refreshStoreData,
+    initializeSupabase,
+    isSyncing,
+    lastSyncError
   } = useProjectStore();
   
   const [quickTasks, setQuickTasks] = useState<QuickTask[]>([]);
@@ -241,8 +244,9 @@ export const ProjectManagementApp = () => {
       // 2) טוסט שמייד נעלם במובייל
       const isMobile = window.innerWidth < 768;
       toast({
-        title: "הנתונים עודכנו",
-        description: "הסנכרון הושלם",
+        title: lastSyncError ? "שגיאת סנכרון" : "הנתונים עודכנו", 
+        description: lastSyncError || "הסנכרון הושלם",
+        variant: lastSyncError ? "destructive" : "default",
         duration: isMobile ? 1 : 1500,
       });
 

@@ -23,6 +23,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useProjectStore } from '@/store/useProjectStore';
 import { Project } from '@/types';
+import { useEffect } from 'react';
 
 type Priority = 'low' | 'medium' | 'high';
 
@@ -30,7 +31,12 @@ export function ProjectsSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [priorityFilter, setPriorityFilter] = useState<Priority | 'all'>('all');
-  const { projects, tasks } = useProjectStore();
+  const { projects, tasks, initializeSupabase } = useProjectStore();
+
+  // Initialize Supabase on mount
+  useEffect(() => {
+    initializeSupabase();
+  }, [initializeSupabase]);
 
   // פילטור פרויקטים לפי חיפוש ודחיפות
   const filteredProjects = projects.filter(project => {
