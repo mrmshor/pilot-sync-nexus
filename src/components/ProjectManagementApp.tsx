@@ -1525,14 +1525,14 @@ export const ProjectManagementApp = () => {
                 {activeTab === 'projects' && (
                   <div className="space-y-6">
                     {/* Projects Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">{/* Smaller gaps on mobile */}
+                    <div className="flex flex-wrap justify-center gap-6 max-w-none">{/* Perfect centering with flex */}
                       {filteredAndSortedProjects.map((project) => {
                         const completedTasks = project.tasks.filter(t => t.completed).length;
                         const totalTasks = project.tasks.length;
                         const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
                         return (
-                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group">
+                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group w-full max-w-md">{/* Fixed width for perfect alignment */}
                             <CardHeader className="pb-3 md:pb-4">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1 min-w-0">
