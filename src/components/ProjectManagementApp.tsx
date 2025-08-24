@@ -409,7 +409,20 @@ export const ProjectManagementApp = () => {
   const totalTasksCount = useMemo(() => projects.reduce((sum,p)=> sum + p.tasks.length, 0) + quickTasks.length, [projects, quickTasks]);
   const completedTasksCount = useMemo(() => projects.reduce((sum,p)=> sum + p.tasks.filter(t=>t.completed).length, 0) + quickTasks.filter(t=>t.completed).length, [projects, quickTasks]);
   const recentProjects = useMemo(() => [...projects].sort((a,b)=> new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 3), [projects]);
-  const recentTasks = useMemo(() => quickTasks.filter(t=>!t.completed).sort((a,b)=> new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0,5), [quickTasks]);
+  const recentTasks = useMemo(() => {
+    // Get all project tasks that are not completed, sorted by creation date
+    const allProjectTasks = projects.flatMap(project => 
+      project.tasks
+        .filter(task => !task.completed)
+        .map(task => ({
+          ...task,
+          projectName: project.name
+        }))
+    );
+    return allProjectTasks
+      .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  }, [projects]);
 
   const getPriorityColor = (priority: 'low'|'medium'|'high') => priority === 'high' ? 'text-red-600 bg-red-100 border border-red-200' : priority === 'medium' ? 'text-amber-600 bg-amber-100 border border-amber-200' : 'text-green-600 bg-green-100 border border-green-200';
   const formatStatusHe = (status: string) => status === 'in-progress' ? 'בעבודה' : status === 'on-hold' ? 'בהמתנה' : status === 'completed' ? 'הושלם' : status;
@@ -1266,20 +1279,20 @@ export const ProjectManagementApp = () => {
                                 >
                                   <div className="flex items-start gap-3">
                                     <div className={`w-2 h-2 rounded-full mt-2 bg-green-500`}></div>
-                                    <div className="flex-1 min-w-0">
-                                      <h4 className="font-medium text-sm text-foreground truncate story-link">
-                                        {task.title}
-                                      </h4>
-                                      <div className="flex items-center gap-2 mt-1">
-                                        <span className="px-2 py-0.5 text-xs rounded-full text-green-600 bg-green-100 border border-green-200 hover-scale">
-                                          רגילה
-                                        </span>
-                                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                          <Clock className="w-3 h-3" />
-                                          {format(new Date(task.createdAt), 'dd/MM', { locale: he })}
-                                        </span>
-                                      </div>
-                                    </div>
+                                     <div className="flex-1 min-w-0">
+                                       <h4 className="font-medium text-sm text-foreground truncate story-link">
+                                         {task.title}
+                                       </h4>
+                                       <div className="flex items-center gap-2 mt-1">
+                                         <span className="px-2 py-0.5 text-xs rounded-full text-blue-600 bg-blue-100 border border-blue-200 hover-scale">
+                                           {task.projectName}
+                                         </span>
+                                         <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                           <Clock className="w-3 h-3" />
+                                           {format(new Date(task.createdAt), 'dd/MM', { locale: he })}
+                                         </span>
+                                       </div>
+                                     </div>
                                   </div>
                                 </div>
                               ))
