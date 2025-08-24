@@ -275,6 +275,23 @@ export function TasksSidebar() {
               variant="ghost" 
               size="sm"
               onClick={() => setIsCollapsed(true)}
+              className="lg:inline-flex hidden"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+            
+            {/* Mobile Close Button */}
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                // Close mobile sidebar when X is clicked
+                if (window.innerWidth < 1024) {
+                  const event = new CustomEvent('closeMobileTasksSidebar');
+                  window.dispatchEvent(event);
+                }
+              }}
+              className="lg:hidden"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -290,12 +307,12 @@ export function TasksSidebar() {
             value={newTask}
             onChange={(e) => setNewTask(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-            className="flex-1 rtl"
+            className="flex-1 rtl text-base py-3"
           />
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1">
+              <Button variant="outline" size="sm" className="gap-1 py-3 px-4 text-sm">
                 {getPriorityIcon(newTaskPriority)}
                 {newTaskPriority}
               </Button>
@@ -305,7 +322,7 @@ export function TasksSidebar() {
                 <DropdownMenuItem
                   key={priority}
                   onClick={() => setNewTaskPriority(priority)}
-                  className="gap-2"
+                  className="gap-2 py-3 text-base"
                 >
                   {getPriorityIcon(priority)}
                   {priority}
@@ -318,16 +335,16 @@ export function TasksSidebar() {
         <Button 
           onClick={handleAddTask} 
           disabled={!newTask.trim()}
-          className="w-full"
+          className="w-full py-3 text-base"
           size="sm"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-5 h-5 mr-2" />
           הוסף משימה
         </Button>
         
         <div className="flex gap-2 mt-3 text-sm text-muted-foreground">
-          <Badge variant="outline">{pendingTasks.length} ממתינות</Badge>
-          <Badge variant="outline">{completedTasks.length} הושלמו</Badge>
+          <Badge variant="outline" className="py-1 px-2">{pendingTasks.length} ממתינות</Badge>
+          <Badge variant="outline" className="py-1 px-2">{completedTasks.length} הושלמו</Badge>
         </div>
       </div>
 

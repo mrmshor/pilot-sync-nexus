@@ -48,6 +48,8 @@ export const ProjectManagementApp = () => {
   const [preserveScroll, setPreserveScroll] = useState<number | null>(null);
   const [customLogo, setCustomLogo] = useState<string | null>(null);
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
+  const [showMobileProjectsSidebar, setShowMobileProjectsSidebar] = useState(false);
+  const [showMobileTasksSidebar, setShowMobileTasksSidebar] = useState(false);
   const { toast } = useToast();
 
   // Load custom logo on startup
@@ -76,6 +78,25 @@ export const ProjectManagementApp = () => {
       document.title = 'מערכת ניהול פרויקטים Pro';
     }
   }, [customLogo]);
+  
+  // Mobile sidebar event listeners
+  useEffect(() => {
+    const handleCloseMobileTasksSidebar = () => {
+      setShowMobileTasksSidebar(false);
+    };
+    
+    const handleCloseMobileProjectsSidebar = () => {
+      setShowMobileProjectsSidebar(false);
+    };
+
+    window.addEventListener('closeMobileTasksSidebar', handleCloseMobileTasksSidebar);
+    window.addEventListener('closeMobileProjectsSidebar', handleCloseMobileProjectsSidebar);
+    
+    return () => {
+      window.removeEventListener('closeMobileTasksSidebar', handleCloseMobileTasksSidebar);
+      window.removeEventListener('closeMobileProjectsSidebar', handleCloseMobileProjectsSidebar);
+    };
+  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -780,16 +801,41 @@ export const ProjectManagementApp = () => {
     <SidebarProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
         {/* Personal Tasks Sidebar - Right Side (appears first due to RTL) */}
-        <TasksSidebar />
+        <div className="hidden lg:block">
+          <TasksSidebar />
+        </div>
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen mx-80 flex flex-col">
+        <div className="flex-1 min-h-screen lg:mx-80 md:mx-40 sm:mx-4 mx-2 flex flex-col">
           {/* Fixed Header and Navigation */}
           <div className="sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm">
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-4 py-8 lg:py-8 py-16">
               {/* Header */}
-              <header className="text-center mb-8">
-                <div className="flex items-center justify-center gap-4 mb-4">
+              <header className="text-center mb-8 relative">
+                {/* Mobile Menu Buttons - Top Left and Right */}
+                <div className="lg:hidden absolute top-0 left-0 right-0 flex justify-between items-center mb-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowMobileProjectsSidebar(true)}
+                    className="p-2 hover:bg-white/20 rounded-lg"
+                  >
+                    <FolderOpen className="h-5 w-5" />
+                    <span className="sr-only">פרויקטים</span>
+                  </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowMobileTasksSidebar(true)}
+                    className="p-2 hover:bg-white/20 rounded-lg"
+                  >
+                    <CheckSquare className="h-5 w-5" />
+                    <span className="sr-only">משימות</span>
+                  </Button>
+                </div>
+                
+                <div className="flex items-center justify-center gap-4 mb-4 pt-12 lg:pt-0">
                   <div className="relative group">
                     <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-macos overflow-hidden">
                       {customLogo ? (
@@ -1695,7 +1741,36 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Projects Sidebar - Left Side (appears last due to RTL) */}
-        <ProjectsSidebar />
+        <div className="hidden lg:block">
+          <ProjectsSidebar />
+        </div>
+        
+        {/* Mobile Sidebars - Overlays */}
+        {/* Mobile Projects Sidebar */}
+        {showMobileProjectsSidebar && (
+          <div className="lg:hidden fixed inset-0 z-50">
+            <div 
+              className="absolute inset-0 bg-black/50" 
+              onClick={() => setShowMobileProjectsSidebar(false)}
+            />
+            <div className="absolute left-0 top-0 h-full w-80 max-w-[85vw]">
+              <ProjectsSidebar />
+            </div>
+          </div>
+        )}
+        
+        {/* Mobile Tasks Sidebar */}
+        {showMobileTasksSidebar && (
+          <div className="lg:hidden fixed inset-0 z-50">
+            <div 
+              className="absolute inset-0 bg-black/50" 
+              onClick={() => setShowMobileTasksSidebar(false)}
+            />
+            <div className="absolute right-0 top-0 h-full w-80 max-w-[85vw]">
+              <TasksSidebar />
+            </div>
+          </div>
+        )}
       </div>
     </SidebarProvider>
   );

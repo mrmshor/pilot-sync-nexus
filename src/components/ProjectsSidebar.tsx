@@ -121,13 +121,27 @@ export function ProjectsSidebar() {
           )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group lg:inline-flex hidden"
           >
             {isCollapsed ? (
               <Menu size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" />
             ) : (
               <X size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" />
             )}
+          </button>
+          
+          {/* Mobile Close Button */}
+          <button
+            onClick={() => {
+              // Close mobile sidebar when X is clicked
+              if (window.innerWidth < 1024) {
+                const event = new CustomEvent('closeMobileProjectsSidebar');
+                window.dispatchEvent(event);
+              }
+            }}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group lg:hidden"
+          >
+            <X size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" />
           </button>
         </div>
       </div>
