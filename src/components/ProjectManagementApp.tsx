@@ -50,6 +50,8 @@ export const ProjectManagementApp = () => {
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const [showMobileProjectsSidebar, setShowMobileProjectsSidebar] = useState(false);
   const [showMobileTasksSidebar, setShowMobileTasksSidebar] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const { toast } = useToast();
 
   // Load custom logo on startup
@@ -79,8 +81,66 @@ export const ProjectManagementApp = () => {
     }
   }, [customLogo]);
   
-  // Mobile sidebar event listeners
+  // Mobile scroll header control
   useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const isMobile = window.innerWidth < 768;
+      
+      if (!isMobile) {
+        setHeaderVisible(true);
+        return;
+      }
+      
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+        setHeaderVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setHeaderVisible(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
+  // Mobile sidebar event listeners and swipe gestures
+  useEffect(() => {
+    let startX = 0;
+    let startY = 0;
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+    
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!e.changedTouches.length) return;
+      
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      const diffX = endX - startX;
+      const diffY = endY - startY;
+      
+      // Only on mobile/tablet
+      if (window.innerWidth >= 1280) return;
+      
+      // Ensure horizontal swipe (not vertical scroll)
+      if (Math.abs(diffY) > Math.abs(diffX)) return;
+      if (Math.abs(diffX) < 50) return;
+      
+      // Swipe from right edge (tasks sidebar)
+      if (startX > window.innerWidth - 50 && diffX < -50) {
+        setShowMobileTasksSidebar(true);
+      }
+      
+      // Swipe from left edge (projects sidebar)  
+      if (startX < 50 && diffX > 50) {
+        setShowMobileProjectsSidebar(true);
+      }
+    };
+    
     const handleCloseMobileTasksSidebar = () => {
       setShowMobileTasksSidebar(false);
     };
@@ -89,10 +149,17 @@ export const ProjectManagementApp = () => {
       setShowMobileProjectsSidebar(false);
     };
 
+    // Touch events for swipe gestures
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    
+    // Custom events for closing sidebars
     window.addEventListener('closeMobileTasksSidebar', handleCloseMobileTasksSidebar);
     window.addEventListener('closeMobileProjectsSidebar', handleCloseMobileProjectsSidebar);
     
     return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('closeMobileTasksSidebar', handleCloseMobileTasksSidebar);
       window.removeEventListener('closeMobileProjectsSidebar', handleCloseMobileProjectsSidebar);
     };
@@ -799,41 +866,59 @@ export const ProjectManagementApp = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
-        {/* Personal Tasks Sidebar - Right Side (appears first due to RTL) */}
-        <div className="hidden lg:block">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full ios-safe-area" dir="rtl">
+        {/* Desktop Tasks Sidebar - Right Side */}
+        <div className="hidden xl:block">
           <TasksSidebar />
         </div>
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen xl:mx-80 lg:mx-60 md:mx-8 sm:mx-4 mx-2 flex flex-col">
-          {/* Fixed Header and Navigation */}
-          <div className="sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm">
+        <div className="flex-1 min-h-screen xl:mr-80 flex flex-col">
+          {/* Mobile Header - Collapsible */}
+          <div className={`xl:hidden sticky top-0 z-30 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm transition-transform duration-300 ${
+            headerVisible ? 'translate-y-0' : '-translate-y-full'
+          }`}>
+            <div className="container mx-auto px-4 py-3 ios-safe-top">
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMobileProjectsSidebar(true)}
+                  className="p-3 hover:bg-white/20 rounded-lg min-h-[44px] min-w-[44px] mobile-touch-target"
+                >
+                  <FolderOpen className="h-6 w-6" />
+                  <span className="sr-only">פרויקטים</span>
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+                    {customLogo ? (
+                      <img src={customLogo} alt="לוגו" className="w-full h-full object-cover rounded-lg" />
+                    ) : (
+                      <span className="text-sm text-white">🚀</span>
+                    )}
+                  </div>
+                  <span className="text-sm font-semibold text-primary">ניהול פרויקטים</span>
+                </div>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMobileTasksSidebar(true)}
+                  className="p-3 hover:bg-white/20 rounded-lg min-h-[44px] min-w-[44px] mobile-touch-target"
+                >
+                  <CheckSquare className="h-6 w-6" />
+                  <span className="sr-only">משימות</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Header and Navigation */}
+          <div className="hidden xl:block sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm">
             <div className="container mx-auto px-4 py-6 md:py-8 lg:py-8">
               {/* Header */}
               <header className="text-center mb-6 md:mb-8 relative">
-                {/* Mobile & Tablet Menu Buttons - Top Left and Right */}
-                <div className="xl:hidden absolute top-0 left-0 right-0 flex justify-between items-center mb-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowMobileProjectsSidebar(true)}
-                    className="p-3 md:p-4 hover:bg-white/20 rounded-lg min-h-[44px] min-w-[44px]"
-                  >
-                    <FolderOpen className="h-5 w-5 md:h-6 md:w-6" />
-                    <span className="sr-only">פרויקטים</span>
-                  </Button>
-                  
-                  <Button
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setShowMobileTasksSidebar(true)}
-                    className="p-3 md:p-4 hover:bg-white/20 rounded-lg min-h-[44px] min-w-[44px]"
-                  >
-                    <CheckSquare className="h-5 w-5 md:h-6 md:w-6" />
-                    <span className="sr-only">משימות</span>
-                  </Button>
-                </div>
                 
                 <div className="flex items-center justify-center gap-4 md:gap-6 mb-4 pt-16 md:pt-20 xl:pt-0">
                   <div className="relative group">
@@ -1743,35 +1828,45 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Projects Sidebar - Left Side (appears last due to RTL) */}
-        <div className="hidden lg:block">
+        <div className="hidden xl:block">
           <ProjectsSidebar />
         </div>
         
-        {/* Mobile Sidebars - Overlays */}
-        {/* Mobile Projects Sidebar */}
-        {showMobileProjectsSidebar && (
-          <div className="lg:hidden fixed inset-0 z-50">
+        {/* Mobile Floating Sidebars */}
+        {showMobileTasksSidebar && (
+          <div className="fixed inset-0 z-50 xl:hidden">
             <div 
-              className="absolute inset-0 bg-black/50" 
-              onClick={() => setShowMobileProjectsSidebar(false)}
-            />
-            <div className="absolute left-0 top-0 h-full w-80 max-w-[85vw]">
-              <ProjectsSidebar />
+              className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
+              onClick={() => setShowMobileTasksSidebar(false)}
+            ></div>
+            <div className="absolute right-0 top-0 h-full w-80 sm:w-96 md:w-[420px] max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-l border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-right">
+              <div className="h-full overflow-y-auto ios-scroll-fix">
+                <TasksSidebar />
+              </div>
             </div>
           </div>
         )}
         
-        {/* Mobile Tasks Sidebar */}
-        {showMobileTasksSidebar && (
-          <div className="lg:hidden fixed inset-0 z-50">
+        {showMobileProjectsSidebar && (
+          <div className="fixed inset-0 z-50 xl:hidden">
             <div 
-              className="absolute inset-0 bg-black/50" 
-              onClick={() => setShowMobileTasksSidebar(false)}
-            />
-            <div className="absolute right-0 top-0 h-full w-80 max-w-[85vw]">
-              <TasksSidebar />
+              className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
+              onClick={() => setShowMobileProjectsSidebar(false)}
+            ></div>
+            <div className="absolute left-0 top-0 h-full w-80 sm:w-96 md:w-[420px] max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-r border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-left">
+              <div className="h-full overflow-y-auto ios-scroll-fix">
+                <ProjectsSidebar />
+              </div>
             </div>
           </div>
+        )}
+
+        {/* Swipe Indicators - Show on first visit */}
+        {!showMobileTasksSidebar && !showMobileProjectsSidebar && (
+          <>
+            <div className="swipe-indicator-left xl:hidden"></div>
+            <div className="swipe-indicator-right xl:hidden"></div>
+          </>
         )}
       </div>
     </SidebarProvider>
