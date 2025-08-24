@@ -473,11 +473,21 @@ All colors MUST be HSL.
     }
   }
 
+  /* iOS scrolling fix */
+  .ios-scroll-fix {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+
+  /* Prevent body scroll when sidebar open on mobile */
+  .sidebar-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+
   /* Swipe indicators */
   .swipe-indicator-left {
-    position: fixed;
-    left: 0;
-    top: 50%;
     transform: translateY(-50%);
     width: 20px;
     height: 60px;

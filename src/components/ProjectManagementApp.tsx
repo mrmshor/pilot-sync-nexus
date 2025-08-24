@@ -1841,7 +1841,7 @@ export const ProjectManagementApp = () => {
               onClick={() => setShowMobileTasksSidebar(false)}
             ></div>
             <div className="absolute right-0 top-0 h-full w-80 sm:w-96 md:w-[420px] max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-l border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-right">
-              <div className="h-full overflow-y-auto ios-scroll-fix">
+              <div className="h-screen overflow-hidden flex flex-col ios-scroll-fix">
                 <TasksSidebar />
               </div>
             </div>
@@ -1854,9 +1854,69 @@ export const ProjectManagementApp = () => {
               className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
               onClick={() => setShowMobileProjectsSidebar(false)}
             ></div>
-            <div className="absolute left-0 top-0 h-full w-80 sm:w-96 md:w-[420px] max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-r border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-left">
-              <div className="h-full overflow-y-auto ios-scroll-fix">
-                <ProjectsSidebar />
+            <div className="absolute left-0 top-0 h-full w-72 sm:w-80 md:w-96 max-w-[75vw] bg-white/95 backdrop-blur-md shadow-2xl border-r border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-left">
+              <div className="h-screen overflow-hidden flex flex-col ios-scroll-fix">
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-4 border-b bg-white/50">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold">פרויקטים</h3>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setShowMobileProjectsSidebar(false)}
+                        className="p-2"
+                      >
+                        <X className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Simplified Projects List for Mobile */}
+                  <div className="p-3 space-y-2">
+                    {projects.slice(0, 6).map((project) => (
+                      <div 
+                        key={project.id}
+                        className="p-3 bg-white/80 rounded-lg border border-gray-200/50 cursor-pointer hover:bg-white transition-colors"
+                        onClick={() => {
+                          setSelectedProject(project);
+                          setActiveTab('projects');
+                          setShowMobileProjectsSidebar(false);
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-medium truncate">{project.name}</h4>
+                            <p className="text-xs text-muted-foreground truncate">{project.clientName}</p>
+                          </div>
+                          <Badge 
+                            variant="outline"
+                            className={`ml-2 text-xs ${
+                              project.status === 'in-progress' ? 'bg-blue-50 text-blue-700' :
+                              project.status === 'completed' ? 'bg-green-50 text-green-700' :
+                              'bg-gray-50 text-gray-700'
+                            }`}
+                          >
+                            {project.status === 'in-progress' ? 'בעבודה' : 
+                             project.status === 'completed' ? 'הושלם' : 'בהמתנה'}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {projects.length > 6 && (
+                      <Button 
+                        variant="outline" 
+                        className="w-full mt-3"
+                        onClick={() => {
+                          setActiveTab('projects');
+                          setShowMobileProjectsSidebar(false);
+                        }}
+                      >
+                        ראה את כל הפרויקטים ({projects.length})
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
