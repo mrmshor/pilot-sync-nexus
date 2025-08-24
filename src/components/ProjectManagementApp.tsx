@@ -1057,7 +1057,7 @@ export const ProjectManagementApp = () => {
 
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto">
-            <div className="container mx-auto px-3 py-4 pb-24 md:px-4 md:py-6 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
+            <div className="container mx-auto px-4 py-6 pb-16 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
               {/* Content */}
               <main>
                 {activeTab === 'dashboard' && (
@@ -1525,7 +1525,7 @@ export const ProjectManagementApp = () => {
                 {activeTab === 'projects' && (
                   <div className="space-y-6">
                     {/* Projects Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">{/* Smaller gaps on mobile */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">{/* Smaller gaps on mobile */}
                       {filteredAndSortedProjects.map((project) => {
                         const completedTasks = project.tasks.filter(t => t.completed).length;
                         const totalTasks = project.tasks.length;
