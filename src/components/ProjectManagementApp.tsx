@@ -26,6 +26,8 @@ import { ProjectEditModal } from './ProjectEditModal';
 
 import { AppSidebar } from './AppSidebar';
 import { Progress } from '@/components/ui/progress';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis } from 'recharts';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
 import { he } from 'date-fns/locale';
 
@@ -297,7 +299,37 @@ export const ProjectManagementApp = () => {
     };
   }, [projects]);
 
-  const urgentHighCount = useMemo(() => quickTasks.filter(t => !t.completed).length, [quickTasks]);
+  // Charts data
+  const statusData = useMemo(() => {
+    const mapping = [
+      { name: 'הושלם', key: 'completed', fill: '#10b981' },
+      { name: 'בעבודה', key: 'in-progress', fill: '#3b82f6' },
+      { name: 'בהמתנה', key: 'on-hold', fill: '#6b7280' },
+    ] as const;
+    return mapping.map(m => ({
+      name: m.name,
+      value: projects.filter(p => p.status === m.key).length,
+      fill: m.fill,
+    }));
+  }, [projects]);
+
+  const priorityData = useMemo(() => {
+    const mapping = [
+      { name: 'גבוהה', key: 'high', fill: '#ef4444' },
+      { name: 'בינונית', key: 'medium', fill: '#f59e0b' },
+      { name: 'נמוכה', key: 'low', fill: '#10b981' },
+    ] as const;
+    return mapping.map(m => ({
+      name: m.name,
+      value: projects.filter(p => p.priority === m.key).length,
+      fill: m.fill,
+    }));
+  }, [projects]);
+
+  const urgentHighCount = useMemo(() =>
+    projects.filter(p => p.priority === 'high').length + quickTasks.filter(t => !t.completed).length
+  , [projects, quickTasks]);
+
   const totalTasksCount = useMemo(() => projects.reduce((sum,p)=> sum + p.tasks.length, 0) + quickTasks.length, [projects, quickTasks]);
   const completedTasksCount = useMemo(() => projects.reduce((sum,p)=> sum + p.tasks.filter(t=>t.completed).length, 0) + quickTasks.filter(t=>t.completed).length, [projects, quickTasks]);
   const recentProjects = useMemo(() => [...projects].sort((a,b)=> new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 3), [projects]);
@@ -1154,6 +1186,69 @@ export const ProjectManagementApp = () => {
                               ))
                             )}
                           </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* גרפים */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                      {/* סטטוס פרויקטים - עוגה */}
+                      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-green-50/30 hover-scale animate-slide-in-right">
+                        <CardHeader className="pb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center hover-scale">
+                              <span className="text-white text-lg">📊</span>
+                            </div>
+                            <div>
+                              <CardTitle className="text-xl font-bold story-link">סטטוס פרויקטים</CardTitle>
+                              <p className="text-sm text-muted-foreground">התפלגות לפי מצב</p>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <ChartContainer config={{}} className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={3} strokeWidth={2} stroke="#ffffff">
+                                  {statusData.map((entry, index) => (
+                                    <Cell key={`cell-status-${index}`} fill={entry.fill} className="hover:opacity-80 transition-opacity duration-200" />
+                                  ))}
+                                </Pie>
+                                <ChartTooltip content={<ChartTooltipContent />} formatter={(value, name) => [value as number, name as string]} />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </ChartContainer>
+                        </CardContent>
+                      </Card>
+
+                      {/* עדיפויות - עמודות */}
+                      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-purple-50/30 hover-scale animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
+                        <CardHeader className="pb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center hover-scale">
+                              <span className="text-white text-lg">⚡</span>
+                            </div>
+                            <div>
+                              <CardTitle className="text-xl font-bold story-link">התפלגות עדיפויות</CardTitle>
+                              <p className="text-sm text-muted-foreground">מספר פרויקטים לפי עדיפות</p>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <ChartContainer config={{}} className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={priorityData} margin={{ top: 20, right: 20, left: 10, bottom: 10 }}>
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} allowDecimals={false} />
+                                <ChartTooltip content={<ChartTooltipContent />} />
+                                <Bar dataKey="value" radius={[6,6,0,0]}>
+                                  {priorityData.map((entry, index) => (
+                                    <Cell key={`cell-priority-${index}`} fill={entry.fill} className="hover:opacity-90 transition-opacity duration-200" />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </ChartContainer>
                         </CardContent>
                       </Card>
                     </div>
