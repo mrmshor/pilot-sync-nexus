@@ -833,7 +833,7 @@ export const ProjectManagementApp = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full ios-safe-area" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full ios-safe-area m-0 p-0" dir="rtl">{/* Remove any default margins/padding */}
         {/* Desktop Tasks Sidebar - Right Side */}
         <div className="hidden xl:block fixed right-0 top-0 h-full w-80 z-10">
           <TasksSidebar />
@@ -842,9 +842,9 @@ export const ProjectManagementApp = () => {
         {/* Main Content - Center */}
         <div className="flex-1 min-h-screen xl:mx-80 flex flex-col px-0">{/* Removed any default padding */}
           {/* Mobile Header - Collapsible */}
-          <div className={`xl:hidden sticky top-0 z-30 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm transition-transform duration-300 ${
+          <div className={`xl:hidden sticky top-0 z-30 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm transition-transform duration-300 w-full m-0 ${
             headerVisible ? 'translate-y-0' : '-translate-y-full'
-          }`}>
+          }`}>{/* Force full width */}
             <div className="w-full px-0 py-3 ios-safe-top">{/* Zero padding for full width */}
               <div className="flex items-center justify-between px-4">{/* Add padding only to inner content */}
                 <Button

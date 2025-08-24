@@ -74,6 +74,9 @@
 @layer base {
   * {
     @apply border-border;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
   
   body {
@@ -83,10 +86,17 @@
     font-feature-settings: 'kern' 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    margin: 0 !important;
+    padding: 0 !important; 
+    width: 100% !important;
+    overflow-x: hidden;
   }
 
   html {
     scroll-behavior: smooth;
+    margin: 0;
+    padding: 0;
+    width: 100%;
   }
 
   /* Scrollbar styling for macOS feel */
