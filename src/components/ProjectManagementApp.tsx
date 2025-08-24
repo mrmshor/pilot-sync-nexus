@@ -1057,7 +1057,7 @@ export const ProjectManagementApp = () => {
 
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto">
-            <div className="container mx-auto px-4 py-6 pb-16 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
+            <div className="container mx-auto px-2 md:px-4 py-6 pb-16 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
               {/* Content */}
               <main>
                 {activeTab === 'dashboard' && (
@@ -1525,14 +1525,14 @@ export const ProjectManagementApp = () => {
                 {activeTab === 'projects' && (
                   <div className="space-y-6">
                     {/* Projects Grid */}
-                    <div className="flex flex-wrap justify-center gap-6 max-w-none">{/* Perfect centering with flex */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                       {filteredAndSortedProjects.map((project) => {
                         const completedTasks = project.tasks.filter(t => t.completed).length;
                         const totalTasks = project.tasks.length;
                         const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
                         return (
-                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group w-full max-w-md">{/* Fixed width for perfect alignment */}
+                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group">
                             <CardHeader className="pb-3 md:pb-4">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1 min-w-0">
