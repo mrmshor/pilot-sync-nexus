@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { Project, ProjectTask } from '@/types';
+import { logger } from '@/utils/logger';
 
 export const useSupabaseProjects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -15,25 +16,14 @@ export const useSupabaseProjects = () => {
   
   const { user } = useAuth();
 
-  // Load projects from Supabase
+  // Load projects from Supabase using secure role-based function
   const loadProjects = async () => {
     if (!user) return;
     
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select(`
-          *,
-          project_tasks (
-            id,
-            title,
-            completed,
-            created_at,
-            completed_at
-          )
-        `)
-        .order('created_at', { ascending: false });
+      // Use the secure function that filters data based on user role
+      const { data, error } = await supabase.rpc('get_user_projects');
 
       if (error) throw error;
 
@@ -41,6 +31,7 @@ export const useSupabaseProjects = () => {
         id: project.id,
         name: project.name,
         description: project.description || '',
+        // Only include client data if user has access (will be null for regular members)
         clientName: project.client_name || '',
         phone1: project.phone1 || '',
         phone2: project.phone2 || '',
@@ -51,6 +42,7 @@ export const useSupabaseProjects = () => {
         icloudLink: project.icloud_link || '',
         status: project.status as Project['status'],
         priority: project.priority as Project['priority'],
+        // Only include financial data if user has access
         price: Number(project.price) || 0,
         currency: project.currency as Project['currency'],
         paid: project.paid || false,
@@ -58,19 +50,32 @@ export const useSupabaseProjects = () => {
         deadline: project.deadline ? new Date(project.deadline) : undefined,
         createdAt: new Date(project.created_at),
         updatedAt: new Date(project.updated_at),
-        tasks: (project.project_tasks || []).map((task: any): ProjectTask => ({
-          id: task.id,
-          title: task.title,
-          completed: task.completed,
-          createdAt: new Date(task.created_at),
-          completedAt: task.completed_at ? new Date(task.completed_at) : undefined,
-        })),
+        tasks: [], // Load tasks separately to maintain security
         subtasks: [] // Will be added later if needed
       }));
 
+      // Load project tasks separately for each project
+      for (const project of formattedProjects) {
+        const { data: tasksData, error: tasksError } = await supabase
+          .from('project_tasks')
+          .select('id, title, completed, created_at, completed_at')
+          .eq('project_id', project.id)
+          .order('created_at', { ascending: false });
+
+        if (!tasksError && tasksData) {
+          project.tasks = tasksData.map((task: any): ProjectTask => ({
+            id: task.id,
+            title: task.title,
+            completed: task.completed,
+            createdAt: new Date(task.created_at),
+            completedAt: task.completed_at ? new Date(task.completed_at) : undefined,
+          }));
+        }
+      }
+
       setProjects(formattedProjects);
     } catch (error: any) {
-      console.error('Error loading projects:', error);
+      logger.error('Error loading projects:', error);
       toast.error('שגיאה בטעינת הפרויקטים');
     } finally {
       setLoading(false);
@@ -113,7 +118,7 @@ export const useSupabaseProjects = () => {
       loadProjects(); // Reload projects
       return data;
     } catch (error: any) {
-      console.error('Error creating project:', error);
+      logger.error('Error creating project:', error);
       toast.error('שגיאה ביצירת הפרויקט');
     }
   };
@@ -149,7 +154,7 @@ export const useSupabaseProjects = () => {
       toast.success('הפרויקט עודכן בהצלחה');
       loadProjects(); // Reload projects
     } catch (error: any) {
-      console.error('Error updating project:', error);
+      logger.error('Error updating project:', error);
       toast.error('שגיאה בעדכון הפרויקט');
     }
   };
@@ -169,7 +174,7 @@ export const useSupabaseProjects = () => {
       toast.success('הפרויקט נמחק בהצלחה');
       loadProjects(); // Reload projects
     } catch (error: any) {
-      console.error('Error deleting project:', error);
+      logger.error('Error deleting project:', error);
       toast.error('שגיאה במחיקת הפרויקט');
     }
   };
@@ -192,7 +197,7 @@ export const useSupabaseProjects = () => {
       toast.success('המשימה נוספה בהצלחה');
       loadProjects(); // Reload projects
     } catch (error: any) {
-      console.error('Error adding task:', error);
+      logger.error('Error adding task:', error);
       toast.error('שגיאה בהוספת המשימה');
     }
   };
@@ -212,7 +217,7 @@ export const useSupabaseProjects = () => {
 
       loadProjects(); // Reload projects
     } catch (error: any) {
-      console.error('Error updating task:', error);
+      logger.error('Error updating task:', error);
       toast.error('שגיאה בעדכון המשימה');
     }
   };
@@ -230,7 +235,7 @@ export const useSupabaseProjects = () => {
       toast.success('המשימה נמחקה בהצלחה');
       loadProjects(); // Reload projects
     } catch (error: any) {
-      console.error('Error deleting task:', error);
+      logger.error('Error deleting task:', error);
       toast.error('שגיאה במחיקת המשימה');
     }
   };
