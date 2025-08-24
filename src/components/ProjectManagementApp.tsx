@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { CreateProjectModal } from './CreateProjectModal';
 import { StatusDropdown } from './StatusDropdown';
 import { PriorityDropdown } from './PriorityDropdown';
-import { QuickTasksSidebar } from './QuickTasksSidebar';
+import { TasksSidebar } from './TasksSidebar';
 import { ProjectTasksModal } from './ProjectTasksModal';
 import { ProjectEditModal } from './ProjectEditModal';
 
@@ -779,15 +779,8 @@ export const ProjectManagementApp = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
-        {/* Quick Tasks Sidebar - Right Side (appears first due to RTL) */}
-        <div className="w-80 h-screen bg-white/95 backdrop-blur border-l border-gray-200 shadow-lg fixed top-0 right-0 z-30">
-          <QuickTasksSidebar
-            quickTasks={quickTasks}
-            onAddTask={handleAddQuickTask}
-            onToggleTask={handleToggleQuickTask}
-            onDeleteTask={handleDeleteQuickTask}
-          />
-        </div>
+        {/* Personal Tasks Sidebar - Right Side (appears first due to RTL) */}
+        <TasksSidebar />
 
         {/* Main Content - Center */}
         <div className="flex-1 min-h-screen mx-80 flex flex-col">
