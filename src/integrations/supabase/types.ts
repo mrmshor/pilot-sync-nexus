@@ -14,7 +14,181 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      project_members: {
+        Row: {
+          added_by: string
+          created_at: string
+          id: string
+          project_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          added_by: string
+          created_at?: string
+          id?: string
+          project_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          added_by?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_tasks: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          id: string
+          project_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          project_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          project_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          client_name: string | null
+          completed: boolean | null
+          created_at: string
+          created_by: string
+          currency: string | null
+          deadline: string | null
+          description: string | null
+          email: string | null
+          folder_path: string | null
+          icloud_link: string | null
+          id: string
+          name: string
+          paid: boolean | null
+          phone1: string | null
+          phone2: string | null
+          price: number | null
+          priority: string
+          status: string
+          updated_at: string
+          whatsapp1: string | null
+          whatsapp2: string | null
+        }
+        Insert: {
+          client_name?: string | null
+          completed?: boolean | null
+          created_at?: string
+          created_by: string
+          currency?: string | null
+          deadline?: string | null
+          description?: string | null
+          email?: string | null
+          folder_path?: string | null
+          icloud_link?: string | null
+          id?: string
+          name: string
+          paid?: boolean | null
+          phone1?: string | null
+          phone2?: string | null
+          price?: number | null
+          priority?: string
+          status?: string
+          updated_at?: string
+          whatsapp1?: string | null
+          whatsapp2?: string | null
+        }
+        Update: {
+          client_name?: string | null
+          completed?: boolean | null
+          created_at?: string
+          created_by?: string
+          currency?: string | null
+          deadline?: string | null
+          description?: string | null
+          email?: string | null
+          folder_path?: string | null
+          icloud_link?: string | null
+          id?: string
+          name?: string
+          paid?: boolean | null
+          phone1?: string | null
+          phone2?: string | null
+          price?: number | null
+          priority?: string
+          status?: string
+          updated_at?: string
+          whatsapp1?: string | null
+          whatsapp2?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
