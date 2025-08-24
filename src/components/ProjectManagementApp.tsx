@@ -27,7 +27,7 @@ import { ProjectEditModal } from './ProjectEditModal';
 import { AppSidebar } from './AppSidebar';
 import { Progress } from '@/components/ui/progress';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis } from 'recharts';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
 import { he } from 'date-fns/locale';
 
@@ -299,35 +299,63 @@ export const ProjectManagementApp = () => {
     };
   }, [projects]);
 
-  // Charts data
+  // Charts data based on actual project data
   const statusData = useMemo(() => {
-    const mapping = [
-      { name: 'הושלם', key: 'completed', fill: '#10b981' },
+    const statuses = [
       { name: 'בעבודה', key: 'in-progress', fill: '#3b82f6' },
-      { name: 'בהמתנה', key: 'on-hold', fill: '#6b7280' },
+      { name: 'בהמתנה', key: 'on-hold', fill: '#6b7280' }, 
+      { name: 'הושלם', key: 'completed', fill: '#10b981' },
     ] as const;
-    return mapping.map(m => ({
-      name: m.name,
-      value: projects.filter(p => p.status === m.key).length,
-      fill: m.fill,
+    return statuses.map(status => ({
+      name: status.name,
+      value: projects.filter(p => p.status === status.key).length,
+      fill: status.fill,
     }));
   }, [projects]);
 
   const priorityData = useMemo(() => {
-    const mapping = [
+    const priorities = [
       { name: 'גבוהה', key: 'high', fill: '#ef4444' },
-      { name: 'בינונית', key: 'medium', fill: '#f59e0b' },
+      { name: 'בינונית', key: 'medium', fill: '#f59e0b' }, 
       { name: 'נמוכה', key: 'low', fill: '#10b981' },
     ] as const;
-    return mapping.map(m => ({
-      name: m.name,
-      value: projects.filter(p => p.priority === m.key).length,
-      fill: m.fill,
+    return priorities.map(priority => ({
+      name: priority.name,
+      value: projects.filter(p => p.priority === priority.key).length,
+      fill: priority.fill,
     }));
   }, [projects]);
 
+  // Task completion data by week
+  const weeklyData = useMemo(() => {
+    // Get all project tasks
+    const allTasks = projects.flatMap(p => p.tasks.map(t => ({
+      ...t,
+      projectId: p.id,
+      deadline: p.deadline,
+    })));
+    
+    const days = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
+    
+    return days.map((day, index) => {
+      // Filter tasks created on this day of week
+      const dayTasks = allTasks.filter(task => {
+        const taskDate = new Date(task.createdAt);
+        return taskDate.getDay() === index;
+      });
+      
+      return {
+        day,
+        הושלמו: dayTasks.filter(t => t.completed).length,
+        פעילות: dayTasks.filter(t => !t.completed).length,
+      };
+    });
+  }, [projects]);
+
   const urgentHighCount = useMemo(() =>
-    projects.filter(p => p.priority === 'high').length + quickTasks.filter(t => !t.completed).length
+    projects.filter(p => p.priority === 'high' && !p.completed).length + 
+    projects.flatMap(p => p.tasks).filter(t => !t.completed).length +
+    quickTasks.filter(t => !t.completed).length
   , [projects, quickTasks]);
 
   const totalTasksCount = useMemo(() => projects.reduce((sum,p)=> sum + p.tasks.length, 0) + quickTasks.length, [projects, quickTasks]);
@@ -1190,7 +1218,7 @@ export const ProjectManagementApp = () => {
                       </Card>
                     </div>
 
-                    {/* גרפים */}
+                    {/* גרפים מתקדמים מהדף הבית */}
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                       {/* סטטוס פרויקטים - עוגה */}
                       <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-green-50/30 hover-scale animate-slide-in-right">
@@ -1201,7 +1229,7 @@ export const ProjectManagementApp = () => {
                             </div>
                             <div>
                               <CardTitle className="text-xl font-bold story-link">סטטוס פרויקטים</CardTitle>
-                              <p className="text-sm text-muted-foreground">התפלגות לפי מצב</p>
+                              <p className="text-sm text-muted-foreground">התפלגות לפי מצב נוכחי</p>
                             </div>
                           </div>
                         </CardHeader>
@@ -1209,49 +1237,195 @@ export const ProjectManagementApp = () => {
                           <ChartContainer config={{}} className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
                               <PieChart>
-                                <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={3} strokeWidth={2} stroke="#ffffff">
+                                <Pie 
+                                  data={statusData} 
+                                  dataKey="value" 
+                                  nameKey="name" 
+                                  cx="50%" 
+                                  cy="50%" 
+                                  innerRadius={50} 
+                                  outerRadius={100} 
+                                  paddingAngle={3} 
+                                  strokeWidth={2} 
+                                  stroke="#ffffff"
+                                >
                                   {statusData.map((entry, index) => (
                                     <Cell key={`cell-status-${index}`} fill={entry.fill} className="hover:opacity-80 transition-opacity duration-200" />
                                   ))}
                                 </Pie>
-                                <ChartTooltip content={<ChartTooltipContent />} formatter={(value, name) => [value as number, name as string]} />
+                                <ChartTooltip content={<ChartTooltipContent />} />
                               </PieChart>
                             </ResponsiveContainer>
                           </ChartContainer>
+                          
+                          {/* מקרא מעוצב */}
+                          <div className="mt-6 grid grid-cols-2 gap-3">
+                            {statusData.map((entry, index) => (
+                              <div key={index} className="flex items-center gap-2 p-2 bg-white/60 backdrop-blur-sm rounded-lg hover-scale">
+                                <div 
+                                  className="w-4 h-4 rounded-full shadow-sm" 
+                                  style={{ backgroundColor: entry.fill }}
+                                ></div>
+                                <div className="flex-1">
+                                  <span className="text-sm font-medium text-foreground">{entry.name}</span>
+                                  <div className="text-xs text-muted-foreground">{entry.value} פרויקטים</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </CardContent>
                       </Card>
 
-                      {/* עדיפויות - עמודות */}
-                      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-purple-50/30 hover-scale animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
+                      {/* התקדמות שבועית */}
+                      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-blue-50/30 hover-scale animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
                         <CardHeader className="pb-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center hover-scale">
-                              <span className="text-white text-lg">⚡</span>
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center hover-scale">
+                              <span className="text-white text-lg">📈</span>
                             </div>
                             <div>
-                              <CardTitle className="text-xl font-bold story-link">התפלגות עדיפויות</CardTitle>
-                              <p className="text-sm text-muted-foreground">מספר פרויקטים לפי עדיפות</p>
+                              <CardTitle className="text-xl font-bold story-link">התקדמות שבועית</CardTitle>
+                              <p className="text-sm text-muted-foreground">משימות לפי יום השבוע</p>
                             </div>
                           </div>
                         </CardHeader>
                         <CardContent>
                           <ChartContainer config={{}} className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
-                              <BarChart data={priorityData} margin={{ top: 20, right: 20, left: 10, bottom: 10 }}>
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} allowDecimals={false} />
+                              <LineChart data={weeklyData} margin={{ top: 20, right: 20, left: 10, bottom: 10 }}>
+                                <XAxis 
+                                  dataKey="day" 
+                                  axisLine={false}
+                                  tickLine={false}
+                                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                                />
+                                <YAxis 
+                                  axisLine={false}
+                                  tickLine={false}
+                                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                                  allowDecimals={false}
+                                />
                                 <ChartTooltip content={<ChartTooltipContent />} />
-                                <Bar dataKey="value" radius={[6,6,0,0]}>
-                                  {priorityData.map((entry, index) => (
-                                    <Cell key={`cell-priority-${index}`} fill={entry.fill} className="hover:opacity-90 transition-opacity duration-200" />
-                                  ))}
-                                </Bar>
-                              </BarChart>
+                                <Line 
+                                  dataKey="הושלמו" 
+                                  stroke="#10b981" 
+                                  strokeWidth={4}
+                                  dot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#ffffff' }}
+                                  activeDot={{ r: 8, stroke: '#10b981', strokeWidth: 3, fill: '#ffffff' }}
+                                />
+                                <Line 
+                                  dataKey="פעילות" 
+                                  stroke="#3b82f6" 
+                                  strokeWidth={4}
+                                  dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#ffffff' }}
+                                  activeDot={{ r: 8, stroke: '#3b82f6', strokeWidth: 3, fill: '#ffffff' }}
+                                />
+                              </LineChart>
                             </ResponsiveContainer>
                           </ChartContainer>
                         </CardContent>
                       </Card>
                     </div>
+
+                    {/* גרף עדיפויות מורחב */}
+                    <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-purple-50/30 hover-scale animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                      <CardHeader className="pb-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center hover-scale">
+                              <span className="text-white text-xl">⚡</span>
+                            </div>
+                            <div>
+                              <CardTitle className="text-2xl font-bold story-link">התפלגות עדיפויות</CardTitle>
+                              <p className="text-muted-foreground">פרויקטים לפי רמת עדיפות</p>
+                            </div>
+                          </div>
+                          <div className="text-sm font-medium text-muted-foreground bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+                            {priorityData.reduce((sum, item) => sum + item.value, 0)} פרויקטים סה"כ
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                          {/* גרף עמודות אופקי */}
+                          <div className="lg:col-span-2">
+                            <h4 className="text-lg font-semibold text-foreground mb-6">פילוח לפי עדיפות</h4>
+                            <ChartContainer config={{}} className="h-[280px]">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={priorityData} layout="horizontal" margin={{ top: 20, right: 30, left: 80, bottom: 20 }}>
+                                  <XAxis 
+                                    type="number" 
+                                    axisLine={false} 
+                                    tickLine={false}
+                                    tick={{ fontSize: 12, fill: '#6b7280' }}
+                                    allowDecimals={false}
+                                  />
+                                  <YAxis 
+                                    type="category" 
+                                    dataKey="name" 
+                                    axisLine={false} 
+                                    tickLine={false}
+                                    tick={{ fontSize: 14, fill: '#374151', fontWeight: 500 }}
+                                    width={70}
+                                  />
+                                  <ChartTooltip content={<ChartTooltipContent />} />
+                                  <Bar 
+                                    dataKey="value" 
+                                    radius={[0, 6, 6, 0]}
+                                  >
+                                    {priorityData.map((entry, index) => (
+                                      <Cell key={`cell-priority-${index}`} fill={entry.fill} className="hover:opacity-80 transition-opacity duration-200" />
+                                    ))}
+                                  </Bar>
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </ChartContainer>
+                          </div>
+
+                          {/* תצוגת נתונים מעוצבת */}
+                          <div className="space-y-4">
+                            <h4 className="text-lg font-semibold text-foreground mb-6">סיכום עדיפויות</h4>
+                            {priorityData.map((priority, index) => (
+                              <div 
+                                key={index} 
+                                className="group p-5 bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl hover:shadow-lg transition-all duration-200 hover-scale animate-fade-in"
+                                style={{ animationDelay: `${index * 0.1}s` }}
+                              >
+                                <div className="flex items-center justify-between mb-4">
+                                  <div className="flex items-center gap-3">
+                                    <div 
+                                      className="w-5 h-5 rounded-full shadow-md" 
+                                      style={{ backgroundColor: priority.fill }}
+                                    ></div>
+                                    <span className="font-bold text-lg text-foreground story-link">{priority.name}</span>
+                                  </div>
+                                  <span className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                                    {priority.value}
+                                  </span>
+                                </div>
+                                
+                                <div className="text-sm text-muted-foreground">
+                                  {priority.value} פרויקטים בעדיפות {priority.name.toLowerCase()}
+                                </div>
+                                
+                                {/* פרוגרס בר מעוצב */}
+                                <div className="mt-4">
+                                  <div className="w-full bg-gray-200 rounded-full h-2 shadow-inner">
+                                    <div 
+                                      className="h-2 rounded-full transition-all duration-500 shadow-sm"
+                                      style={{ 
+                                        background: `linear-gradient(90deg, ${priority.fill}, ${priority.fill}dd)`,
+                                        width: `${priority.value > 0 ? (priority.value / Math.max(...priorityData.map(p => p.value), 1)) * 100 : 0}%`
+                                      }}
+                                    ></div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 )}
 
