@@ -71,6 +71,25 @@ export function ProjectsSidebar() {
     }
   };
 
+  const getPriorityText = (priority: Priority) => {
+    switch (priority) {
+      case 'high': return 'גבוהה';
+      case 'medium': return 'בינונית';
+      case 'low': return 'נמוכה';
+      default: return '';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'in-progress': return 'בביצוע';
+      case 'not-started': return 'לא החל';
+      case 'completed': return 'הושלם';
+      case 'on-hold': return 'מושהה';
+      default: return status;
+    }
+  };
+
   const getPriorityIcon = (priority: Priority) => {
     switch (priority) {
       case 'high': return <ArrowUp className="w-3 h-3" />;
@@ -254,20 +273,20 @@ export function ProjectsSidebar() {
                               {project.name}
                             </h3>
                           </div>
-                          <div className="flex items-center gap-1 text-xs">
-                            <span className={cn("font-medium", getPriorityColor(project.priority))}>
-                              {project.priority}
-                            </span>
-                            <span className="text-muted-foreground">•</span>
-                            <div className="flex items-center gap-1">
-                              <div className={cn("w-2 h-2 rounded-full", 
-                                project.status === 'in-progress' ? 'bg-green-500' :
-                                project.status === 'not-started' ? 'bg-blue-500' :
-                                project.status === 'completed' ? 'bg-gray-500' : 'bg-yellow-500'
-                              )}></div>
-                              <span className="text-muted-foreground">{project.status}</span>
-                            </div>
-                          </div>
+                           <div className="flex items-center gap-1 text-xs">
+                             <span className={cn("font-medium", getPriorityColor(project.priority))}>
+                               {getPriorityText(project.priority)}
+                             </span>
+                             <span className="text-muted-foreground">•</span>
+                             <div className="flex items-center gap-1">
+                               <div className={cn("w-2 h-2 rounded-full", 
+                                 project.status === 'in-progress' ? 'bg-green-500' :
+                                 project.status === 'not-started' ? 'bg-blue-500' :
+                                 project.status === 'completed' ? 'bg-gray-500' : 'bg-yellow-500'
+                               )}></div>
+                               <span className="text-muted-foreground">{getStatusText(project.status)}</span>
+                             </div>
+                           </div>
                         </div>
                         <ExternalLink className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all duration-200 flex-shrink-0 ml-2 group-hover:scale-110" />
                       </div>
