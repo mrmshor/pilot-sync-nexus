@@ -24,7 +24,7 @@ import { QuickTasksSidebar } from './QuickTasksSidebar';
 import { ProjectTasksModal } from './ProjectTasksModal';
 import { ProjectEditModal } from './ProjectEditModal';
 
-import { AppSidebar } from './AppSidebar';
+import { ProjectsSidebar } from './ProjectsSidebar';
 import { Progress } from '@/components/ui/progress';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis } from 'recharts';
@@ -1702,11 +1702,7 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Projects Sidebar - Left Side (appears last due to RTL) */}
-        <AppSidebar 
-          projects={projects} 
-          onProjectSelect={handleSidebarProjectSelect}
-          selectedProjectId={selectedProject?.id}
-        />
+        <ProjectsSidebar />
       </div>
     </SidebarProvider>
   );
