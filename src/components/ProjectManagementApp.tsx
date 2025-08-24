@@ -491,7 +491,7 @@ export const ProjectManagementApp = () => {
       {/* Modals */}
       <CreateProjectModal
         open={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        onOpenChange={setShowCreateModal}
         onCreateProject={async (projectData) => {
           await createProject(projectData);
           setShowCreateModal(false);
@@ -502,24 +502,24 @@ export const ProjectManagementApp = () => {
         <>
           <ProjectTasksModal
             open={showTasksModal}
-            onClose={() => {
-              setShowTasksModal(false);
-              setSelectedProject(null);
+            onOpenChange={(open) => {
+              setShowTasksModal(open);
+              if (!open) setSelectedProject(null);
             }}
             project={selectedProject}
-            onAddTask={(taskTitle) => handleAddTask(selectedProject.id, taskTitle)}
-            onToggleTask={(taskId) => {
+            onAddTask={(projectId, taskTitle) => handleAddTask(projectId, taskTitle)}
+            onToggleTask={(projectId, taskId) => {
               const task = selectedProject.tasks.find(t => t.id === taskId);
               if (task) handleToggleTask(taskId, task.completed);
             }}
-            onDeleteTask={handleDeleteTask}
+            onDeleteTask={(projectId, taskId) => handleDeleteTask(taskId)}
           />
 
           <ProjectEditModal
             open={showEditModal}
-            onClose={() => {
-              setShowEditModal(false);
-              setSelectedProject(null);
+            onOpenChange={(open) => {
+              setShowEditModal(open);
+              if (!open) setSelectedProject(null);
             }}
             project={selectedProject}
             onUpdateProject={async (updates) => {
