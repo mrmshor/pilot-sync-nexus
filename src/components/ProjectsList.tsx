@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { logger } from '@/utils/logger';
+import { SecurityIndicator } from './SecurityIndicator';
 import {
-  Search, Edit, Trash2, User, FolderOpen,
+  Search, Edit, Trash2, User, FolderOpen, AlertTriangle,
   CheckCircle2, CreditCard, Plus, X, Calendar, Clock, Filter, SortAsc, SortDesc
 } from 'lucide-react';
 import { Project, ProjectTask } from '../types';
@@ -34,10 +36,12 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
   const [sortBy, setSortBy] = useState<string>('updatedAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // Debug projects prop
+  // Log projects data for debugging
   useEffect(() => {
-    console.log('📋 ProjectsList received projects:', projects.length);
-    console.log('📋 Projects data:', projects);
+    logger.debug('ProjectsList received projects:', projects.length);
+    if (projects.length > 0) {
+      logger.debug('Projects data loaded successfully');
+    }
   }, [projects]);
 
   const filteredAndSortedProjects = useMemo(() => {
@@ -297,13 +301,19 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
             <div className="p-6 pb-3 bg-gradient-to-r from-white/50 to-transparent backdrop-blur">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-700 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-2 leading-tight line-clamp-2 tracking-wide hover:from-blue-600 hover:via-purple-500 hover:to-blue-700 transition-colors duration-300">
-                    {project.name}
-                  </h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-700 via-purple-600 to-blue-800 bg-clip-text text-transparent leading-tight line-clamp-2 tracking-wide hover:from-blue-600 hover:via-purple-500 hover:to-blue-700 transition-colors duration-300">
+                      {project.name}
+                    </h3>
+                    <SecurityIndicator 
+                      hasSensitiveAccess={project.hasSensitiveAccess || false}
+                      className="text-xs"
+                    />
+                  </div>
                   <div className="flex items-center gap-2 mb-2">
                     <User className="h-4 w-4 text-gray-500" />
                     <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
-                      {project.clientName}
+                      {project.clientName || 'פרטי לקוח מוגבלים'}
                     </span>
                   </div>
                 </div>
@@ -355,64 +365,80 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 </div>
               )}
 
-              {/* Price Section */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200/50">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold text-green-600">
-                    {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
+              {/* Price Section - Only show if user has access */}
+              {project.hasSensitiveAccess && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200/50">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold text-green-600">
+                      {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={project.paid ? "success" : "destructive"}
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePaid(project.id);
+                        }}
+                        className="text-xs"
+                      >
+                        <CreditCard className="h-3 w-3 mr-1" />
+                        {project.paid ? 'שולם' : 'לא שולם'}
+                      </Button>
+                      {project.completed && (
+                        <Badge variant="success" className="text-xs">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          הושלם
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={project.paid ? "success" : "destructive"}
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        togglePaid(project.id);
-                      }}
-                      className="text-xs"
-                    >
-                      <CreditCard className="h-3 w-3 mr-1" />
-                      {project.paid ? 'שולם' : 'לא שולם'}
-                    </Button>
-                    {project.completed && (
-                      <Badge variant="success" className="text-xs">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        הושלם
-                      </Badge>
+                </div>
+              )}
+
+              {/* Restricted Access Notice */}
+              {!project.hasSensitiveAccess && (
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg border border-amber-200/50">
+                  <div className="flex items-center gap-2 text-amber-700">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm font-medium">
+                      גישה מוגבלת - פרטי לקוח ומחירים זמינים רק לבעלי הפרויקט ומנהלים
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Actions - Only show if not restricted */}
+              {project.hasSensitiveAccess && (
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
+                  <div 
+                    className="flex flex-wrap gap-2" 
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ContactButtons
+                      phone={project.phone1}
+                      whatsapp={project.whatsapp1}
+                      email={project.email}
+                      className="flex-wrap"
+                    />
+                    {(project.folderPath || project.icloudLink) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await openFolder(project.folderPath || '', project.icloudLink);
+                        }}
+                        className="text-xs hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
+                        title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}
+                      >
+                        <FolderOpen className="h-3 w-3 mr-1" />
+                        {project.folderPath ? 'תיקיה' : 'ענן'}
+                      </Button>
                     )}
                   </div>
                 </div>
-              </div>
-
-              {/* Contact Actions */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
-                <div 
-                  className="flex flex-wrap gap-2" 
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ContactButtons
-                    phone={project.phone1}
-                    whatsapp={project.whatsapp1}
-                    email={project.email}
-                    className="flex-wrap"
-                  />
-                  {(project.folderPath || project.icloudLink) && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        await openFolder(project.folderPath || '', project.icloudLink);
-                      }}
-                      className="text-xs hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
-                      title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}
-                    >
-                      <FolderOpen className="h-3 w-3 mr-1" />
-                      {project.folderPath ? 'תיקיה' : 'ענן'}
-                    </Button>
-                  )}
-                </div>
-              </div>
+              )}
 
               {/* Tasks Section */}
               <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-lg border border-indigo-200/50">

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { logger } from '@/utils/logger';
 import { FolderService } from '../services';
 
 export interface FolderResult {
@@ -13,7 +14,7 @@ export const useLocalFolders = () => {
     try {
       return await FolderService.selectFolder();
     } catch (error) {
-      console.error('Error selecting folder:', error);
+      logger.error('Error selecting folder:', error);
       return null;
     }
   }, []);
@@ -23,7 +24,7 @@ export const useLocalFolders = () => {
       await FolderService.openFolder(path);
       return true;
     } catch (error) {
-      console.warn(`Failed to open path: ${path}`, error);
+      logger.warn(`Failed to open path: ${path}`, error);
       return false;
     }
   }, []);
@@ -36,7 +37,7 @@ export const useLocalFolders = () => {
       }
       return false;
     } catch (error) {
-      console.error('Error opening folder:', error);
+      logger.error('Error opening folder:', error);
       return false;
     }
   }, []);
@@ -45,7 +46,7 @@ export const useLocalFolders = () => {
     try {
       return await attemptAutoOpen(itemPath);
     } catch (error) {
-      console.error('Error showing item in folder:', error);
+      logger.error('Error showing item in folder:', error);
       return false;
     }
   }, [attemptAutoOpen]);
