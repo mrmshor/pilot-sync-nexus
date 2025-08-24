@@ -74,6 +74,13 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_basic_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       project_tasks: {
@@ -113,6 +120,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_basic_view"
             referencedColumns: ["id"]
           },
         ]
@@ -191,7 +205,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      projects_basic_view: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          created_by: string | null
+          deadline: string | null
+          description: string | null
+          folder_path: string | null
+          icloud_link: string | null
+          id: string | null
+          name: string | null
+          priority: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          deadline?: string | null
+          description?: string | null
+          folder_path?: string | null
+          icloud_link?: string | null
+          id?: string | null
+          name?: string | null
+          priority?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          deadline?: string | null
+          description?: string | null
+          folder_path?: string | null
+          icloud_link?: string | null
+          id?: string | null
+          name?: string | null
+          priority?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_access_client_data: {
