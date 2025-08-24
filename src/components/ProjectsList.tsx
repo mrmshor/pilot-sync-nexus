@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { logger } from '@/utils/logger';
+import { SecurityIndicator } from './SecurityIndicator';
 import {
   Search, Edit, Trash2, User, FolderOpen, AlertTriangle,
   CheckCircle2, CreditCard, Plus, X, Calendar, Clock, Filter, SortAsc, SortDesc
@@ -300,13 +301,19 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
             <div className="p-6 pb-3 bg-gradient-to-r from-white/50 to-transparent backdrop-blur">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-700 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-2 leading-tight line-clamp-2 tracking-wide hover:from-blue-600 hover:via-purple-500 hover:to-blue-700 transition-colors duration-300">
-                    {project.name}
-                  </h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-700 via-purple-600 to-blue-800 bg-clip-text text-transparent leading-tight line-clamp-2 tracking-wide hover:from-blue-600 hover:via-purple-500 hover:to-blue-700 transition-colors duration-300">
+                      {project.name}
+                    </h3>
+                    <SecurityIndicator 
+                      hasSensitiveAccess={project.hasSensitiveAccess || false}
+                      className="text-xs"
+                    />
+                  </div>
                   <div className="flex items-center gap-2 mb-2">
                     <User className="h-4 w-4 text-gray-500" />
                     <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
-                      {project.clientName}
+                      {project.clientName || 'פרטי לקוח מוגבלים'}
                     </span>
                   </div>
                 </div>
@@ -359,7 +366,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               )}
 
               {/* Price Section - Only show if user has access */}
-              {project.hasSensitiveAccess !== false && (
+              {project.hasSensitiveAccess && (
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200/50">
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-semibold text-green-600">
@@ -390,7 +397,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               )}
 
               {/* Restricted Access Notice */}
-              {project.hasSensitiveAccess === false && (
+              {!project.hasSensitiveAccess && (
                 <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg border border-amber-200/50">
                   <div className="flex items-center gap-2 text-amber-700">
                     <AlertTriangle className="h-4 w-4" />
@@ -402,7 +409,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               )}
 
               {/* Contact Actions - Only show if not restricted */}
-              {(project.hasSensitiveAccess !== false) && (
+              {project.hasSensitiveAccess && (
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
                   <div 
                     className="flex flex-wrap gap-2" 

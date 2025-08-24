@@ -264,6 +264,29 @@ export type Database = {
         Args: { p_current_user_id: string; p_target_user_id: string }
         Returns: boolean
       }
+      update_project_secure: {
+        Args: {
+          p_client_name?: string
+          p_completed?: boolean
+          p_currency?: string
+          p_deadline?: string
+          p_description?: string
+          p_email?: string
+          p_folder_path?: string
+          p_icloud_link?: string
+          p_name?: string
+          p_paid?: boolean
+          p_phone1?: string
+          p_phone2?: string
+          p_price?: number
+          p_priority?: string
+          p_project_id: string
+          p_status?: string
+          p_whatsapp1?: string
+          p_whatsapp2?: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
