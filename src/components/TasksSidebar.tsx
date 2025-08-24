@@ -228,42 +228,57 @@ export function TasksSidebar() {
   return (
     <div className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 bg-white border-l shadow-lg z-40 flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center gap-2">
-          <CheckSquare className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold">משימות אישיות</h2>
-        </div>
+      <div className="p-4 border-b border-gray-200/30 dark:border-gray-700/30 flex-shrink-0 bg-gradient-to-b from-gray-50/50 to-transparent dark:from-gray-800/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="relative p-2 bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-xl shadow-sm">
+              <CheckSquare className="w-4 h-4 text-primary" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-xl animate-pulse"></div>
+            </div>
+            <div>
+              <div className="relative">
+                <h2 className="text-sm font-semibold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                  משימות אישיות
+                </h2>
+                <div className="absolute -bottom-0.5 right-0 w-8 h-0.5 bg-gradient-to-l from-primary/60 to-transparent rounded-full"></div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {tasks.length} משימות
+              </p>
+            </div>
+          </div>
         
-        <div className="flex gap-1">
-          {completedTasks.length > 0 && (
+          <div className="flex gap-1">
+            {completedTasks.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={clearCompleted}
+                title="נקה משימות מושלמות"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+            
+            {pendingTasks.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={exportPendingTasksToNotes}
+                title="ייצא להערות"
+              >
+                <Share className="w-4 h-4" />
+              </Button>
+            )}
+            
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={clearCompleted}
-              title="נקה משימות מושלמות"
+              onClick={() => setIsCollapsed(true)}
             >
-              <Trash2 className="w-4 h-4" />
+              <X className="w-4 h-4" />
             </Button>
-          )}
-          
-          {pendingTasks.length > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={exportPendingTasksToNotes}
-              title="ייצא להערות"
-            >
-              <Share className="w-4 h-4" />
-            </Button>
-          )}
-          
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => setIsCollapsed(true)}
-          >
-            <X className="w-4 h-4" />
-          </Button>
+          </div>
         </div>
       </div>
 
