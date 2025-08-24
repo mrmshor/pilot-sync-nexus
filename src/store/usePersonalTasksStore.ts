@@ -11,6 +11,7 @@ export interface PersonalTask {
   createdAt: Date;
   updatedAt: Date;
   completed_at?: Date;
+  user_id: string;
 }
 
 interface PersonalTasksStore {
@@ -19,7 +20,7 @@ interface PersonalTasksStore {
   isSyncing: boolean;
   lastSyncError: string | null;
   initializeSupabase: () => Promise<void>;
-  addTask: (task: Omit<PersonalTask, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  addTask: (task: Omit<PersonalTask, 'id' | 'createdAt' | 'updatedAt' | 'user_id'>) => Promise<void>;
   updateTask: (id: string, updates: Partial<PersonalTask>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   toggleTask: (id: string) => Promise<void>;
@@ -34,6 +35,7 @@ const convertSupabaseTask = (task: any): PersonalTask => ({
   createdAt: new Date(task.created_at),
   updatedAt: new Date(task.updated_at),
   completed_at: task.completed_at ? new Date(task.completed_at) : undefined,
+  user_id: task.user_id,
 });
 
 const convertToSupabaseTask = (task: PersonalTask) => ({
@@ -44,37 +46,15 @@ const convertToSupabaseTask = (task: PersonalTask) => ({
   created_at: task.createdAt.toISOString(),
   updated_at: task.updatedAt.toISOString(),
   completed_at: task.completed_at?.toISOString() || null,
-  workspace_id: 'default'
+  workspace_id: 'default',
+  user_id: task.user_id
 });
 
 export const usePersonalTasksStore = create<PersonalTasksStore>()(
   persist(
     (set, get) => ({
       tasks: [
-        {
-          id: '1',
-          title: 'לקרוא לספק חומרים',
-          completed: false,
-          priority: 'גבוהה',
-          createdAt: new Date('2024-01-20'),
-          updatedAt: new Date(),
-        },
-        {
-          id: '2',
-          title: 'לעדכן מחירון',
-          completed: true,
-          priority: 'בינונית',
-          createdAt: new Date('2024-01-18'),
-          updatedAt: new Date(),
-        },
-        {
-          id: '3',
-          title: 'לתקן דואר אלקטרוני',
-          completed: false,
-          priority: 'נמוכה',
-          createdAt: new Date('2024-01-22'),
-          updatedAt: new Date(),
-        },
+        // Start with empty tasks - they'll be loaded from Supabase when authenticated
       ],
       isLoading: false,
       isSyncing: false,
@@ -111,6 +91,12 @@ export const usePersonalTasksStore = create<PersonalTasksStore>()(
       syncWithSupabase: async () => {
         set({ isSyncing: true, lastSyncError: null });
         try {
+          // Check if user is authenticated
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            throw new Error('User not authenticated');
+          }
+
           const { data, error } = await supabase
             .from('personal_tasks')
             .select('*')
@@ -131,11 +117,18 @@ export const usePersonalTasksStore = create<PersonalTasksStore>()(
       },
 
       addTask: async (taskData) => {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error('User not authenticated');
+        }
+
         const newTask: PersonalTask = {
           ...taskData,
           id: crypto.randomUUID(),
           createdAt: new Date(),
           updatedAt: new Date(),
+          user_id: user.id,
         };
 
         // Optimistic update
