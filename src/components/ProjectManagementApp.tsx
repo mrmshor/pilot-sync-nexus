@@ -1841,7 +1841,7 @@ export const ProjectManagementApp = () => {
               onClick={() => setShowMobileTasksSidebar(false)}
             ></div>
             <div className="absolute right-0 top-0 h-full w-80 sm:w-96 md:w-[420px] max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-l border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-right">
-              <div className="h-screen overflow-hidden flex flex-col ios-scroll-fix">
+              <div className="h-screen flex flex-col mobile-sidebar-scroll">
                 <TasksSidebar />
               </div>
             </div>

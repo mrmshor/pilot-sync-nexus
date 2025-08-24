@@ -473,10 +473,28 @@ All colors MUST be HSL.
     }
   }
 
-  /* iOS scrolling fix */
+  /* iOS scrolling improvements */
   .ios-scroll-fix {
     -webkit-overflow-scrolling: touch;
     overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+  
+  /* Fix for iOS Safari scroll areas */
+  .scroll-area-viewport {
+    height: 100% !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Improved mobile scroll container */
+  @media (max-width: 1023px) {
+    .mobile-sidebar-scroll {
+      height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
   }
 
   /* Prevent body scroll when sidebar open on mobile */

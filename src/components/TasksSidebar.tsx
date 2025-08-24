@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -53,9 +53,17 @@ export function TasksSidebar() {
     addTask, 
     toggleTask, 
     deleteTask, 
-    updateTask
+    updateTask,
+    initializeSupabase,
+    isSyncing,
+    lastSyncError
   } = usePersonalTasksStore();
   const { toast } = useToast();
+
+  // Initialize Supabase connection on mount
+  useEffect(() => {
+    initializeSupabase();
+  }, [initializeSupabase]);
 
   // משימות לא מושלמות, ממויינות לפי עדיפות
   const pendingTasks = tasks
@@ -345,11 +353,21 @@ export function TasksSidebar() {
         <div className="flex gap-2 mt-3 text-sm text-muted-foreground">
           <Badge variant="outline" className="py-1 px-2">{pendingTasks.length} ממתינות</Badge>
           <Badge variant="outline" className="py-1 px-2">{completedTasks.length} הושלמו</Badge>
+          {isSyncing && (
+            <Badge variant="secondary" className="py-1 px-2 bg-blue-50 text-blue-700 animate-pulse">
+              מסנכרן...
+            </Badge>
+          )}
+          {lastSyncError && (
+            <Badge variant="destructive" className="py-1 px-2 text-xs">
+              שגיאת סנכרון
+            </Badge>
+          )}
         </div>
       </div>
 
       {/* Tasks List */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 ios-scroll-fix">
         <div className="p-4">
           {/* Pending Tasks */}
           {pendingTasks.length > 0 && (
