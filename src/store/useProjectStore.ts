@@ -41,26 +41,32 @@ const convertFromSupabase = (data: any): Project => ({
 });
 
 // Convert to Supabase format
-const convertToSupabase = (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => ({
-  name: project.name,
-  description: project.description,
-  client_name: project.clientName,
-  phone1: project.phone1,
-  phone2: project.phone2,
-  whatsapp1: project.whatsapp1,
-  whatsapp2: project.whatsapp2,
-  email: project.email,
-  folder_path: project.folderPath,
-  icloud_link: project.icloudLink,
-  status: project.status,
-  priority: project.priority,
-  price: project.price,
-  currency: project.currency,
-  paid: project.paid,
-  completed: project.completed,
-  deadline: project.deadline?.toISOString(),
-  created_by: 'dc0b20c7-8f24-4f8a-9a5c-e35a5e247c80' // Fixed for demo
-});
+const convertToSupabase = async (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => {
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+  
+  return {
+    name: project.name,
+    description: project.description,
+    client_name: project.clientName,
+    phone1: project.phone1,
+    phone2: project.phone2,
+    whatsapp1: project.whatsapp1,
+    whatsapp2: project.whatsapp2,
+    email: project.email,
+    folder_path: project.folderPath,
+    icloud_link: project.icloudLink,
+    status: project.status,
+    priority: project.priority,
+    price: project.price,
+    currency: project.currency,
+    paid: project.paid,
+    completed: project.completed,
+    deadline: project.deadline?.toISOString(),
+    created_by: user.id
+  };
+};
 
 interface ProjectStore {
   projects: Project[];
@@ -233,7 +239,7 @@ export const useProjectStore = create<ProjectStore>()(
       addProject: async (projectData) => {
         set({ isSyncing: true });
         try {
-          const supabaseData = convertToSupabase(projectData);
+          const supabaseData = await convertToSupabase(projectData);
           
           const { data, error } = await supabase
             .from('projects')
@@ -249,6 +255,9 @@ export const useProjectStore = create<ProjectStore>()(
             projects: [newProject, ...state.projects],
             isSyncing: false
           }));
+          
+          // Refresh data to make sure we have the latest state
+          await get().syncWithSupabase();
           
           console.log('Project added to Supabase:', newProject);
         } catch (error) {
