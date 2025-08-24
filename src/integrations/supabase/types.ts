@@ -74,6 +74,13 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_limited"
+            referencedColumns: ["id"]
+          },
         ]
       }
       project_tasks: {
@@ -113,6 +120,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_limited"
             referencedColumns: ["id"]
           },
         ]
@@ -191,7 +205,78 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      projects_limited: {
+        Row: {
+          client_name: string | null
+          completed: boolean | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          deadline: string | null
+          description: string | null
+          email: string | null
+          folder_path: string | null
+          icloud_link: string | null
+          id: string | null
+          name: string | null
+          paid: boolean | null
+          phone1: string | null
+          phone2: string | null
+          price: number | null
+          priority: string | null
+          status: string | null
+          updated_at: string | null
+          whatsapp1: string | null
+          whatsapp2: string | null
+        }
+        Insert: {
+          client_name?: never
+          completed?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          deadline?: string | null
+          description?: string | null
+          email?: never
+          folder_path?: string | null
+          icloud_link?: string | null
+          id?: string | null
+          name?: string | null
+          paid?: boolean | null
+          phone1?: never
+          phone2?: never
+          price?: number | null
+          priority?: string | null
+          status?: string | null
+          updated_at?: string | null
+          whatsapp1?: never
+          whatsapp2?: never
+        }
+        Update: {
+          client_name?: never
+          completed?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          deadline?: string | null
+          description?: string | null
+          email?: never
+          folder_path?: string | null
+          icloud_link?: string | null
+          id?: string | null
+          name?: string | null
+          paid?: boolean | null
+          phone1?: never
+          phone2?: never
+          price?: number | null
+          priority?: string | null
+          status?: string | null
+          updated_at?: string | null
+          whatsapp1?: never
+          whatsapp2?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_project_role: {
