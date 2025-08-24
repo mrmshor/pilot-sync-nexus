@@ -92,9 +92,10 @@ export const ProjectManagementApp = () => {
         return;
       }
       
-      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+      // Header appears faster when scrolling up or near top
+      if (currentScrollY < lastScrollY || currentScrollY < 30) {
         setHeaderVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      } else if (currentScrollY > lastScrollY && currentScrollY > 80) {
         setHeaderVisible(false);
       }
       
@@ -1860,6 +1861,29 @@ export const ProjectManagementApp = () => {
             </div>
           </div>
         )}
+
+        {/* Mobile Floating Navigation Buttons - Always Visible */}
+        <div className="xl:hidden fixed bottom-6 left-4 right-4 z-50 flex justify-between items-center pointer-events-none floating-nav-bottom">
+          <Button
+            variant="default"
+            size="lg"
+            onClick={() => setShowMobileProjectsSidebar(true)}
+            className="shadow-2xl bg-gradient-primary text-white border-none hover:scale-110 transition-all duration-200 pointer-events-auto min-h-[56px] min-w-[56px] rounded-full p-3"
+          >
+            <FolderOpen className="h-6 w-6" />
+            <span className="sr-only">פרויקטים</span>
+          </Button>
+          
+          <Button
+            variant="default"
+            size="lg"
+            onClick={() => setShowMobileTasksSidebar(true)}
+            className="shadow-2xl bg-gradient-primary text-white border-none hover:scale-110 transition-all duration-200 pointer-events-auto min-h-[56px] min-w-[56px] rounded-full p-3"
+          >
+            <CheckSquare className="h-6 w-6" />
+            <span className="sr-only">משימות</span>
+          </Button>
+        </div>
 
         {/* Swipe Indicators - Show on first visit */}
         {!showMobileTasksSidebar && !showMobileProjectsSidebar && (

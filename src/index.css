@@ -434,7 +434,7 @@ All colors MUST be HSL.
     }
   }
 
-  /* Mobile touch targets */
+  /* Mobile floating buttons */
   @media (max-width: 767px) {
     .mobile-touch-target {
       min-height: 44px;
@@ -450,6 +450,11 @@ All colors MUST be HSL.
     /* Prevent zoom on input focus (iOS) */
     input, textarea, select {
       font-size: 16px !important;
+    }
+    
+    /* Floating buttons area */
+    .floating-nav-bottom {
+      bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
     }
   }
 
