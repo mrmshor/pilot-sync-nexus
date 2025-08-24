@@ -180,25 +180,60 @@ export const ContactService = {
           } catch {}
         }
       } else {
-        const candidateUrls = isMobileUA ? [waUrl, apiUrl] : [webUrl, waUrl, apiUrl];
-        for (const url of candidateUrls) {
-          console.log('Trying URL:', url);
-          if (tryOpen(url)) { opened = true; break; }
-        }
-        if (!opened) {
-          // מוצא אחרון: פריצה מה-iframe
-          try {
-            if (inIframe && window.top) {
-              // @ts-ignore
-              window.top.location.href = (isMobileUA ? waUrl : webUrl);
-              opened = true;
-            } else {
-              window.location.href = (isMobileUA ? waUrl : webUrl);
-              opened = true;
-            }
-          } catch (e) {
-            console.error('Top-level navigation failed', e);
+        if (isMobileUA) {
+          const candidateUrls = [waUrl, apiUrl];
+          for (const url of candidateUrls) {
+            console.log('Trying URL:', url);
+            if (tryOpen(url)) { opened = true; break; }
           }
+          if (!opened) {
+            // מוצא אחרון: פריצה מה-iframe
+            try {
+              if (inIframe && window.top) {
+                // @ts-ignore
+                window.top.location.href = waUrl;
+                opened = true;
+              } else {
+                window.location.href = waUrl;
+                opened = true;
+              }
+            } catch (e) {
+              console.error('Top-level navigation failed', e);
+            }
+          }
+        } else {
+          // Desktop: נסה לפתוח את אפליקציית וואטסאפ דסקטופ (protocol handler), ואז fallback ל-Web
+          console.log('Attempting WhatsApp Desktop via protocol handler:', deepLink);
+          let cancelled = false;
+          const onVisibility = () => {
+            if (document.hidden) {
+              cancelled = true;
+              clearTimeout(fallbackTimer);
+              document.removeEventListener('visibilitychange', onVisibility);
+              console.log('Visibility changed, assuming WhatsApp Desktop opened');
+            }
+          };
+          document.addEventListener('visibilitychange', onVisibility);
+          const fallbackTimer = window.setTimeout(() => {
+            document.removeEventListener('visibilitychange', onVisibility);
+            if (cancelled) return;
+            console.warn('Deep link did not trigger, falling back to web.whatsapp.com');
+            if (!tryOpen(webUrl)) {
+              if (!tryOpen(waUrl)) {
+                window.location.href = apiUrl;
+              }
+            }
+          }, 1200);
+
+          // ניסיון פתיחה דרך חלון חדש כדי להקטין חסימת פופאפים
+          if (!tryOpen(deepLink)) {
+            try {
+              window.location.href = deepLink;
+            } catch (e) {
+              console.warn('Location deep link failed, will rely on fallback', e);
+            }
+          }
+          opened = true;
         }
       }
 
