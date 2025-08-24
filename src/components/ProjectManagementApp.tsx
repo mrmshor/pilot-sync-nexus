@@ -1057,7 +1057,7 @@ export const ProjectManagementApp = () => {
 
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto">
-            <div className="container mx-auto px-4 py-6 pb-20 md:pb-6">{/* Added extra bottom padding for mobile */}
+            <div className="container mx-auto px-3 py-4 pb-24 md:px-4 md:py-6 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
               {/* Content */}
               <main>
                 {activeTab === 'dashboard' && (
@@ -1525,7 +1525,7 @@ export const ProjectManagementApp = () => {
                 {activeTab === 'projects' && (
                   <div className="space-y-6">
                     {/* Projects Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">{/* Smaller gaps on mobile */}
                       {filteredAndSortedProjects.map((project) => {
                         const completedTasks = project.tasks.filter(t => t.completed).length;
                         const totalTasks = project.tasks.length;
@@ -1533,30 +1533,29 @@ export const ProjectManagementApp = () => {
 
                         return (
                           <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group">
-                            {/* ... keep existing code (project card content) */}
-                            <CardHeader className="pb-4">
+                            <CardHeader className="pb-3 md:pb-4">
                               <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <CardTitle className="text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
+                                <div className="flex-1 min-w-0">
+                                  <CardTitle className="text-lg md:text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
                                     {project.name}
                                   </CardTitle>
                                   <div className="flex items-center gap-2 mb-3">
-                                    <User className="w-4 h-4 text-muted-foreground" />
-                                    <span className="text-sm text-muted-foreground">
+                                    <User className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground" />
+                                    <span className="text-xs md:text-sm text-muted-foreground truncate">
                                       {project.clientName}
                                     </span>
                                   </div>
                                 </div>
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-1 md:gap-2 ml-2">
                                   <StatusDropdown
                                     value={project.status}
                                     onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
-                                    className="w-32"
+                                    className="w-24 md:w-32 text-xs"
                                   />
                                   <PriorityDropdown
                                     value={project.priority}
                                     onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
-                                    className="w-32"
+                                    className="w-24 md:w-32 text-xs"
                                   />
                                 </div>
                               </div>
