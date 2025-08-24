@@ -23,7 +23,7 @@ import { PriorityDropdown } from './PriorityDropdown';
 import { TasksSidebar } from './TasksSidebar';
 import { ProjectTasksModal } from './ProjectTasksModal';
 import { ProjectEditModal } from './ProjectEditModal';
-
+import { useProjectStore } from '@/store/useProjectStore';
 import { ProjectsSidebar } from './ProjectsSidebar';
 import { Progress } from '@/components/ui/progress';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -32,7 +32,18 @@ import { format, startOfWeek, endOfWeek } from 'date-fns';
 import { he } from 'date-fns/locale';
 
 export const ProjectManagementApp = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+  // Use the project store instead of local state
+  const { 
+    projects, 
+    addProject, 
+    updateProject, 
+    deleteProject,
+    tasks,
+    addTask: addProjectTask,
+    updateTask: updateProjectTask,
+    deleteTask: deleteProjectTask
+  } = useProjectStore();
+  
   const [quickTasks, setQuickTasks] = useState<QuickTask[]>([]);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'projects'>('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
@@ -211,105 +222,7 @@ export const ProjectManagementApp = () => {
     }
   }, [preserveScroll, projects]);
 
-  // Load sample data
-  useEffect(() => {
-    const sampleProjects: Project[] = [
-      {
-        id: '1',
-        name: 'פיתוח אתר אינטרנט עסקי מתקדם',
-        description: 'פיתוח אתר תדמית עסקי מתקדם עם מערכת ניהול תוכן ומערכת הזמנות מקוונת',
-        clientName: 'אליעזר שפירא',
-        phone1: '+972-54-628-2522',
-        phone2: '',
-        whatsapp1: '+972-54-628-2522',
-        whatsapp2: '',
-        email: 'eliezer@business.co.il',
-        folderPath: '/Users/Projects/WebDev/Eliezer',
-        icloudLink: 'https://icloud.com/project1',
-        status: 'in-progress',
-        priority: 'high',
-        price: 15000,
-        currency: 'ILS',
-        paid: false,
-        completed: false,
-        deadline: new Date('2024-02-28'),
-        createdAt: new Date('2024-01-15'),
-        updatedAt: new Date(),
-        tasks: [
-          { id: '1', title: 'לחזור בקרוב', completed: false, createdAt: new Date('2024-01-16') },
-          { id: '2', title: 'לבצע עיצוב ראשוני', completed: true, createdAt: new Date('2024-01-20'), completedAt: new Date('2024-01-25') },
-          { id: '3', title: 'להזמין חומר', completed: false, createdAt: new Date('2024-01-21') },
-          { id: '4', title: 'לעדכן מחיר', completed: false, createdAt: new Date('2024-01-21') },
-          { id: '5', title: 'לתקן קבצים לשליחה לאישור סופי', completed: false, createdAt: new Date('2024-01-21') }
-        ],
-        subtasks: []
-      },
-      {
-        id: '2',
-        name: 'עיצוב לוגו וזהות חזותית',
-        description: 'יצירת לוגו מקצועי וחבילת זהות חזותית מלאה כולל כרטיסי ביקור וניירת',
-        clientName: 'אברהם קורן',
-        phone1: '+972-50-123-4567',
-        phone2: '',
-        whatsapp1: '+972-50-123-4567',
-        whatsapp2: '',
-        email: 'avraham@company.com',
-        folderPath: '',
-        icloudLink: '',
-        status: 'on-hold',
-        priority: 'medium',
-        price: 8000,
-        currency: 'ILS',
-        paid: false,
-        completed: false,
-        deadline: new Date('2024-02-10'),
-        createdAt: new Date('2024-02-01'),
-        updatedAt: new Date('2024-02-15'),
-        tasks: [],
-        subtasks: []
-      },
-      {
-        id: '3',
-        name: 'פאציים עור לבגדים',
-        description: 'תיקון והוספת פאציים עור איכותיים לפריטי ביגוד שונים',
-        clientName: 'שלמה קויץ',
-        phone1: '+972-52-877-3801',
-        phone2: '+972-53-340-8665',
-        whatsapp1: '+972-52-877-3801',
-        whatsapp2: '+972-53-340-8665',
-        email: 'shlomo@leather.co.il',
-        folderPath: '',
-        icloudLink: 'https://icloud.com/leather-project',
-        status: 'in-progress',
-        priority: 'high',
-        price: 4030,
-        currency: 'ILS',
-        paid: false,
-        completed: false,
-        deadline: new Date('2024-02-05'),
-        createdAt: new Date('2024-01-20'),
-        updatedAt: new Date('2024-02-10'),
-        tasks: [
-          { id: '1', title: 'מדידת הבגדים', completed: true, createdAt: new Date('2024-01-21'), completedAt: new Date('2024-01-25') },
-          { id: '2', title: 'הזמנת חומרי גלם', completed: false, createdAt: new Date('2024-01-26') }
-        ],
-        subtasks: []
-      }
-    ];
-
-    console.log('🔄 Before setProjects - current count:', projects.length);
-    setProjects(sampleProjects);
-    console.log('✅ Projects set successfully - new count should be:', sampleProjects.length);
-    console.log('📊 Stats calculated:', {
-      total: sampleProjects.length,
-      completed: sampleProjects.filter(p => p.completed).length,
-      inProgress: sampleProjects.filter(p => p.status === 'in-progress').length
-    });
-    toast({
-      title: "מערכת נטענה בהצלחה",
-      description: `נטענו ${sampleProjects.length} פרויקטים`,
-    });
-  }, [toast]);
+  // Data is now loaded from the store, no need for sample data effect
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -658,26 +571,17 @@ export const ProjectManagementApp = () => {
   };
 
   const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => {
-    const newProject: Project = {
-      ...projectData,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      tasks: [],
-      subtasks: []
-    };
-    
-    setProjects(prev => [...prev, newProject]);
+    addProject(projectData);
     setShowCreateModal(false);
     toast({
       title: "פרויקט נוצר בהצלחה",
-      description: `פרויקט "${newProject.name}" נוסף למערכת`,
+      description: `פרויקט "${projectData.name}" נוסף למערכת`,
     });
   };
 
   const handleUpdateProject = (updatedProject: Project) => {
     saveScrollPosition();
-    setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+    updateProject(updatedProject.id, updatedProject);
     toast({
       title: "פרויקט עודכן בהצלחה",
       description: `הפרויקט "${updatedProject.name}" עודכן במערכת`,
@@ -687,7 +591,7 @@ export const ProjectManagementApp = () => {
   const handleDeleteProject = (projectId: string) => {
     const project = projects.find(p => p.id === projectId);
     if (project && window.confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${project.name}"?`)) {
-      setProjects(prev => prev.filter(p => p.id !== projectId));
+      deleteProject(projectId);
       toast({
         title: "פרויקט נמחק",
         description: `הפרויקט "${project.name}" נמחק מהמערכת`,
@@ -725,61 +629,58 @@ export const ProjectManagementApp = () => {
   // Project Tasks handlers
   const handleAddProjectTask = (projectId: string, title: string) => {
     saveScrollPosition();
-    const newTask: ProjectTask = {
-      id: Date.now().toString(),
-      title,
-      completed: false,
-      createdAt: new Date()
-    };
-    
-    setProjects(prev => prev.map(project => 
-      project.id === projectId 
-        ? { ...project, tasks: [newTask, ...project.tasks], updatedAt: new Date() }
-        : project
-    ));
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      const newTask: ProjectTask = {
+        id: Date.now().toString(),
+        title,
+        completed: false,
+        createdAt: new Date()
+      };
+      
+      updateProject(projectId, {
+        tasks: [newTask, ...project.tasks],
+        updatedAt: new Date()
+      });
+    }
   };
 
   const handleToggleProjectTask = (projectId: string, taskId: string) => {
     saveScrollPosition();
-    setProjects(prev => prev.map(project => 
-      project.id === projectId 
-        ? {
-            ...project,
-            tasks: project.tasks.map(task => 
-              task.id === taskId 
-                ? { 
-                    ...task, 
-                    completed: !task.completed,
-                    completedAt: !task.completed ? new Date() : undefined
-                  }
-                : task
-            )
-          }
-        : project
-    ));
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      const updatedTasks = project.tasks.map(task => 
+        task.id === taskId 
+          ? { 
+              ...task, 
+              completed: !task.completed,
+              completedAt: !task.completed ? new Date() : undefined
+            }
+          : task
+      );
+      updateProject(projectId, {
+        tasks: updatedTasks,
+        updatedAt: new Date()
+      });
+    }
   };
 
   const handleDeleteProjectTask = (projectId: string, taskId: string) => {
     saveScrollPosition();
-    setProjects(prev => prev.map(project => 
-      project.id === projectId 
-        ? {
-            ...project,
-            tasks: project.tasks.filter(task => task.id !== taskId),
-            updatedAt: new Date()
-          }
-        : project
-    ));
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      const updatedTasks = project.tasks.filter(task => task.id !== taskId);
+      updateProject(projectId, {
+        tasks: updatedTasks,
+        updatedAt: new Date()
+      });
+    }
   };
 
   // Status and Priority handlers for external buttons
   const updateProjectStatus = (projectId: string, newStatus: Project['status']) => {
     saveScrollPosition();
-    setProjects(prev => prev.map(project => 
-      project.id === projectId 
-        ? { ...project, status: newStatus }
-        : project
-    ));
+    updateProject(projectId, { status: newStatus });
     toast({
       title: "סטטוס עודכן",
       description: "סטטוס הפרויקט עודכן בהצלחה",
@@ -788,11 +689,7 @@ export const ProjectManagementApp = () => {
 
   const updateProjectPriority = (projectId: string, newPriority: Project['priority']) => {
     saveScrollPosition();
-    setProjects(prev => prev.map(project => 
-      project.id === projectId 
-        ? { ...project, priority: newPriority }
-        : project
-    ));
+    updateProject(projectId, { priority: newPriority });
     toast({
       title: "עדיפות עודכנה",
       description: "עדיפות הפרויקט עודכנה בהצלחה",
@@ -801,11 +698,7 @@ export const ProjectManagementApp = () => {
 
   const toggleProjectPaid = (projectId: string) => {
     saveScrollPosition();
-    setProjects(prev => prev.map(project => 
-      project.id === projectId 
-        ? { ...project, paid: !project.paid }
-        : project
-    ));
+    updateProject(projectId, { paid: !projects.find(p => p.id === projectId)?.paid });
   };
 
   const getStatusBadgeVariant = (status: string) => {

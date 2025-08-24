@@ -1,15 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-export interface Project {
-  id: string;
-  name: string;
-  description: string;
-  status: 'תכנון' | 'פעיל' | 'בהמתנה' | 'הושלם';
-  priority: 'נמוכה' | 'בינונית' | 'גבוהה';
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Project, ProjectTask } from '@/types';
 
 export interface Task {
   id: string;
@@ -25,7 +16,7 @@ export interface Task {
 interface ProjectStore {
   projects: Project[];
   tasks: Task[];
-  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => void;
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -39,21 +30,55 @@ export const useProjectStore = create<ProjectStore>()(
       projects: [
         {
           id: '1',
-          name: 'פיתוח אתר חברה',
-          description: 'פיתוח אתר תדמית עסקי מתקדם',
-          status: 'פעיל',
-          priority: 'גבוהה',
+          name: 'פיתוח אתר אינטרנט עסקי מתקדם',
+          description: 'פיתוח אתר תדמית עסקי מתקדם עם מערכת ניהול תוכן ומערכת הזמנות מקוונת',
+          clientName: 'אליעזר שפירא',
+          phone1: '+972-54-628-2522',
+          phone2: '',
+          whatsapp1: '+972-54-628-2522',
+          whatsapp2: '',
+          email: 'eliezer@business.co.il',
+          folderPath: '/Users/Projects/WebDev/Eliezer',
+          icloudLink: 'https://icloud.com/project1',
+          status: 'in-progress',
+          priority: 'high',
+          price: 15000,
+          currency: 'ILS',
+          paid: false,
+          completed: false,
+          deadline: new Date('2024-02-28'),
           createdAt: new Date('2024-01-15'),
           updatedAt: new Date(),
+          tasks: [
+            { id: '1', title: 'לחזור בקרוב', completed: false, createdAt: new Date('2024-01-16') },
+            { id: '2', title: 'לבצע עיצוב ראשוני', completed: true, createdAt: new Date('2024-01-20'), completedAt: new Date('2024-01-25') },
+            { id: '3', title: 'להזמין חומר', completed: false, createdAt: new Date('2024-01-21') },
+          ],
+          subtasks: []
         },
         {
           id: '2',
-          name: 'עיצוב לוגו',
-          description: 'יצירת לוגו מקצועי וזהות חזותית',
-          status: 'תכנון',
-          priority: 'בינונית',
+          name: 'עיצוב לוגו וזהות חזותית',
+          description: 'יצירת לוגו מקצועי וחבילת זהות חזותית מלאה כולל כרטיסי ביקור וניירת',
+          clientName: 'אברהם קורן',
+          phone1: '+972-50-123-4567',
+          phone2: '',
+          whatsapp1: '+972-50-123-4567',
+          whatsapp2: '',
+          email: 'avraham@company.com',
+          folderPath: '',
+          icloudLink: '',
+          status: 'on-hold',
+          priority: 'medium',
+          price: 8000,
+          currency: 'ILS',
+          paid: false,
+          completed: false,
+          deadline: new Date('2024-02-10'),
           createdAt: new Date('2024-02-01'),
-          updatedAt: new Date(),
+          updatedAt: new Date('2024-02-15'),
+          tasks: [],
+          subtasks: []
         },
       ],
       tasks: [
@@ -95,6 +120,8 @@ export const useProjectStore = create<ProjectStore>()(
               id: Date.now().toString(),
               createdAt: new Date(),
               updatedAt: new Date(),
+              tasks: [],
+              subtasks: []
             },
           ],
         })),

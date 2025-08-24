@@ -21,9 +21,10 @@ import {
   Filter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useProjectStore, Project } from '@/store/useProjectStore';
+import { useProjectStore } from '@/store/useProjectStore';
+import { Project } from '@/types';
 
-type Priority = 'נמוכה' | 'בינונית' | 'גבוהה';
+type Priority = 'low' | 'medium' | 'high';
 
 export function ProjectsSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -63,18 +64,18 @@ export function ProjectsSidebar() {
 
   const getPriorityColor = (priority: Priority) => {
     switch (priority) {
-      case 'גבוהה': return 'text-red-600';
-      case 'בינונית': return 'text-yellow-600';
-      case 'נמוכה': return 'text-green-600';
+      case 'high': return 'text-red-600';
+      case 'medium': return 'text-yellow-600';
+      case 'low': return 'text-green-600';
       default: return 'text-gray-600';
     }
   };
 
   const getPriorityIcon = (priority: Priority) => {
     switch (priority) {
-      case 'גבוהה': return <ArrowUp className="w-3 h-3" />;
-      case 'בינונית': return <ArrowRight className="w-3 h-3" />;
-      case 'נמוכה': return <ArrowDown className="w-3 h-3" />;
+      case 'high': return <ArrowUp className="w-3 h-3" />;
+      case 'medium': return <ArrowRight className="w-3 h-3" />;
+      case 'low': return <ArrowDown className="w-3 h-3" />;
       default: return <ArrowRight className="w-3 h-3" />;
     }
   };
@@ -186,33 +187,33 @@ export function ProjectsSidebar() {
                   </Badge>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setPriorityFilter('גבוהה')}
+                  onClick={() => setPriorityFilter('high')}
                   className="gap-2 cursor-pointer"
                 >
                   <ArrowUp className="w-4 h-4 text-red-600" />
                   גבוהה
                   <Badge variant="outline" className="ml-auto text-xs">
-                    {projects.filter(p => p.priority === 'גבוהה').length}
+                    {projects.filter(p => p.priority === 'high').length}
                   </Badge>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setPriorityFilter('בינונית')}
+                  onClick={() => setPriorityFilter('medium')}
                   className="gap-2 cursor-pointer"
                 >
                   <ArrowRight className="w-4 h-4 text-yellow-600" />
                   בינונית
                   <Badge variant="outline" className="ml-auto text-xs">
-                    {projects.filter(p => p.priority === 'בינונית').length}
+                    {projects.filter(p => p.priority === 'medium').length}
                   </Badge>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setPriorityFilter('נמוכה')}
+                  onClick={() => setPriorityFilter('low')}
                   className="gap-2 cursor-pointer"
                 >
                   <ArrowDown className="w-4 h-4 text-green-600" />
                   נמוכה
                   <Badge variant="outline" className="ml-auto text-xs">
-                    {projects.filter(p => p.priority === 'נמוכה').length}
+                    {projects.filter(p => p.priority === 'low').length}
                   </Badge>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -260,9 +261,9 @@ export function ProjectsSidebar() {
                             <span className="text-muted-foreground">•</span>
                             <div className="flex items-center gap-1">
                               <div className={cn("w-2 h-2 rounded-full", 
-                                project.status === 'פעיל' ? 'bg-green-500' :
-                                project.status === 'תכנון' ? 'bg-blue-500' :
-                                project.status === 'הושלם' ? 'bg-gray-500' : 'bg-yellow-500'
+                                project.status === 'in-progress' ? 'bg-green-500' :
+                                project.status === 'not-started' ? 'bg-blue-500' :
+                                project.status === 'completed' ? 'bg-gray-500' : 'bg-yellow-500'
                               )}></div>
                               <span className="text-muted-foreground">{project.status}</span>
                             </div>
