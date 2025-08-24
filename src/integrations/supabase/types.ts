@@ -233,10 +233,10 @@ export type Database = {
           icloud_link: string | null
           id: string | null
           name: string | null
-          paid: string | null
+          paid: boolean | null
           phone1: string | null
           phone2: string | null
-          price: string | null
+          price: number | null
           priority: string | null
           status: string | null
           updated_at: string | null
