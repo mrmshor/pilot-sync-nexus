@@ -16,6 +16,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   // Check if user is already logged in
@@ -28,6 +29,23 @@ export default function AuthPage() {
     };
     checkUser();
   }, [navigate]);
+
+  // Handle email verification on page load
+  useEffect(() => {
+    const handleEmailVerification = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const type = urlParams.get('type');
+      
+      if (token && type === 'signup') {
+        setSuccess('החשבון אומת בהצלחה! אתה יכול להתחבר כעת.');
+        // Clear URL parameters
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+    
+    handleEmailVerification();
+  }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +116,10 @@ export default function AuthPage() {
     }
   };
 
-  const resetError = () => setError('');
+  const resetError = () => {
+    setError('');
+    setSuccess('');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/30 flex items-center justify-center p-4" dir="rtl">
@@ -121,6 +142,12 @@ export default function AuthPage() {
             {error && (
               <Alert variant="destructive" className="mb-4">
                 <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {success && (
+              <Alert className="mb-4 border-green-200 bg-green-50 text-green-800">
+                <AlertDescription>{success}</AlertDescription>
               </Alert>
             )}
 
