@@ -11,7 +11,7 @@ export interface PersonalTask {
   createdAt: Date;
   updatedAt: Date;
   completed_at?: Date;
-  user_id: string;
+  user_id: string | null;
 }
 
 interface PersonalTasksStore {
@@ -91,12 +91,6 @@ export const usePersonalTasksStore = create<PersonalTasksStore>()(
       syncWithSupabase: async () => {
         set({ isSyncing: true, lastSyncError: null });
         try {
-          // Check if user is authenticated
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) {
-            throw new Error('User not authenticated');
-          }
-
           const { data, error } = await supabase
             .from('personal_tasks')
             .select('*')
@@ -104,8 +98,8 @@ export const usePersonalTasksStore = create<PersonalTasksStore>()(
             .order('created_at', { ascending: false });
 
           if (error) throw error;
-
-          const supabaseTasks = data.map(convertSupabaseTask);
+          
+          const supabaseTasks = (data || []).map(convertSupabaseTask);
           set({ tasks: supabaseTasks, lastSyncError: null });
           console.log('✅ Synced tasks from Supabase:', supabaseTasks.length);
         } catch (error) {
@@ -117,18 +111,12 @@ export const usePersonalTasksStore = create<PersonalTasksStore>()(
       },
 
       addTask: async (taskData) => {
-        // Get current user
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          throw new Error('User not authenticated');
-        }
-
         const newTask: PersonalTask = {
           ...taskData,
           id: crypto.randomUUID(),
           createdAt: new Date(),
           updatedAt: new Date(),
-          user_id: user.id,
+          user_id: null, // No authentication needed
         };
 
         // Optimistic update

@@ -23,7 +23,7 @@ export type Database = {
           priority: string
           title: string
           updated_at: string
-          user_id: string
+          user_id: string | null
           workspace_id: string
         }
         Insert: {
@@ -34,7 +34,7 @@ export type Database = {
           priority?: string
           title: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           workspace_id?: string
         }
         Update: {
@@ -45,7 +45,7 @@ export type Database = {
           priority?: string
           title?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           workspace_id?: string
         }
         Relationships: []
@@ -79,28 +79,28 @@ export type Database = {
       }
       project_members: {
         Row: {
-          added_by: string
+          added_by: string | null
           created_at: string
           id: string
           project_id: string
           role: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
-          added_by: string
+          added_by?: string | null
           created_at?: string
           id?: string
           project_id: string
           role?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
-          added_by?: string
+          added_by?: string | null
           created_at?: string
           id?: string
           project_id?: string
           role?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -117,7 +117,7 @@ export type Database = {
           completed: boolean | null
           completed_at: string | null
           created_at: string
-          created_by: string
+          created_by: string | null
           id: string
           project_id: string
           title: string
@@ -127,7 +127,7 @@ export type Database = {
           completed?: boolean | null
           completed_at?: string | null
           created_at?: string
-          created_by: string
+          created_by?: string | null
           id?: string
           project_id: string
           title: string
@@ -137,7 +137,7 @@ export type Database = {
           completed?: boolean | null
           completed_at?: string | null
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           id?: string
           project_id?: string
           title?: string
@@ -158,7 +158,7 @@ export type Database = {
           client_name: string | null
           completed: boolean | null
           created_at: string
-          created_by: string
+          created_by: string | null
           currency: string | null
           deadline: string | null
           description: string | null
@@ -181,7 +181,7 @@ export type Database = {
           client_name?: string | null
           completed?: boolean | null
           created_at?: string
-          created_by: string
+          created_by?: string | null
           currency?: string | null
           deadline?: string | null
           description?: string | null
@@ -204,7 +204,7 @@ export type Database = {
           client_name?: string | null
           completed?: boolean | null
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           currency?: string | null
           deadline?: string | null
           description?: string | null

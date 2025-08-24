@@ -41,11 +41,7 @@ const convertFromSupabase = (data: any): Project => ({
 });
 
 // Convert to Supabase format
-const convertToSupabase = async (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => {
-  // Get current user
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('User not authenticated');
-  
+const convertToSupabase = (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => {
   return {
     name: project.name,
     description: project.description,
@@ -64,7 +60,7 @@ const convertToSupabase = async (project: Omit<Project, 'id' | 'createdAt' | 'up
     paid: project.paid,
     completed: project.completed,
     deadline: project.deadline?.toISOString(),
-    created_by: user.id
+    created_by: null // No authentication needed
   };
 };
 
@@ -224,20 +220,6 @@ export const useProjectStore = create<ProjectStore>()(
         set({ isSyncing: true, lastSyncError: null });
         
         try {
-          // Check authentication first
-          const { data: { user }, error: authError } = await supabase.auth.getUser();
-          
-          if (authError) {
-            console.warn('Auth error during sync:', authError);
-            set({ isSyncing: false, lastSyncError: null });
-            return;
-          }
-
-          if (!user) {
-            console.warn('No authenticated user, skipping sync');
-            set({ isSyncing: false, lastSyncError: null });
-            return;
-          }
 
           // Fetch projects and tasks in parallel
           const [projectsRes, tasksRes] = await Promise.all([
@@ -316,14 +298,7 @@ export const useProjectStore = create<ProjectStore>()(
         set({ isSyncing: true, lastSyncError: null });
         
         try {
-          // Verify user authentication
-          const { data: { user }, error: authError } = await supabase.auth.getUser();
-          
-          if (authError || !user) {
-            throw new Error('יש להתחבר למערכת כדי ליצור פרויקט');
-          }
-
-          const supabaseData = await convertToSupabase(projectData);
+          const supabaseData = convertToSupabase(projectData);
           
           const { data, error } = await supabase
             .from('projects')
