@@ -253,7 +253,7 @@ export const useProjectStore = create<ProjectStore>()(
 
       // Add new project with Supabase sync
       addProject: async (projectData) => {
-        set({ isSyncing: true });
+        set({ isSyncing: true, lastSyncError: null });
         try {
           const supabaseData = await convertToSupabase(projectData);
           
@@ -263,7 +263,10 @@ export const useProjectStore = create<ProjectStore>()(
             .select()
             .single();
 
-          if (error) throw error;
+          if (error) {
+            console.error('Supabase insert error:', error);
+            throw error;
+          }
 
           const newProject = convertFromSupabase(data);
           
@@ -272,27 +275,27 @@ export const useProjectStore = create<ProjectStore>()(
             isSyncing: false
           }));
           
-          // Refresh data to make sure we have the latest state
-          await get().syncWithSupabase();
-          
-          console.log('Project added to Supabase:', newProject);
+          console.log('Project added to Supabase successfully:', newProject);
         } catch (error) {
           console.error('Error adding project:', error);
           set({ isSyncing: false, lastSyncError: 'שגיאה ביצירת פרויקט' });
+          
           // Add locally as fallback
+          const localProject = {
+            ...projectData,
+            id: `local-${Date.now()}`,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            tasks: [],
+            subtasks: []
+          };
+          
           set((state) => ({
-            projects: [
-              ...state.projects,
-              {
-                ...projectData,
-                id: Date.now().toString(),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                tasks: [],
-                subtasks: []
-              },
-            ],
+            projects: [localProject, ...state.projects],
           }));
+          
+          // Re-throw error to be handled by UI
+          throw error;
         }
       },
 

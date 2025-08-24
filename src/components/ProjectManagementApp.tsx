@@ -634,13 +634,22 @@ export const ProjectManagementApp = () => {
     }
   };
 
-  const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => {
-    addProject(projectData);
-    setShowCreateModal(false);
-    toast({
-      title: "פרויקט נוצר בהצלחה",
-      description: `פרויקט "${projectData.name}" נוסף למערכת`,
-    });
+  const handleCreateProject = async (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => {
+    try {
+      await addProject(projectData);
+      setShowCreateModal(false);
+      toast({
+        title: "פרויקט נוצר בהצלחה",
+        description: `פרויקט "${projectData.name}" נוסף למערכת`,
+      });
+    } catch (error) {
+      console.error('Error creating project:', error);
+      toast({
+        title: "שגיאה ביצירת פרויקט",
+        description: "לא ניתן ליצור פרויקט חדש כרגע. נסה שוב.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleUpdateProject = (updatedProject: Project) => {
