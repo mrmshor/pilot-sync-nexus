@@ -229,52 +229,56 @@ export function TasksSidebar() {
             {/* Add New Task */}
             <Card className="card-macos">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Plus className="w-5 h-5 text-primary" />
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Plus className="w-4 h-4 text-primary" />
                   הוסף משימה חדשה
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-2">
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
                   <Input
                     placeholder="הוסף משימה חדשה..."
                     value={newTask}
                     onChange={(e) => setNewTask(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-                    className="flex-1"
+                    className="w-full"
                   />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-1">
-                        {getPriorityIcon(newTaskPriority)}
-                        {newTaskPriority}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 z-50">
-                      {(['גבוהה', 'בינונית', 'נמוכה'] as TaskPriority[]).map((priority) => (
-                        <DropdownMenuItem
-                          key={priority}
-                          onClick={() => setNewTaskPriority(priority)}
-                          className="gap-2 cursor-pointer"
-                        >
-                          {getPriorityIcon(priority)}
-                          {priority}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Button
-                    onClick={handleAddTask}
-                    size="sm"
-                    className="gradient-primary text-white"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-2 flex-1">
+                          {getPriorityIcon(newTaskPriority)}
+                          {newTaskPriority}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 z-50">
+                        {(['גבוהה', 'בינונית', 'נמוכה'] as TaskPriority[]).map((priority) => (
+                          <DropdownMenuItem
+                            key={priority}
+                            onClick={() => setNewTaskPriority(priority)}
+                            className="gap-2 cursor-pointer"
+                          >
+                            {getPriorityIcon(priority)}
+                            {priority}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button
+                      onClick={handleAddTask}
+                      size="sm"
+                      className="gradient-primary text-white px-4"
+                      disabled={!newTask.trim()}
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      הוסף
+                    </Button>
+                  </div>
                 </div>
                 
-                <div className="flex gap-2 text-sm text-muted-foreground">
-                  <Badge variant="outline">{pendingTasks.length} ממתינות</Badge>
-                  <Badge variant="outline">{completedTasks.length} הושלמו</Badge>
+                <div className="flex gap-2 text-xs text-muted-foreground pt-1">
+                  <Badge variant="outline" className="text-xs">{pendingTasks.length} ממתינות</Badge>
+                  <Badge variant="outline" className="text-xs">{completedTasks.length} הושלמו</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -299,61 +303,65 @@ export function TasksSidebar() {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-3">
                   {pendingTasks.map((task) => (
                     <div
                       key={task.id}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                      className="p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors border border-gray-200/50"
                     >
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleTask(task.id)}
-                        className="p-1 h-auto hover:text-success"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                      </Button>
-                      
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{task.title}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-auto p-0 gap-1">
-                                {getPriorityIcon(task.priority)}
-                                <span className={cn("text-xs font-medium", getPriorityColor(task.priority))}>
-                                  {task.priority}
-                                </span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 z-50">
-                              {(['גבוהה', 'בינונית', 'נמוכה'] as TaskPriority[]).map((priority) => (
-                                <DropdownMenuItem
-                                  key={priority}
-                                  onClick={() => handlePriorityChange(task.id, priority)}
-                                  className="gap-2 cursor-pointer"
-                                >
-                                  {getPriorityIcon(priority)}
-                                  {priority}
-                                </DropdownMenuItem>
-                              ))}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                          
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(task.createdAt).toLocaleDateString('he-IL')}
-                          </span>
+                      <div className="flex items-start gap-3">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleToggleTask(task.id)}
+                          className="p-2 h-auto hover:text-success rounded-lg hover:bg-success/10 mt-0.5"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                        </Button>
+                        
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <p className="text-sm font-medium leading-relaxed">{task.title}</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-6 px-2 gap-1 hover:bg-gray-100">
+                                    {getPriorityIcon(task.priority)}
+                                    <span className={cn("text-xs font-medium", getPriorityColor(task.priority))}>
+                                      {task.priority}
+                                    </span>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 z-50">
+                                  {(['גבוהה', 'בינונית', 'נמוכה'] as TaskPriority[]).map((priority) => (
+                                    <DropdownMenuItem
+                                      key={priority}
+                                      onClick={() => handlePriorityChange(task.id, priority)}
+                                      className="gap-2 cursor-pointer"
+                                    >
+                                      {getPriorityIcon(priority)}
+                                      {priority}
+                                    </DropdownMenuItem>
+                                  ))}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                              
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(task.createdAt).toLocaleDateString('he-IL')}
+                              </span>
+                            </div>
+                            
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteTask(task.id)}
+                              className="p-2 h-auto hover:text-destructive rounded-lg hover:bg-destructive/10"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                      
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="p-1 h-auto hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
                     </div>
                   ))}
                 </CardContent>
@@ -380,34 +388,38 @@ export function TasksSidebar() {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-3">
                   {completedTasks.slice(0, 5).map((task) => (
                     <div
                       key={task.id}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-success/10 border border-success/20"
+                      className="p-3 rounded-lg bg-success/10 border border-success/20 hover:bg-success/20 transition-colors"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-success" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm line-through text-muted-foreground truncate">
-                          {task.title}
-                        </p>
-                        <span className="text-xs text-muted-foreground">
-                          הושלמה {new Date(task.updatedAt).toLocaleDateString('he-IL')}
-                        </span>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-4 h-4 text-success mt-1 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm line-through text-muted-foreground leading-relaxed">
+                            {task.title}
+                          </p>
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-xs text-muted-foreground">
+                              הושלמה {new Date(task.updatedAt).toLocaleDateString('he-IL')}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteTask(task.id)}
+                              className="p-2 h-auto hover:text-destructive rounded-lg hover:bg-destructive/10"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="p-1 h-auto hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
                     </div>
                   ))}
                   
                   {completedTasks.length > 5 && (
-                    <p className="text-xs text-muted-foreground text-center py-2">
+                    <p className="text-xs text-muted-foreground text-center py-3 bg-muted/30 rounded-lg">
                       ועוד {completedTasks.length - 5} משימות מושלמות...
                     </p>
                   )}
