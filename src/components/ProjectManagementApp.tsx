@@ -42,7 +42,8 @@ export const ProjectManagementApp = () => {
     tasks,
     addTask: addProjectTask,
     updateTask: updateProjectTask,
-    deleteTask: deleteProjectTask
+    deleteTask: deleteProjectTask,
+    refreshData: refreshStoreData
   } = useProjectStore();
   
   const [quickTasks, setQuickTasks] = useState<QuickTask[]>([]);
@@ -233,12 +234,8 @@ export const ProjectManagementApp = () => {
     setIsRefreshing(true);
     
     try {
-      // Force refresh data from Supabase
-      await Promise.all([
-        // Refresh projects and tasks from store
-        // The store should have refresh methods or we can re-fetch data
-        new Promise(resolve => setTimeout(resolve, 1000)) // Simulate refresh
-      ]);
+      // Force refresh data from store
+      await refreshStoreData();
 
       toast({
         title: "הנתונים עודכנו",
@@ -434,16 +431,16 @@ export const ProjectManagementApp = () => {
           bValue = b.status;
           break;
         case 'createdAt':
-          aValue = a.createdAt.getTime();
-          bValue = b.createdAt.getTime();
+          aValue = new Date(a.createdAt).getTime();
+          bValue = new Date(b.createdAt).getTime();
           break;
         case 'updatedAt':
-          aValue = a.updatedAt.getTime();
-          bValue = b.updatedAt.getTime();
+          aValue = new Date(a.updatedAt).getTime();
+          bValue = new Date(b.updatedAt).getTime();
           break;
         default:
-          aValue = a.updatedAt.getTime();
-          bValue = b.updatedAt.getTime();
+          aValue = new Date(a.updatedAt).getTime();
+          bValue = new Date(b.updatedAt).getTime();
       }
 
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;

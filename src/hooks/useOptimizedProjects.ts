@@ -122,16 +122,16 @@ export const useOptimizedProjects = () => {
           bValue = b.status;
           break;
         case 'createdAt':
-          aValue = a.createdAt.getTime();
-          bValue = b.createdAt.getTime();
+          aValue = new Date(a.createdAt).getTime();
+          bValue = new Date(b.createdAt).getTime();
           break;
         case 'updatedAt':
-          aValue = a.updatedAt.getTime();
-          bValue = b.updatedAt.getTime();
+          aValue = new Date(a.updatedAt).getTime();
+          bValue = new Date(b.updatedAt).getTime();
           break;
         default:
-          aValue = a.updatedAt.getTime();
-          bValue = b.updatedAt.getTime();
+          aValue = new Date(a.updatedAt).getTime();
+          bValue = new Date(b.updatedAt).getTime();
       }
 
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;

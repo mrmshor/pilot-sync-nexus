@@ -16,6 +16,7 @@ export interface Task {
 interface ProjectStore {
   projects: Project[];
   tasks: Task[];
+  refreshData: () => Promise<void>;
   addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'tasks' | 'subtasks'>) => void;
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
@@ -162,6 +163,12 @@ export const useProjectStore = create<ProjectStore>()(
         set((state) => ({
           tasks: state.tasks.filter((task) => task.id !== id),
         })),
+      refreshData: async () => {
+        // For now, just a placeholder since we're using local data
+        // In the future, this will fetch from Supabase
+        console.log('Refreshing data from store');
+        return Promise.resolve();
+      },
     }),
     {
       name: 'project-store',
