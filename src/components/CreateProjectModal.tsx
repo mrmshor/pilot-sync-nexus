@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { logger } from '@/utils/logger';
-import { validateEmail, validateProjectName, validateClientName, validateIsraeliPhone, validateUrl, sanitizeText } from '@/utils/validation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,7 +35,6 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
     completed: false,
     deadline: undefined as Date | undefined
   });
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string[]}>({});
 
   const handleSelectFolder = async () => {
     try {
@@ -52,7 +49,7 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
         });
       }
     } catch (error) {
-      logger.error('Error selecting folder:', error);
+      console.error('Error selecting folder:', error);
       toast({
         title: "שגיאה",
         description: "לא ניתן לבחור תיקיה",
@@ -63,64 +60,27 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setValidationErrors({});
     
-    // Enhanced validation
-    const nameValidation = validateProjectName(formData.name);
-    const clientValidation = validateClientName(formData.clientName);
-    const emailValidation = formData.email ? validateEmail(formData.email) : { isValid: true, errors: [] };
-    const phone1Validation = validateIsraeliPhone(formData.phone1);
-    const phone2Validation = validateIsraeliPhone(formData.phone2);
-    const whatsapp1Validation = validateIsraeliPhone(formData.whatsapp1);
-    const whatsapp2Validation = validateIsraeliPhone(formData.whatsapp2);
-    const urlValidation = validateUrl(formData.icloudLink);
-    
-    const errors: {[key: string]: string[]} = {};
-
-    if (!nameValidation.isValid) {
-      errors.name = nameValidation.errors;
-    }
-    if (!clientValidation.isValid) {
-      errors.clientName = clientValidation.errors;
-    }
-    if (!emailValidation.isValid) {
-      errors.email = emailValidation.errors;
-    }
-    if (!phone1Validation.isValid) {
-      errors.phone1 = phone1Validation.errors;
-    }
-    if (!phone2Validation.isValid) {
-      errors.phone2 = phone2Validation.errors;
-    }
-    if (!whatsapp1Validation.isValid) {
-      errors.whatsapp1 = whatsapp1Validation.errors;
-    }
-    if (!whatsapp2Validation.isValid) {
-      errors.whatsapp2 = whatsapp2Validation.errors;
-    }
-    if (!urlValidation.isValid) {
-      errors.icloudLink = urlValidation.errors;
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
+    // בדיקות תקינות
+    if (!formData.name.trim()) {
       toast({
-        title: "שגיאות בטופס",
-        description: "נא תקן את השגיאות המסומנות בטופס",
+        title: "שגיאה בטופס",
+        description: "יש להזין שם פרויקט",
         variant: "destructive"
       });
       return;
     }
-
-    // Sanitize text inputs
-    const sanitizedData = {
-      ...formData,
-      name: sanitizeText(formData.name.trim()),
-      description: sanitizeText(formData.description.trim()),
-      clientName: sanitizeText(formData.clientName.trim()),
-    };
     
-    onCreateProject(sanitizedData);
+    if (!formData.clientName.trim()) {
+      toast({
+        title: "שגיאה בטופס", 
+        description: "יש להזין שם לקוח",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    onCreateProject(formData);
     
     // Reset form
     setFormData({
@@ -142,7 +102,6 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
       completed: false,
       deadline: undefined
     });
-    setValidationErrors({});
   };
 
   return (
@@ -176,15 +135,7 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
                     placeholder="הכנס שם פרויקט"
                     required
                     className="border-blue-200 dark:border-blue-800 focus:border-blue-500"
-                    error={validationErrors.name?.[0]}
                   />
-                  {validationErrors.name && (
-                    <div className="text-sm text-red-600 space-y-1 mt-1">
-                      {validationErrors.name.map((error, index) => (
-                        <div key={index}>• {error}</div>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 <div>
@@ -315,15 +266,7 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
                     placeholder="הכנס שם לקוח"
                     required
                     className="border-green-200 dark:border-green-800 focus:border-green-500"
-                    error={validationErrors.clientName?.[0]}
                   />
-                  {validationErrors.clientName && (
-                    <div className="text-sm text-red-600 space-y-1 mt-1">
-                      {validationErrors.clientName.map((error, index) => (
-                        <div key={index}>• {error}</div>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 <div>
@@ -335,15 +278,7 @@ export const CreateProjectModal = ({ open, onOpenChange, onCreateProject }: Crea
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                     placeholder="email@example.com"
                     className="border-green-200 dark:border-green-800 focus:border-green-500"
-                    error={validationErrors.email?.[0]}
                   />
-                  {validationErrors.email && (
-                    <div className="text-sm text-red-600 space-y-1 mt-1">
-                      {validationErrors.email.map((error, index) => (
-                        <div key={index}>• {error}</div>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">

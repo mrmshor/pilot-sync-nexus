@@ -1,12 +1,9 @@
 import { Project, QuickTask } from '../types';
-import { Capacitor } from '@capacitor/core';
-import { Browser } from '@capacitor/browser';
-import { logger } from '@/utils/logger';
 
 export const FolderService = {
   // פתיחת תיקיה עם HTML file input (רק בדפדפן)
   selectFolder: async (): Promise<string | null> => {
-    logger.warn('Folder selection not available in browser environment');
+    console.warn('Folder selection not available in browser environment');
     return null;
   },
 
@@ -19,7 +16,7 @@ export const FolderService = {
     try {
       if (icloudLink && icloudLink.startsWith('http')) {
         window.open(icloudLink, '_blank');
-        logger.debug('Opened iCloud link');
+        console.log('Opened iCloud link:', icloudLink);
         return;
       }
       
@@ -27,16 +24,16 @@ export const FolderService = {
         // ניסיון לפתוח כ-URL אם נראה כמו אחד
         if (folderPath.startsWith('http')) {
           window.open(folderPath, '_blank');
-          logger.debug('Opened URL');
+          console.log('Opened URL:', folderPath);
           return;
         }
         
         // בדפדפן - הצג הודעה על הנתיב
-        logger.debug('Folder path access attempted in browser');
+        console.log('Folder path (browser only):', folderPath);
         throw new Error(`נתיב תיקיה: ${folderPath}\nפונקציונליות זו זמינה רק באפליקציית שולחן העבודה`);
       }
     } catch (error) {
-      logger.error('Error opening folder/link:', error);
+      console.error('Error opening folder/link:', error);
       throw error;
     }
   },
@@ -102,16 +99,16 @@ export const ContactService = {
     try {
       const formatted = ContactService.formatPhoneForInternational(phone);
       if (!ContactService.validatePhoneNumber(formatted)) {
-        logger.warn('Invalid phone number provided');
+        console.warn('Invalid phone number:', phone);
         throw new Error('מספר הטלפון אינו תקין');
       }
       
       // פתיחת לינק tel: בדפדפן
       const telUrl = `tel:+${formatted}`;
       window.open(telUrl, '_self');
-      logger.debug('Phone call initiated via tel: protocol');
+      console.log('Phone call initiated via tel: protocol:', formatted);
     } catch (error) {
-      logger.error('Error making phone call:', error);
+      console.error('Error making phone call:', error);
       throw error;
     }
   },
@@ -119,128 +116,18 @@ export const ContactService = {
   openWhatsApp: async (phone: string): Promise<void> => {
     if (!phone) return;
     try {
-      logger.debug('Opening WhatsApp for contact');
       const formatted = ContactService.formatPhoneForInternational(phone);
-      logger.debug('Phone number formatted for WhatsApp');
-      
       if (!ContactService.validatePhoneNumber(formatted)) {
-        logger.warn('Invalid phone number for WhatsApp provided');
+        console.warn('Invalid phone number for WhatsApp:', phone);
         throw new Error('מספר הטלפון אינו תקין');
       }
-
-      // מספר ספרתי בלבד (ללא '+') עבור כל ה-URLs
-      const numeric = formatted.replace(/[^\d]/g, '');
-      const deepLink = `whatsapp://send?phone=${numeric}&text=`;
-      const webUrl = `https://web.whatsapp.com/send?phone=${numeric}&text=`; // מומלץ לדסקטופ
-      const apiUrl = `https://api.whatsapp.com/send?phone=${numeric}&text=`;
-      const waUrl = `https://wa.me/${numeric}?text=`;
-
-      const isNative = Capacitor.isNativePlatform();
-      const isMobileUA = /Android|iPhone|iPad|iPod|IEMobile|WPDesktop/i.test(navigator.userAgent);
-      const inIframe = window.self !== window.top;
-      logger.debug('WhatsApp environment detected', { isNative, isMobileUA, inIframe });
-
-      const tryOpen = (url: string): boolean => {
-        try {
-          const win = window.open(url, '_blank', 'noopener,noreferrer');
-          if (win) return true;
-          // fallback: anchor click
-          const a = document.createElement('a');
-          a.href = url;
-          a.target = '_blank';
-          a.rel = 'noopener noreferrer';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          return true;
-        } catch (e) {
-          logger.debug('Open attempt failed', e);
-          return false;
-        }
-      };
-
-      let opened = false;
-
-      if (isNative) {
-        // נסה דיפ-לינק ואז דפדפן של קפסיטור
-        try {
-          window.location.href = deepLink;
-          opened = true;
-          setTimeout(async () => {
-            try {
-              await Browser.open({ url: apiUrl, presentationStyle: 'popover' });
-            } catch (e) {
-              logger.error('Capacitor Browser fallback failed', e);
-            }
-          }, 700);
-        } catch (e) {
-          logger.debug('Deep link via location failed', e);
-          try {
-            await Browser.open({ url: apiUrl, presentationStyle: 'popover' });
-            opened = true;
-          } catch {}
-        }
-      } else {
-        if (isMobileUA) {
-          const candidateUrls = [waUrl, apiUrl];
-          for (const url of candidateUrls) {
-            logger.debug('Trying WhatsApp URL');
-            if (tryOpen(url)) { opened = true; break; }
-          }
-          if (!opened) {
-            // מוצא אחרון: פריצה מה-iframe
-            try {
-              if (inIframe && window.top) {
-                // @ts-ignore
-                window.top.location.href = waUrl;
-                opened = true;
-              } else {
-                window.location.href = waUrl;
-                opened = true;
-              }
-            } catch (e) {
-              logger.error('Top-level navigation failed', e);
-            }
-          }
-        } else {
-          // Desktop: נסה לפתוח את אפליקציית וואטסאפ דסקטופ (protocol handler), ואז fallback ל-Web
-          logger.debug('Attempting WhatsApp Desktop via protocol handler');
-          let cancelled = false;
-          const onVisibility = () => {
-            if (document.hidden) {
-              cancelled = true;
-              clearTimeout(fallbackTimer);
-              document.removeEventListener('visibilitychange', onVisibility);
-              logger.debug('Visibility changed, assuming WhatsApp Desktop opened');
-            }
-          };
-          document.addEventListener('visibilitychange', onVisibility);
-          const fallbackTimer = window.setTimeout(() => {
-            document.removeEventListener('visibilitychange', onVisibility);
-            if (cancelled) return;
-            logger.debug('Deep link did not trigger, falling back to web.whatsapp.com');
-            if (!tryOpen(webUrl)) {
-              if (!tryOpen(waUrl)) {
-                window.location.href = apiUrl;
-              }
-            }
-          }, 1200);
-
-          // ניסיון פתיחה דרך חלון חדש כדי להקטין חסימת פופאפים
-          if (!tryOpen(deepLink)) {
-            try {
-              window.location.href = deepLink;
-            } catch (e) {
-              logger.debug('Location deep link failed, will rely on fallback', e);
-            }
-          }
-          opened = true;
-        }
-      }
-
-      logger.debug('WhatsApp operation completed', { opened });
+      
+      // פתיחת WhatsApp Web או אפליקציה
+      const whatsappUrl = `https://wa.me/${formatted}`;
+      window.open(whatsappUrl, '_blank');
+      console.log('WhatsApp opened via web URL with phone:', formatted);
     } catch (error) {
-      logger.error('Error opening WhatsApp:', error);
+      console.error('Error opening WhatsApp:', error);
       throw error;
     }
   },
@@ -249,11 +136,11 @@ export const ContactService = {
     if (!email) return;
     try {
       if (!email.includes('@')) {
-        logger.warn('Invalid email address provided');
+        console.warn('Invalid email address:', email);
         return;
       }
       
-      logger.debug('Opening email client');
+      console.log('Sending email to:', email, 'with subject:', subject);
       
       // בניית URL מייל עם נושא וגוף ההודעה
       let mailtoUrl = `mailto:${email}`;
@@ -270,10 +157,10 @@ export const ContactService = {
         mailtoUrl += `?${params.join('&')}`;
       }
       
-      logger.debug('Email client opened successfully');
+      console.log('Opening email with URL:', mailtoUrl);
       window.open(mailtoUrl, '_blank');
     } catch (error) {
-      logger.error('Error sending email:', error);
+      console.error('Error sending email:', error);
     }
   }
 };
@@ -315,7 +202,7 @@ export const ExportService = {
         URL.revokeObjectURL(url);
       }
     } catch (error) {
-      logger.error('Error exporting projects:', error);
+      console.error('Error exporting projects:', error);
     }
   },
 
@@ -358,7 +245,7 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
-      logger.error('Error exporting tasks:', error);
+      console.error('Error exporting tasks:', error);
     }
   }
 };

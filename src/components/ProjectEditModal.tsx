@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { logger } from '@/utils/logger';
-import { validateEmail, validateProjectName, validateClientName, validateIsraeliPhone, validateUrl, sanitizeText } from '@/utils/validation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,7 +45,7 @@ export const ProjectEditModal = ({
         });
       }
     } catch (error) {
-      logger.error('Error selecting folder:', error);
+      console.error('Error selecting folder:', error);
       toast({
         title: "שגיאה",
         description: "לא ניתן לבחור תיקיה",

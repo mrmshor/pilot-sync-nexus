@@ -1,42 +1,38 @@
 import { useState, useEffect } from 'react';
 import { QuickTask } from '@/types';
-import { secureStorage } from '@/utils/secureStorage';
-import { logger } from '@/utils/logger';
 
-const QUICK_TASKS_STORAGE_KEY = 'quick-tasks';
+const QUICK_TASKS_STORAGE_KEY = 'enhanced-quick-tasks';
 
 export const useQuickTasks = () => {
   const [quickTasks, setQuickTasks] = useState<QuickTask[]>([]);
 
-  // Load data from secure storage
+  // Load data from localStorage
   useEffect(() => {
-    try {
-      // Try to migrate from old plain storage first
-      const migrated = secureStorage.migrateFromPlainStorage('enhanced-quick-tasks', QUICK_TASKS_STORAGE_KEY);
-      
-      const savedTasks = secureStorage.getItem<any[]>(QUICK_TASKS_STORAGE_KEY);
-      
-      if (savedTasks && Array.isArray(savedTasks)) {
-        const tasksWithDates = savedTasks.map((task: any) => ({
+    const savedTasks = localStorage.getItem(QUICK_TASKS_STORAGE_KEY);
+
+    if (savedTasks) {
+      try {
+        const parsed = JSON.parse(savedTasks);
+        const tasksWithDates = parsed.map((task: any) => ({
           ...task,
           createdAt: new Date(task.createdAt),
           completedAt: task.completedAt ? new Date(task.completedAt) : undefined
         }));
         setQuickTasks(tasksWithDates);
+      } catch (error) {
+        console.error('Error loading quick tasks:', error);
+        setQuickTasks([]);
       }
-    } catch (error) {
-      logger.error('Error loading quick tasks:', error);
-      setQuickTasks([]);
     }
   }, []);
 
-  // Save tasks to secure storage
+  // Save tasks to localStorage
   const saveQuickTasks = (tasks: QuickTask[]) => {
     try {
-      secureStorage.setItem(QUICK_TASKS_STORAGE_KEY, tasks);
+      localStorage.setItem(QUICK_TASKS_STORAGE_KEY, JSON.stringify(tasks));
       setQuickTasks(tasks);
     } catch (error) {
-      logger.error('Error saving quick tasks:', error);
+      console.error('Error saving quick tasks:', error);
     }
   };
 

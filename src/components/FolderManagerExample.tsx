@@ -1,7 +1,6 @@
 import { useLocalFolders } from '../hooks/useLocalFolders';
 import { Button } from './ui/button';
 import { FolderOpen, Download } from 'lucide-react';
-import { logger } from '../utils/logger';
 
 export const FolderManagerExample = () => {
   const { 
@@ -17,7 +16,7 @@ export const FolderManagerExample = () => {
   const handleFolderSelect = async () => {
     const folderPath = await selectFolder();
     if (folderPath) {
-      logger.info('Selected folder:', folderPath);
+      console.log('Selected folder:', folderPath);
       // שמירת הנתיב במצב הקומפוננטה או במסד נתונים
     }
   };
@@ -26,7 +25,7 @@ export const FolderManagerExample = () => {
   const handleOpenFolder = async (folderPath: string) => {
     const success = await openFolder(folderPath);
     if (!success) {
-      logger.error('Failed to open folder:', folderPath);
+      console.error('Failed to open folder:', folderPath);
     }
   };
 
@@ -34,7 +33,7 @@ export const FolderManagerExample = () => {
   const handleShowInFolder = async (itemPath: string) => {
     const success = await showItemInFolder(itemPath);
     if (!success) {
-      logger.error('Failed to show item in folder:', itemPath);
+      console.error('Failed to show item in folder:', itemPath);
     }
   };
 
