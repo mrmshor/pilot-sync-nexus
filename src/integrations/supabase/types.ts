@@ -194,7 +194,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_project_role: {
+        Args: { p_project_id: string; p_roles: string[]; p_user_id: string }
+        Returns: boolean
+      }
+      is_project_member: {
+        Args: { p_project_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      shares_project_with: {
+        Args: { p_current_user_id: string; p_target_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
