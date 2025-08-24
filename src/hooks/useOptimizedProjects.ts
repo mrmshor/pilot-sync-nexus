@@ -101,6 +101,12 @@ export const useOptimizedProjects = () => {
     } else if (statusFilter === 'pending') {
       filtered = filtered.filter(project => !project.completed);
     }
+  
+    const toTime = (d: any) => {
+      const dt = d instanceof Date ? d : new Date(d);
+      const t = dt.getTime();
+      return Number.isNaN(t) ? 0 : t;
+    };
 
     // Sort projects
     filtered.sort((a, b) => {

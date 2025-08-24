@@ -396,6 +396,11 @@ export const ProjectManagementApp = () => {
 
   const getPriorityColor = (priority: 'low'|'medium'|'high') => priority === 'high' ? 'text-red-600 bg-red-100 border border-red-200' : priority === 'medium' ? 'text-amber-600 bg-amber-100 border border-amber-200' : 'text-green-600 bg-green-100 border border-green-200';
   const formatStatusHe = (status: string) => status === 'in-progress' ? 'בעבודה' : status === 'on-hold' ? 'בהמתנה' : status === 'completed' ? 'הושלם' : status;
+  const toTime = (d: any) => {
+    const dt = d instanceof Date ? d : new Date(d);
+    const t = dt.getTime();
+    return Number.isNaN(t) ? 0 : t;
+  };
 
   // Optimized filter and sort projects with debounced search
   const filteredAndSortedProjects = useMemo(() => {
@@ -431,16 +436,16 @@ export const ProjectManagementApp = () => {
           bValue = b.status;
           break;
         case 'createdAt':
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
+          aValue = toTime(a.createdAt);
+          bValue = toTime(b.createdAt);
           break;
         case 'updatedAt':
-          aValue = new Date(a.updatedAt).getTime();
-          bValue = new Date(b.updatedAt).getTime();
+          aValue = toTime(a.updatedAt);
+          bValue = toTime(b.updatedAt);
           break;
         default:
-          aValue = new Date(a.updatedAt).getTime();
-          bValue = new Date(b.updatedAt).getTime();
+          aValue = toTime(a.updatedAt);
+          bValue = toTime(b.updatedAt);
       }
 
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
