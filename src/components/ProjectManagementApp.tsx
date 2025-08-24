@@ -882,7 +882,7 @@ export const ProjectManagementApp = () => {
           </div>
 
           {/* Desktop Header and Navigation */}
-          <div className="hidden xl:block sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm">
+          <div className="hidden xl:block sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm xl:w-screen xl:relative xl:left-1/2 xl:right-1/2 xl:-ml-[50vw] xl:-mr-[50vw]">
             <div className="container mx-auto px-4 py-6 md:py-8 lg:py-8">
               {/* Header */}
               <header className="text-center mb-6 md:mb-8 relative">
