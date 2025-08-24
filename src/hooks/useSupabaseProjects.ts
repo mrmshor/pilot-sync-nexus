@@ -131,43 +131,40 @@ export const useSupabaseProjects = () => {
     }
   };
 
-  // Update project
+  // Update project using secure function
   const updateProject = async (id: string, updates: Partial<Project>) => {
     try {
-      // Only include sensitive fields if the user has access to them
-      const updateData: any = {
-        name: updates.name,
-        description: updates.description,
-        folder_path: updates.folderPath,
-        icloud_link: updates.icloudLink,
-        status: updates.status,
-        priority: updates.priority,
-        completed: updates.completed,
-        deadline: updates.deadline?.toISOString(),
-      };
-
-      // Only include sensitive fields if user has access
-      // We'll let the backend handle this validation, but provide a clear error message
-      if (updates.clientName !== undefined) updateData.client_name = updates.clientName;
-      if (updates.phone1 !== undefined) updateData.phone1 = updates.phone1;
-      if (updates.phone2 !== undefined) updateData.phone2 = updates.phone2;
-      if (updates.whatsapp1 !== undefined) updateData.whatsapp1 = updates.whatsapp1;
-      if (updates.whatsapp2 !== undefined) updateData.whatsapp2 = updates.whatsapp2;
-      if (updates.email !== undefined) updateData.email = updates.email;
-      if (updates.price !== undefined) updateData.price = updates.price;
-      if (updates.currency !== undefined) updateData.currency = updates.currency;
-      if (updates.paid !== undefined) updateData.paid = updates.paid;
-
-      const { error } = await supabase
-        .from('projects')
-        .update(updateData)
-        .eq('id', id);
+      // Use the secure update function that handles role-based field filtering
+      const { data, error } = await supabase.rpc('update_project_secure', {
+        p_project_id: id,
+        p_name: updates.name,
+        p_description: updates.description,
+        p_client_name: updates.clientName,
+        p_phone1: updates.phone1,
+        p_phone2: updates.phone2,
+        p_whatsapp1: updates.whatsapp1,
+        p_whatsapp2: updates.whatsapp2,
+        p_email: updates.email,
+        p_folder_path: updates.folderPath,
+        p_icloud_link: updates.icloudLink,
+        p_status: updates.status,
+        p_priority: updates.priority,
+        p_price: updates.price,
+        p_currency: updates.currency,
+        p_paid: updates.paid,
+        p_completed: updates.completed,
+        p_deadline: updates.deadline?.toISOString()
+      });
 
       if (error) {
-        if (error.message.includes('policy')) {
+        if (error.message.includes('Insufficient permissions')) {
           throw new Error('אין לך הרשאה לעדכן פרטים רגישים בפרויקט זה. נדרשת הרשאת בעלים או מנהל.');
         }
         throw error;
+      }
+
+      if (!data) {
+        throw new Error('הפרויקט לא נמצא או שאין לך הרשאה לעדכן אותו');
       }
 
       toast.success('הפרויקט עודכן בהצלחה');
