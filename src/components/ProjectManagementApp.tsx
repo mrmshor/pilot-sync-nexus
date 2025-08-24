@@ -1854,66 +1854,84 @@ export const ProjectManagementApp = () => {
               className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
               onClick={() => setShowMobileProjectsSidebar(false)}
             ></div>
-            <div className="absolute left-0 top-0 h-full w-72 sm:w-80 md:w-96 max-w-[75vw] bg-white/95 backdrop-blur-md shadow-2xl border-r border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-left">
+            <div className="absolute left-0 top-0 h-full w-48 max-w-[50vw] bg-white/95 backdrop-blur-md shadow-2xl border-r border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-left">
               <div className="h-screen overflow-hidden flex flex-col ios-scroll-fix">
                 <div className="flex-1 overflow-y-auto">
-                  <div className="p-4 border-b bg-white/50">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold">פרויקטים</h3>
+                  {/* Minimal Header */}
+                  <div className="p-3 border-b bg-white/50 sticky top-0">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-gray-700">קפיצה מהירה</h3>
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => setShowMobileProjectsSidebar(false)}
-                        className="p-2"
+                        className="p-1 h-6 w-6"
                       >
-                        <X className="h-5 w-5" />
+                        <X className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                   
-                  {/* Simplified Projects List for Mobile */}
-                  <div className="p-3 space-y-2">
-                    {projects.slice(0, 6).map((project) => (
-                      <div 
+                  {/* Ultra Minimal Projects List */}
+                  <div className="p-2 space-y-1">
+                    {projects.map((project, index) => (
+                      <button 
                         key={project.id}
-                        className="p-3 bg-white/80 rounded-lg border border-gray-200/50 cursor-pointer hover:bg-white transition-colors"
+                        className="w-full text-right p-2 rounded-lg hover:bg-gray-100 transition-colors text-xs group border-b border-gray-100/50 last:border-b-0"
                         onClick={() => {
+                          // Scroll to project in main view
                           setSelectedProject(project);
                           setActiveTab('projects');
                           setShowMobileProjectsSidebar(false);
+                          
+                          // Scroll to specific project after tab switch
+                          setTimeout(() => {
+                            const projectElement = document.getElementById(`project-${project.id}`);
+                            if (projectElement) {
+                              projectElement.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                              });
+                              // Add highlight effect
+                              projectElement.classList.add('ring-2', 'ring-blue-400/50');
+                              setTimeout(() => {
+                                projectElement.classList.remove('ring-2', 'ring-blue-400/50');
+                              }, 2000);
+                            }
+                          }, 100);
                         }}
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-medium truncate">{project.name}</h4>
-                            <p className="text-xs text-muted-foreground truncate">{project.clientName}</p>
+                          <div className="flex-1 text-right">
+                            <div className="font-medium text-gray-800 truncate text-xs leading-tight">
+                              {project.name.length > 20 ? `${project.name.substring(0, 20)}...` : project.name}
+                            </div>
+                            {project.clientName && (
+                              <div className="text-[10px] text-gray-500 truncate mt-0.5">
+                                {project.clientName.length > 15 ? `${project.clientName.substring(0, 15)}...` : project.clientName}
+                              </div>
+                            )}
                           </div>
-                          <Badge 
-                            variant="outline"
-                            className={`ml-2 text-xs ${
-                              project.status === 'in-progress' ? 'bg-blue-50 text-blue-700' :
-                              project.status === 'completed' ? 'bg-green-50 text-green-700' :
-                              'bg-gray-50 text-gray-700'
-                            }`}
-                          >
-                            {project.status === 'in-progress' ? 'בעבודה' : 
-                             project.status === 'completed' ? 'הושלם' : 'בהמתנה'}
-                          </Badge>
+                          
+                          {/* Minimal Status Dot */}
+                          <div className={`w-2 h-2 rounded-full ml-2 flex-shrink-0 ${
+                            project.status === 'in-progress' ? 'bg-blue-500' :
+                            project.status === 'completed' ? 'bg-green-500' :
+                            'bg-gray-400'
+                          }`}></div>
                         </div>
-                      </div>
+                        
+                        {/* Project Number */}
+                        <div className="text-[8px] text-gray-400 mt-1 text-right font-mono">
+                          #{index + 1}
+                        </div>
+                      </button>
                     ))}
                     
-                    {projects.length > 6 && (
-                      <Button 
-                        variant="outline" 
-                        className="w-full mt-3"
-                        onClick={() => {
-                          setActiveTab('projects');
-                          setShowMobileProjectsSidebar(false);
-                        }}
-                      >
-                        ראה את כל הפרויקטים ({projects.length})
-                      </Button>
+                    {projects.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <div className="text-xs">אין פרויקטים</div>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1975,7 +1993,7 @@ export const ProjectManagementApp = () => {
                 className="flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <FolderOpen className="h-5 w-5" />
-                <span className="text-xs font-medium">רשימות</span>
+                <span className="text-xs font-medium">קפיצה</span>
               </Button>
             </div>
           </div>
