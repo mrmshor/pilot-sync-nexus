@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { validateEmail, validatePassword } from '@/utils/validation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +18,7 @@ export default function AuthPage() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string[]}>({});
   const navigate = useNavigate();
 
   // Check if user is already logged in
@@ -51,6 +53,30 @@ export default function AuthPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setValidationErrors({});
+
+    // Enhanced validation
+    const emailValidation = validateEmail(email);
+    const passwordValidation = validatePassword(password);
+    const errors: {[key: string]: string[]} = {};
+
+    if (!emailValidation.isValid) {
+      errors.email = emailValidation.errors;
+    }
+    if (!passwordValidation.isValid) {
+      errors.password = passwordValidation.errors;
+    }
+    if (!displayName.trim()) {
+      errors.displayName = ['שם מלא נדרש'];
+    } else if (displayName.trim().length < 2) {
+      errors.displayName = ['שם מלא חייב להיות באורך של לפחות 2 תווים'];
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const redirectUrl = `${window.location.origin}/`;
@@ -89,6 +115,24 @@ export default function AuthPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setValidationErrors({});
+
+    // Enhanced validation
+    const emailValidation = validateEmail(email);
+    const errors: {[key: string]: string[]} = {};
+
+    if (!emailValidation.isValid) {
+      errors.email = emailValidation.errors;
+    }
+    if (!password.trim()) {
+      errors.password = ['סיסמה נדרשת'];
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -119,6 +163,7 @@ export default function AuthPage() {
   const resetError = () => {
     setError('');
     setSuccess('');
+    setValidationErrors({});
   };
 
   return (
@@ -153,22 +198,30 @@ export default function AuthPage() {
 
             <TabsContent value="signin" className="space-y-4">
               <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">כתובת מייל</Label>
-                  <div className="relative">
-                    <Mail className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      placeholder="your.email@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pr-10"
-                      required
-                      disabled={isLoading}
-                    />
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-email">כתובת מייל</Label>
+                    <div className="relative">
+                      <Mail className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signin-email"
+                        type="email"
+                        placeholder="your.email@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pr-10"
+                        required
+                        disabled={isLoading}
+                        error={validationErrors.email?.[0]}
+                      />
+                    </div>
+                    {validationErrors.email && (
+                      <div className="text-sm text-red-600 space-y-1">
+                        {validationErrors.email.map((error, index) => (
+                          <div key={index}>• {error}</div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="signin-password">סיסמה</Label>
@@ -183,8 +236,16 @@ export default function AuthPage() {
                       className="pr-10"
                       required
                       disabled={isLoading}
+                      error={validationErrors.password?.[0]}
                     />
                   </div>
+                  {validationErrors.password && (
+                    <div className="text-sm text-red-600 space-y-1">
+                      {validationErrors.password.map((error, index) => (
+                        <div key={index}>• {error}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <Button 
@@ -217,8 +278,16 @@ export default function AuthPage() {
                       className="pr-10"
                       required
                       disabled={isLoading}
+                      error={validationErrors.displayName?.[0]}
                     />
                   </div>
+                  {validationErrors.displayName && (
+                    <div className="text-sm text-red-600 space-y-1">
+                      {validationErrors.displayName.map((error, index) => (
+                        <div key={index}>• {error}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -234,8 +303,16 @@ export default function AuthPage() {
                       className="pr-10"
                       required
                       disabled={isLoading}
+                      error={validationErrors.email?.[0]}
                     />
                   </div>
+                  {validationErrors.email && (
+                    <div className="text-sm text-red-600 space-y-1">
+                      {validationErrors.email.map((error, index) => (
+                        <div key={index}>• {error}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -245,15 +322,23 @@ export default function AuthPage() {
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="לפחות 6 תווים"
+                      placeholder="לפחות 8 תווים עם אותיות גדולות, מספרים ותווים מיוחדים"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pr-10"
                       required
                       disabled={isLoading}
-                      minLength={6}
+                      minLength={8}
+                      error={validationErrors.password?.[0]}
                     />
                   </div>
+                  {validationErrors.password && (
+                    <div className="text-sm text-red-600 space-y-1">
+                      {validationErrors.password.map((error, index) => (
+                        <div key={index}>• {error}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <Button 

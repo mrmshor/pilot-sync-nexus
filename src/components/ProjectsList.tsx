@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { logger } from '@/utils/logger';
 import {
   Search, Edit, Trash2, User, FolderOpen,
   CheckCircle2, CreditCard, Plus, X, Calendar, Clock, Filter, SortAsc, SortDesc
@@ -34,10 +35,12 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
   const [sortBy, setSortBy] = useState<string>('updatedAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // Debug projects prop
+  // Log projects data for debugging
   useEffect(() => {
-    console.log('📋 ProjectsList received projects:', projects.length);
-    console.log('📋 Projects data:', projects);
+    logger.debug('ProjectsList received projects:', projects.length);
+    if (projects.length > 0) {
+      logger.debug('Projects data loaded successfully');
+    }
   }, [projects]);
 
   const filteredAndSortedProjects = useMemo(() => {

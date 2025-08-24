@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { logger } from '@/utils/logger';
 
 // Debounce hook לחיפוש מהיר
 export const useDebounce = <T>(value: T, delay: number): T => {
@@ -57,7 +58,7 @@ export const usePerformanceMonitor = () => {
     lastRenderTime.current = now;
     
     if (process.env.NODE_ENV === 'development') {
-      console.log(`Render #${renderCountRef.current}, Time since last: ${timeSinceLastRender}ms`);
+      logger.debug(`Component render #${renderCountRef.current}, Time since last: ${timeSinceLastRender}ms`);
     }
   });
   
