@@ -122,10 +122,23 @@ export const ContactService = {
         throw new Error('מספר הטלפון אינו תקין');
       }
       
-      // פתיחת WhatsApp Web או אפליקציה
-      const whatsappUrl = `https://wa.me/${formatted}`;
-      window.open(whatsappUrl, '_blank');
-      console.log('WhatsApp opened via web URL with phone:', formatted);
+      // ניסיון לפתוח אפליקציית WhatsApp Desktop
+      const desktopUrl = `whatsapp://send?phone=${formatted}`;
+      
+      // ניסיון לפתוח באפליקציה - אם לא עובד, ייפתח בדפדפן
+      const popup = window.open(desktopUrl, '_blank');
+      
+      // אם הפופאפ נחסם או לא נפתח, נפתח ב-WhatsApp Web
+      setTimeout(() => {
+        if (!popup || popup.closed) {
+          const webUrl = `https://wa.me/${formatted}`;
+          window.open(webUrl, '_blank');
+          console.log('WhatsApp opened via web URL with phone:', formatted);
+        } else {
+          console.log('WhatsApp opened via desktop app with phone:', formatted);
+        }
+      }, 500);
+      
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
       throw error;
