@@ -127,40 +127,82 @@ export const ContactService = {
         throw new Error('מספר הטלפון אינו תקין');
       }
 
-      // Use digits-only phone for wa.me/api URLs (must NOT include '+')
+      // מספר ספרתי בלבד (ללא '+') עבור כל ה-URLs
       const numeric = formatted.replace(/[^\d]/g, '');
       const deepLink = `whatsapp://send?phone=${numeric}`;
+      const webUrl = `https://web.whatsapp.com/send?phone=${numeric}`; // מומלץ לדסקטופ
       const apiUrl = `https://api.whatsapp.com/send?phone=${numeric}`;
       const waUrl = `https://wa.me/${numeric}`;
-      console.log('URLs:', { deepLink, apiUrl, waUrl, isNative: Capacitor.isNativePlatform() });
-      
-      if (Capacitor.isNativePlatform()) {
-        // Native: try deep link first, then fallback to in-app browser
+
+      const isNative = Capacitor.isNativePlatform();
+      const isMobileUA = /Android|iPhone|iPad|iPod|IEMobile|WPDesktop/i.test(navigator.userAgent);
+      const inIframe = window.self !== window.top;
+      console.log('Env:', { isNative, isMobileUA, inIframe, numeric });
+
+      const tryOpen = (url: string): boolean => {
         try {
-          // Attempt to open the WhatsApp app
+          const win = window.open(url, '_blank', 'noopener,noreferrer');
+          if (win) return true;
+          // fallback: anchor click
+          const a = document.createElement('a');
+          a.href = url;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          return true;
+        } catch (e) {
+          console.warn('Open attempt failed', e);
+          return false;
+        }
+      };
+
+      let opened = false;
+
+      if (isNative) {
+        // נסה דיפ-לינק ואז דפדפן של קפסיטור
+        try {
           window.location.href = deepLink;
-          // Fallback to Browser after short delay
+          opened = true;
           setTimeout(async () => {
             try {
               await Browser.open({ url: apiUrl, presentationStyle: 'popover' });
             } catch (e) {
-              console.error('Browser.open fallback failed', e);
+              console.error('Capacitor Browser fallback failed', e);
             }
           }, 700);
         } catch (e) {
-          console.warn('Deep link failed, opening via Browser', e);
-          await Browser.open({ url: apiUrl, presentationStyle: 'popover' });
+          console.warn('Deep link via location failed', e);
+          try {
+            await Browser.open({ url: apiUrl, presentationStyle: 'popover' });
+            opened = true;
+          } catch {}
         }
       } else {
-        // Web: prefer wa.me without '+'; handle popup blockers
-        console.log('Attempting to open wa.me URL via window.open...');
-        const newWin = window.open(waUrl, '_blank', 'noopener,noreferrer');
-        if (!newWin) {
-          console.warn('Popup blocked, navigating current tab to api.whatsapp.com');
-          window.location.href = apiUrl;
+        const candidateUrls = isMobileUA ? [waUrl, apiUrl] : [webUrl, waUrl, apiUrl];
+        for (const url of candidateUrls) {
+          console.log('Trying URL:', url);
+          if (tryOpen(url)) { opened = true; break; }
+        }
+        if (!opened) {
+          // מוצא אחרון: פריצה מה-iframe
+          try {
+            if (inIframe && window.top) {
+              // @ts-ignore
+              window.top.location.href = (isMobileUA ? waUrl : webUrl);
+              opened = true;
+            } else {
+              window.location.href = (isMobileUA ? waUrl : webUrl);
+              opened = true;
+            }
+          } catch (e) {
+            console.error('Top-level navigation failed', e);
+          }
         }
       }
-      console.log('WhatsApp open triggered');
+
+      console.log('WhatsApp open result:', opened);
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
       throw error;
