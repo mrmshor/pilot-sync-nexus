@@ -806,38 +806,38 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen lg:mx-80 md:mx-40 sm:mx-4 mx-2 flex flex-col">
+        <div className="flex-1 min-h-screen xl:mx-80 lg:mx-60 md:mx-8 sm:mx-4 mx-2 flex flex-col">
           {/* Fixed Header and Navigation */}
           <div className="sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm">
-            <div className="container mx-auto px-4 py-8 lg:py-8 py-16">
+            <div className="container mx-auto px-4 py-6 md:py-8 lg:py-8">
               {/* Header */}
-              <header className="text-center mb-8 relative">
-                {/* Mobile Menu Buttons - Top Left and Right */}
-                <div className="lg:hidden absolute top-0 left-0 right-0 flex justify-between items-center mb-4">
+              <header className="text-center mb-6 md:mb-8 relative">
+                {/* Mobile & Tablet Menu Buttons - Top Left and Right */}
+                <div className="xl:hidden absolute top-0 left-0 right-0 flex justify-between items-center mb-4">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowMobileProjectsSidebar(true)}
-                    className="p-2 hover:bg-white/20 rounded-lg"
+                    className="p-3 md:p-4 hover:bg-white/20 rounded-lg min-h-[44px] min-w-[44px]"
                   >
-                    <FolderOpen className="h-5 w-5" />
+                    <FolderOpen className="h-5 w-5 md:h-6 md:w-6" />
                     <span className="sr-only">פרויקטים</span>
                   </Button>
                   
                   <Button
-                    variant="ghost"
+                    variant="ghost" 
                     size="sm"
                     onClick={() => setShowMobileTasksSidebar(true)}
-                    className="p-2 hover:bg-white/20 rounded-lg"
+                    className="p-3 md:p-4 hover:bg-white/20 rounded-lg min-h-[44px] min-w-[44px]"
                   >
-                    <CheckSquare className="h-5 w-5" />
+                    <CheckSquare className="h-5 w-5 md:h-6 md:w-6" />
                     <span className="sr-only">משימות</span>
                   </Button>
                 </div>
                 
-                <div className="flex items-center justify-center gap-4 mb-4 pt-12 lg:pt-0">
+                <div className="flex items-center justify-center gap-4 md:gap-6 mb-4 pt-16 md:pt-20 xl:pt-0">
                   <div className="relative group">
-                    <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-macos overflow-hidden">
+                    <div className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 gradient-primary rounded-2xl md:rounded-3xl flex items-center justify-center shadow-macos overflow-hidden">
                       {customLogo ? (
                         <img 
                           src={customLogo} 
@@ -845,14 +845,14 @@ export const ProjectManagementApp = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-2xl">🚀</span>
+                        <span className="text-2xl md:text-3xl lg:text-4xl">🚀</span>
                       )}
                     </div>
                     
                     {/* Logo upload overlay */}
-                    <div className="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center cursor-pointer">
+                    <div className="absolute inset-0 bg-black/60 rounded-2xl md:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center cursor-pointer">
                       <label htmlFor="logo-upload" className="cursor-pointer">
-                        <Plus className="h-5 w-5 text-white" />
+                        <Plus className="h-5 w-5 md:h-6 md:w-6 text-white" />
                         <input
                           id="logo-upload"
                           type="file"
@@ -867,14 +867,14 @@ export const ProjectManagementApp = () => {
                     {customLogo && (
                       <button
                         onClick={removeLogo}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs transition-colors"
+                        className="absolute -top-1 -right-1 w-6 h-6 md:w-7 md:h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs transition-colors min-h-[44px] min-w-[44px]"
                       >
-                        <X className="h-3 w-3" />
+                        <X className="h-3 w-3 md:h-4 md:w-4" />
                       </button>
                     )}
                   </div>
                   <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent macos-text">
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent macos-text leading-tight">
                       מערכת ניהול פרויקטים Pro
                     </h1>
                   </div>
@@ -882,42 +882,44 @@ export const ProjectManagementApp = () => {
               </header>
 
               {/* Navigation */}
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 md:gap-6">
                 {/* Export Button - Left Side */}
                 <Button
                   variant="outline"
                   onClick={handleExportCSV}
-                  className="gap-2"
+                  className="gap-2 w-full md:w-auto min-h-[44px] px-4 md:px-6"
                   title="ייצוא נתונים לקובץ CSV (⌘E)"
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-4 h-4 md:w-5 md:h-5" />
                   ייצוא CSV
                 </Button>
 
                 {/* Navigation Tabs - Center */}
-                <div className="glass p-1.5 rounded-xl shadow-medium">
-                  <Button
-                    onClick={() => setActiveTab('dashboard')}
-                    variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
-                    className="px-6 py-3 rounded-lg text-sm font-medium"
-                    title="לוח בקרה Pro (⌘1)"
-                  >
-                    <BarChart3 className="w-4 h-4 ml-2" />
-                    לוח בקרה Pro
-                  </Button>
-                  <Button
-                    onClick={() => setActiveTab('projects')}
-                    variant={activeTab === 'projects' ? 'default' : 'ghost'}
-                    className="px-6 py-3 rounded-lg text-sm font-medium"
-                    title="פרויקטים מתקדם (⌘2)"
-                  >
-                    <Users className="w-4 h-4 ml-2" />
-                    פרויקטים מתקדם
-                  </Button>
+                <div className="glass p-1.5 rounded-xl shadow-medium w-full md:w-auto">
+                  <div className="flex flex-col sm:flex-row">
+                    <Button
+                      onClick={() => setActiveTab('dashboard')}
+                      variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
+                      className="px-4 md:px-6 py-3 md:py-4 rounded-lg text-sm md:text-base font-medium w-full sm:w-auto min-h-[44px]"
+                      title="לוח בקרה Pro (⌘1)"
+                    >
+                      <BarChart3 className="w-4 h-4 md:w-5 md:h-5 ml-2" />
+                      לוח בקרה Pro
+                    </Button>
+                    <Button
+                      onClick={() => setActiveTab('projects')}
+                      variant={activeTab === 'projects' ? 'default' : 'ghost'}
+                      className="px-4 md:px-6 py-3 md:py-4 rounded-lg text-sm md:text-base font-medium w-full sm:w-auto min-h-[44px]"
+                      title="פרויקטים מתקדם (⌘2)"
+                    >
+                      <Users className="w-4 h-4 md:w-5 md:h-5 ml-2" />
+                      פרויקטים מתקדם
+                    </Button>
+                  </div>
                 </div>
 
-                {/* Empty space for balance */}
-                <div className="w-24"></div>
+                {/* Empty space for balance - hidden on mobile/tablet */}
+                <div className="hidden lg:block w-24"></div>
               </div>
 
               {/* Search and Filters - Only visible in projects tab */}

@@ -378,6 +378,36 @@ All colors MUST be HSL.
     text-rendering: optimizeLegibility;
   }
 
+  /* Tablet & Mobile Optimizations */
+  @media (min-width: 768px) and (max-width: 1279px) {
+    /* Tablet-specific styles */
+    .tablet-spacing {
+      padding: 1.5rem;
+    }
+    
+    .tablet-touch-target {
+      min-height: 48px;
+      min-width: 48px;
+    }
+    
+    .tablet-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+    
+    .tablet-card-spacing {
+      gap: 1.5rem;
+    }
+  }
+
+  /* Mobile touch targets */
+  @media (max-width: 767px) {
+    .mobile-touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
   /* Dashboard gradient cards */
   .gradient-card {
     background: var(--gradient-blue);
