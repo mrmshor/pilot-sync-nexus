@@ -1862,27 +1862,63 @@ export const ProjectManagementApp = () => {
           </div>
         )}
 
-        {/* Mobile Floating Navigation Buttons - Always Visible */}
-        <div className="xl:hidden fixed bottom-6 left-4 right-4 z-50 flex justify-between items-center pointer-events-none floating-nav-bottom">
-          <Button
-            variant="default"
-            size="lg"
-            onClick={() => setShowMobileProjectsSidebar(true)}
-            className="shadow-2xl bg-gradient-primary text-white border-none hover:scale-110 transition-all duration-200 pointer-events-auto min-h-[56px] min-w-[56px] rounded-full p-3"
-          >
-            <FolderOpen className="h-6 w-6" />
-            <span className="sr-only">פרויקטים</span>
-          </Button>
-          
-          <Button
-            variant="default"
-            size="lg"
-            onClick={() => setShowMobileTasksSidebar(true)}
-            className="shadow-2xl bg-gradient-primary text-white border-none hover:scale-110 transition-all duration-200 pointer-events-auto min-h-[56px] min-w-[56px] rounded-full p-3"
-          >
-            <CheckSquare className="h-6 w-6" />
-            <span className="sr-only">משימות</span>
-          </Button>
+        {/* Mobile Floating Navigation - 4 Buttons */}
+        <div className="xl:hidden fixed bottom-6 left-4 right-4 z-50 floating-nav-bottom">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-2">
+            <div className="grid grid-cols-4 gap-2">
+              {/* Dashboard Button */}
+              <Button
+                variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveTab('dashboard')}
+                className={`flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] transition-all duration-200 ${
+                  activeTab === 'dashboard' 
+                    ? 'bg-gradient-primary text-white shadow-lg' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+              >
+                <BarChart3 className="h-5 w-5" />
+                <span className="text-xs font-medium">לוח בקרה</span>
+              </Button>
+
+              {/* Projects Tab Button */}
+              <Button
+                variant={activeTab === 'projects' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveTab('projects')}
+                className={`flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] transition-all duration-200 ${
+                  activeTab === 'projects' 
+                    ? 'bg-gradient-primary text-white shadow-lg' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+              >
+                <Users className="h-5 w-5" />
+                <span className="text-xs font-medium">פרויקטים</span>
+              </Button>
+
+              {/* Tasks Sidebar Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMobileTasksSidebar(true)}
+                className="flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
+              >
+                <CheckSquare className="h-5 w-5" />
+                <span className="text-xs font-medium">משימות</span>
+              </Button>
+
+              {/* Projects Sidebar Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMobileProjectsSidebar(true)}
+                className="flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
+              >
+                <FolderOpen className="h-5 w-5" />
+                <span className="text-xs font-medium">רשימות</span>
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Swipe Indicators - Show on first visit */}
