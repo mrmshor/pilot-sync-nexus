@@ -124,7 +124,7 @@ const App = () => {
       <main className="p-6">
         <div className="space-y-8 animate-fade-in">
           {/* כותרת מעוצבת */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-blue-50 to-cyan-50 p-8 border border-primary/10 animate-scale-in">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-blue-50 to-cyan-50 p-8 border border-primary/10 animate-scale-in min-h-[180px]">
             <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
             <div className="relative">
               <div className="flex items-center gap-4 mb-4">
