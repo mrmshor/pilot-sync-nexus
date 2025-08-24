@@ -206,7 +206,7 @@ export function TasksSidebar() {
   // מצב מצומצם
   if (isCollapsed) {
     return (
-      <div className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-16 bg-white border-r shadow-lg flex flex-col items-center py-4 z-40">
+      <div className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-16 bg-white border-l shadow-lg flex flex-col items-center py-4 z-40">
         <Button
           variant="ghost"
           size="sm"
@@ -226,7 +226,7 @@ export function TasksSidebar() {
   }
 
   return (
-    <div className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-80 bg-white border-r shadow-lg z-40 flex flex-col">
+    <div className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 bg-white border-l shadow-lg z-40 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
