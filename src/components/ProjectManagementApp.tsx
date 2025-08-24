@@ -25,6 +25,9 @@ import { ProjectTasksModal } from './ProjectTasksModal';
 import { ProjectEditModal } from './ProjectEditModal';
 import { AdvancedDashboard } from './AdvancedDashboard';
 import { AppSidebar } from './AppSidebar';
+import { Progress } from '@/components/ui/progress';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
+import { he } from 'date-fns/locale';
 
 export const ProjectManagementApp = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -293,6 +296,15 @@ export const ProjectManagementApp = () => {
       paymentRate
     };
   }, [projects]);
+
+  const urgentHighCount = useMemo(() => quickTasks.filter(t => !t.completed && t.priority === 'high').length, [quickTasks]);
+  const totalTasksCount = useMemo(() => projects.reduce((sum,p)=> sum + p.tasks.length, 0) + quickTasks.length, [projects, quickTasks]);
+  const completedTasksCount = useMemo(() => projects.reduce((sum,p)=> sum + p.tasks.filter(t=>t.completed).length, 0) + quickTasks.filter(t=>t.completed).length, [projects, quickTasks]);
+  const recentProjects = useMemo(() => [...projects].sort((a,b)=> new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 3), [projects]);
+  const recentTasks = useMemo(() => quickTasks.filter(t=>!t.completed).sort((a,b)=> (a.priority==='high'?3:a.priority==='medium'?2:1) < (b.priority==='high'?3:b.priority==='medium'?2:1) ? 1 : -1).slice(0,5), [quickTasks]);
+
+  const getPriorityColor = (priority: 'low'|'medium'|'high') => priority === 'high' ? 'text-red-600 bg-red-100 border border-red-200' : priority === 'medium' ? 'text-amber-600 bg-amber-100 border border-amber-200' : 'text-green-600 bg-green-100 border border-green-200';
+  const formatStatusHe = (status: string) => status === 'in-progress' ? 'בעבודה' : status === 'on-hold' ? 'בהמתנה' : status === 'completed' ? 'הושלם' : status;
 
   // Optimized filter and sort projects with debounced search
   const filteredAndSortedProjects = useMemo(() => {
