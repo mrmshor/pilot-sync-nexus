@@ -1,4 +1,6 @@
 import { Project, QuickTask } from '../types';
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 
 export const FolderService = {
   // פתיחת תיקיה עם HTML file input (רק בדפדפן)
@@ -116,16 +118,34 @@ export const ContactService = {
   openWhatsApp: async (phone: string): Promise<void> => {
     if (!phone) return;
     try {
+      console.log('Opening WhatsApp for phone:', phone);
       const formatted = ContactService.formatPhoneForInternational(phone);
+      console.log('Formatted phone number:', formatted);
+      
       if (!ContactService.validatePhoneNumber(formatted)) {
         console.warn('Invalid phone number for WhatsApp:', phone);
         throw new Error('מספר הטלפון אינו תקין');
       }
       
-      // פתיחת WhatsApp Web או אפליקציה
+      // פתיחת WhatsApp עם תמיכה במובייל
       const whatsappUrl = `https://wa.me/${formatted}`;
-      window.open(whatsappUrl, '_blank');
-      console.log('WhatsApp opened via web URL with phone:', formatted);
+      console.log('WhatsApp URL:', whatsappUrl);
+      console.log('Is native platform:', Capacitor.isNativePlatform());
+      
+      if (Capacitor.isNativePlatform()) {
+        // באפליקציית מובייל - שימוש ב-Capacitor Browser
+        console.log('Attempting to open WhatsApp via Capacitor Browser...');
+        await Browser.open({ 
+          url: whatsappUrl,
+          presentationStyle: 'popover' 
+        });
+        console.log('WhatsApp opened via Capacitor Browser on mobile:', formatted);
+      } else {
+        // בדפדפן - שימוש רגיל
+        console.log('Attempting to open WhatsApp via window.open...');
+        window.open(whatsappUrl, '_blank');
+        console.log('WhatsApp opened via web URL:', formatted);
+      }
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
       throw error;
