@@ -320,7 +320,7 @@ export function TasksSidebar() {
                         </Button>
                         
                         <div className="flex-1 min-w-0">
-                          <p className="text-base font-semibold leading-snug mb-1">{task.title}</p>
+                          <p className="text-base font-semibold leading-snug mb-1 break-words">{task.title}</p>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <DropdownMenu>
@@ -397,7 +397,7 @@ export function TasksSidebar() {
                       <div className="flex items-start gap-3">
                         <CheckCircle2 className="w-4 h-4 text-success mt-1 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm line-through text-muted-foreground leading-relaxed">
+                          <p className="text-sm line-through text-muted-foreground leading-relaxed break-words">
                             {task.title}
                           </p>
                           <div className="flex items-center justify-between mt-1">
