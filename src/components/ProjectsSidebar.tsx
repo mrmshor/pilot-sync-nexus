@@ -93,8 +93,8 @@ export function ProjectsSidebar() {
   return (
     <div
       className={cn(
-        'h-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md transition-all duration-300 shadow-xl flex flex-col border-gray-200/50 dark:border-gray-700/50',
-        isCollapsed ? 'w-12' : 'w-full'
+        'h-screen bg-white/95 dark:bg-gray-900/95 backdrop-blur-md transition-all duration-300 shadow-xl flex flex-col border-r border-gray-200 fixed top-0 left-0 z-30',
+        isCollapsed ? 'w-12' : 'w-80'
       )}
     >
       {/* Header */}

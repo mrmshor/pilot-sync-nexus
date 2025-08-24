@@ -790,7 +790,7 @@ export const ProjectManagementApp = () => {
         </div>
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen mr-80 flex flex-col">
+        <div className="flex-1 min-h-screen mx-80 flex flex-col">
           {/* Fixed Header and Navigation */}
           <div className="sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm">
             <div className="container mx-auto px-4 py-8">
