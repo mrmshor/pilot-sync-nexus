@@ -226,38 +226,37 @@ export function TasksSidebar() {
   }
 
   return (
-    <div className="fixed right-0 top-0 h-screen w-full sm:w-96 lg:w-80 bg-white border-l shadow-lg z-40 flex flex-col">
+    <div className="fixed right-0 top-0 h-screen w-80 bg-white border-l shadow-lg z-40 flex flex-col">
       {/* Header */}
-      <div className="p-4 sm:p-6 border-b border-gray-200/30 dark:border-gray-700/30 flex-shrink-0 bg-gradient-to-b from-gray-50/50 to-transparent dark:from-gray-800/50">
+      <div className="p-4 border-b border-gray-200/30 dark:border-gray-700/30 flex-shrink-0 bg-gradient-to-b from-gray-50/50 to-transparent dark:from-gray-800/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative p-2 sm:p-3 bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-xl shadow-sm">
-              <CheckSquare className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+            <div className="relative p-2 bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-xl shadow-sm">
+              <CheckSquare className="w-4 h-4 text-primary" />
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-xl animate-pulse"></div>
             </div>
             <div>
               <div className="relative">
-                <h2 className="text-base sm:text-lg font-semibold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                <h2 className="text-sm font-semibold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
                   משימות אישיות
                 </h2>
                 <div className="absolute -bottom-0.5 right-0 w-8 h-0.5 bg-gradient-to-l from-primary/60 to-transparent rounded-full"></div>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {tasks.length} משימות
               </p>
             </div>
           </div>
         
-          <div className="flex gap-2 sm:gap-3">
+          <div className="flex gap-1">
             {completedTasks.length > 0 && (
               <Button 
                 variant="ghost" 
                 size="sm"
                 onClick={clearCompleted}
                 title="נקה משימות מושלמות"
-                className="touch-target p-3"
               >
-                <Trash2 className="w-5 h-5 sm:w-4 sm:h-4" />
+                <Trash2 className="w-4 h-4" />
               </Button>
             )}
             
@@ -267,9 +266,8 @@ export function TasksSidebar() {
                 size="sm"
                 onClick={exportPendingTasksToNotes}
                 title="ייצא להערות"
-                className="touch-target p-3"
               >
-                <Share className="w-5 h-5 sm:w-4 sm:h-4" />
+                <Share className="w-4 h-4" />
               </Button>
             )}
             
@@ -293,28 +291,28 @@ export function TasksSidebar() {
                   window.dispatchEvent(event);
                 }
               }}
-              className="lg:hidden touch-target p-3"
+              className="lg:hidden"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </div>
 
       {/* Add New Task */}
-      <div className="p-4 sm:p-6 border-b">
-        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+      <div className="p-4 border-b">
+        <div className="flex gap-2 mb-2">
           <Input
             placeholder="הוסף משימה חדשה..."
             value={newTask}
             onChange={(e) => setNewTask(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-            className="flex-1 rtl text-base py-4 h-12 rounded-xl"
+            className="flex-1 rtl text-base py-3"
           />
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 py-4 px-6 text-base h-12 rounded-xl whitespace-nowrap">
+              <Button variant="outline" size="sm" className="gap-1 py-3 px-4 text-sm">
                 {getPriorityIcon(newTaskPriority)}
                 {newTaskPriority}
               </Button>
@@ -324,7 +322,7 @@ export function TasksSidebar() {
                 <DropdownMenuItem
                   key={priority}
                   onClick={() => setNewTaskPriority(priority)}
-                  className="gap-2 py-3 text-base touch-target"
+                  className="gap-2 py-3 text-base"
                 >
                   {getPriorityIcon(priority)}
                   {priority}
@@ -337,82 +335,82 @@ export function TasksSidebar() {
         <Button 
           onClick={handleAddTask} 
           disabled={!newTask.trim()}
-          className="w-full py-4 h-12 text-base font-medium rounded-xl"
+          className="w-full py-3 text-base"
           size="sm"
         >
-          <Plus className="w-5 h-5 mr-3" />
+          <Plus className="w-5 h-5 mr-2" />
           הוסף משימה
         </Button>
         
-        <div className="flex gap-3 mt-4 text-sm text-muted-foreground">
-          <Badge variant="outline" className="py-2 px-3 text-sm">{pendingTasks.length} ממתינות</Badge>
-          <Badge variant="outline" className="py-2 px-3 text-sm">{completedTasks.length} הושלמו</Badge>
+        <div className="flex gap-2 mt-3 text-sm text-muted-foreground">
+          <Badge variant="outline" className="py-1 px-2">{pendingTasks.length} ממתינות</Badge>
+          <Badge variant="outline" className="py-1 px-2">{completedTasks.length} הושלמו</Badge>
         </div>
       </div>
 
       {/* Tasks List */}
       <ScrollArea className="flex-1">
-        <div className="p-4 sm:p-6">
+        <div className="p-4">
           {/* Pending Tasks */}
           {pendingTasks.length > 0 && (
-            <div className="mb-6 sm:mb-8">
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h3 className="text-base sm:text-lg font-medium text-muted-foreground flex items-center gap-2">
-                  <Timer className="w-5 h-5 sm:w-4 sm:h-4" />
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Timer className="w-4 h-4" />
                   ממתינות ({pendingTasks.length})
                 </h3>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleCopyPendingTasks}
-                  className="h-10 px-4 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-all duration-200 active:scale-95 touch-target"
+                  className="h-7 px-2 text-xs hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-all duration-200 active:scale-95"
                 >
-                  <Copy className="w-4 h-4 ml-1" />
+                  <Copy className="w-3 h-3 ml-1" />
                   העתק
                 </Button>
               </div>
               
-              <div className="space-y-4">
-                {pendingTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="flex items-center gap-4 p-5 rounded-2xl border-2 bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md group"
-                  >
-                    <Checkbox
-                      checked={task.completed}
-                      onCheckedChange={() => handleToggleTask(task.id)}
-                      className="scale-125 touch-target"
-                    />
-                    
-                    <div className="flex-1 min-w-0">
-                      <p className="text-base sm:text-lg font-semibold text-gray-900 mb-2 group-hover:text-primary-foreground transition-colors">{task.title}</p>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-auto p-2 gap-2 hover:bg-white/80 rounded-xl self-start">
-                              {getPriorityIcon(task.priority)}
-                              <span className="text-sm font-medium">{task.priority}</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 z-50">
-                            {(['גבוהה', 'בינונית', 'נמוכה'] as Priority[]).map((priority) => (
-                              <DropdownMenuItem
-                                key={priority}
-                                onClick={() => handlePriorityChange(task.id, priority)}
-                                className="gap-2 py-3 text-base touch-target"
-                              >
-                                {getPriorityIcon(priority)}
-                                {priority}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        
-                        <Badge variant="secondary" className="text-sm px-3 py-1 bg-gray-100 text-gray-600">
-                          {new Date(task.createdAt).toLocaleDateString('he-IL')}
-                        </Badge>
-                      </div>
-                    </div>
+               <div className="space-y-3">
+                 {pendingTasks.map((task) => (
+                   <div
+                     key={task.id}
+                     className="flex items-center gap-3 p-4 rounded-xl border-2 bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md group"
+                   >
+                     <Checkbox
+                       checked={task.completed}
+                       onCheckedChange={() => handleToggleTask(task.id)}
+                       className="scale-110"
+                     />
+                     
+                     <div className="flex-1 min-w-0">
+                       <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-primary-foreground transition-colors">{task.title}</p>
+                       <div className="flex items-center gap-3 mt-2">
+                         <DropdownMenu>
+                           <DropdownMenuTrigger asChild>
+                             <Button variant="ghost" size="sm" className="h-auto p-1 gap-1.5 hover:bg-white/80 rounded-lg">
+                               {getPriorityIcon(task.priority)}
+                               <span className="text-xs font-medium">{task.priority}</span>
+                             </Button>
+                           </DropdownMenuTrigger>
+                           <DropdownMenuContent align="start" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 z-50">
+                             {(['גבוהה', 'בינונית', 'נמוכה'] as Priority[]).map((priority) => (
+                               <DropdownMenuItem
+                                 key={priority}
+                                 onClick={() => handlePriorityChange(task.id, priority)}
+                                 className="gap-2"
+                               >
+                                 {getPriorityIcon(priority)}
+                                 {priority}
+                               </DropdownMenuItem>
+                             ))}
+                           </DropdownMenuContent>
+                         </DropdownMenu>
+                         
+                         <Badge variant="secondary" className="text-xs px-2 py-1 bg-gray-100 text-gray-600">
+                           {new Date(task.createdAt).toLocaleDateString('he-IL')}
+                         </Badge>
+                       </div>
+                     </div>
                     
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
