@@ -307,25 +307,25 @@ export function TasksSidebar() {
                   {pendingTasks.map((task) => (
                     <div
                       key={task.id}
-                      className="p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors border border-gray-200/50"
+                      className="p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors border border-gray-200/50"
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleToggleTask(task.id)}
-                          className="p-2 h-auto hover:text-success rounded-lg hover:bg-success/10 mt-0.5"
+                          className="p-1.5 h-auto hover:text-success rounded-lg hover:bg-success/10 flex-shrink-0"
                         >
                           <CheckCircle2 className="w-4 h-4" />
                         </Button>
                         
-                        <div className="flex-1 min-w-0 space-y-2">
-                          <p className="text-sm font-medium leading-relaxed">{task.title}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-base font-semibold leading-snug mb-1">{task.title}</p>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm" className="h-6 px-2 gap-1 hover:bg-gray-100">
+                                  <Button variant="ghost" size="sm" className="h-5 px-1.5 gap-1 hover:bg-gray-100">
                                     {getPriorityIcon(task.priority)}
                                     <span className={cn("text-xs font-medium", getPriorityColor(task.priority))}>
                                       {task.priority}
@@ -355,9 +355,9 @@ export function TasksSidebar() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteTask(task.id)}
-                              className="p-2 h-auto hover:text-destructive rounded-lg hover:bg-destructive/10"
+                              className="p-1 h-auto hover:text-destructive rounded-md hover:bg-destructive/10 flex-shrink-0"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </div>
                         </div>
