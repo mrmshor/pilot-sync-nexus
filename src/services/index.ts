@@ -129,10 +129,10 @@ export const ContactService = {
 
       // מספר ספרתי בלבד (ללא '+') עבור כל ה-URLs
       const numeric = formatted.replace(/[^\d]/g, '');
-      const deepLink = `whatsapp://send?phone=${numeric}`;
-      const webUrl = `https://web.whatsapp.com/send?phone=${numeric}`; // מומלץ לדסקטופ
-      const apiUrl = `https://api.whatsapp.com/send?phone=${numeric}`;
-      const waUrl = `https://wa.me/${numeric}`;
+      const deepLink = `whatsapp://send?phone=${numeric}&text=`;
+      const webUrl = `https://web.whatsapp.com/send?phone=${numeric}&text=`; // מומלץ לדסקטופ
+      const apiUrl = `https://api.whatsapp.com/send?phone=${numeric}&text=`;
+      const waUrl = `https://wa.me/${numeric}?text=`;
 
       const isNative = Capacitor.isNativePlatform();
       const isMobileUA = /Android|iPhone|iPad|iPod|IEMobile|WPDesktop/i.test(navigator.userAgent);
