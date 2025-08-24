@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 import type {
   ToastActionElement,
@@ -170,6 +171,7 @@ function toast({ ...props }: Toast) {
 
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
+  const isMobile = useIsMobile()
 
   React.useEffect(() => {
     listeners.push(setState)
@@ -181,9 +183,21 @@ function useToast() {
     }
   }, [state])
 
+  const mobileToast = React.useCallback(({ ...props }: Toast) => {
+    // Don't show toasts on mobile devices
+    if (isMobile) {
+      return {
+        id: "",
+        dismiss: () => {},
+        update: () => {}
+      }
+    }
+    return toast(props)
+  }, [isMobile])
+
   return {
     ...state,
-    toast,
+    toast: mobileToast,
     dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
   }
 }
