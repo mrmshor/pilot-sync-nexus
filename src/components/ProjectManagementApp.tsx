@@ -833,7 +833,7 @@ export const ProjectManagementApp = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full ios-safe-area m-0 p-0" dir="rtl">{/* Remove any default margins/padding */}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full m-0 p-0" dir="rtl">{/* Remove any default margins/padding and safe-area side gaps */}
         {/* Desktop Tasks Sidebar - Right Side */}
         <div className="hidden xl:block fixed right-0 top-0 h-full w-80 z-10">
           <TasksSidebar />
