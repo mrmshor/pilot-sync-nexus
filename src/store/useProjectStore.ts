@@ -217,13 +217,25 @@ export const useProjectStore = create<ProjectStore>()(
       syncWithSupabase: async () => {
         set({ isSyncing: true, lastSyncError: null });
         try {
+          // Check if user is authenticated
+          const { data: { user }, error: authError } = await supabase.auth.getUser();
+          
+          if (authError || !user) {
+            console.warn('User not authenticated, skipping sync');
+            set({ isSyncing: false, lastSyncError: null });
+            return;
+          }
+
           // Fetch projects
           const { data: projectsData, error: projectsError } = await supabase
             .from('projects')
             .select('*')
             .order('created_at', { ascending: false });
 
-          if (projectsError) throw projectsError;
+          if (projectsError) {
+            console.error('Projects fetch error:', projectsError);
+            throw projectsError;
+          }
 
           const projects = projectsData?.map(convertFromSupabase) || [];
           
@@ -231,7 +243,11 @@ export const useProjectStore = create<ProjectStore>()(
           console.log('Synced projects from Supabase:', projects);
         } catch (error) {
           console.error('Sync error:', error);
-          set({ isSyncing: false, lastSyncError: 'שגיאה בסנכרון נתונים' });
+          // Don't clear projects on sync error - keep existing data
+          set((state) => ({ 
+            isSyncing: false, 
+            lastSyncError: 'שגיאה בסנכרון נתונים - הנתונים המקומיים נשמרו'
+          }));
         }
       },
 
