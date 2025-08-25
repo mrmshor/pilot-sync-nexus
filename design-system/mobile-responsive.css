@@ -65,6 +65,55 @@
     @apply pb-40 md:pb-6; /* Increased bottom padding significantly on mobile to prevent content hiding behind floating nav */
   }
 
+  /* ===== Mobile Enhanced Scrolling ===== */
+  .mobile-scroll-enhanced {
+    @media (max-width: 1023px) {
+      scrollbar-width: thin;
+      scrollbar-color: hsl(var(--primary) / 0.3) transparent;
+    }
+  }
+
+  .mobile-scroll-enhanced::-webkit-scrollbar {
+    @media (max-width: 1023px) {
+      width: 6px;
+    }
+  }
+
+  .mobile-scroll-enhanced::-webkit-scrollbar-track {
+    @media (max-width: 1023px) {
+      background: hsl(var(--muted) / 0.3);
+      border-radius: 3px;
+      margin: 8px;
+    }
+  }
+
+  .mobile-scroll-enhanced::-webkit-scrollbar-thumb {
+    @media (max-width: 1023px) {
+      background: linear-gradient(180deg, hsl(var(--primary) / 0.4), hsl(var(--primary) / 0.6));
+      border-radius: 3px;
+      transition: background 0.2s ease;
+    }
+  }
+
+  .mobile-scroll-enhanced::-webkit-scrollbar-thumb:hover {
+    @media (max-width: 1023px) {
+      background: linear-gradient(180deg, hsl(var(--primary) / 0.6), hsl(var(--primary) / 0.8));
+    }
+  }
+
+  .mobile-scroll-enhanced::-webkit-scrollbar-thumb:active {
+    @media (max-width: 1023px) {
+      background: linear-gradient(180deg, hsl(var(--primary) / 0.8), hsl(var(--primary)));
+    }
+  }
+
+  .mobile-scroll-content {
+    @media (max-width: 1023px) {
+      padding-right: 8px;
+      scroll-behavior: smooth;
+    }
+  }
+
   /* ===== Mobile Cards ===== */
   .mobile-card {
     background: hsl(var(--card));
