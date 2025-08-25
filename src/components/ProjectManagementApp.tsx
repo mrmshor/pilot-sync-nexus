@@ -1929,7 +1929,11 @@ export const ProjectManagementApp = () => {
               <Button
                 variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
                 size="lg"
-                onClick={() => setActiveTab('dashboard')}
+                onClick={() => {
+                  setShowMobileTasksSidebar(false);
+                  setShowMobileProjectsSidebar(false);
+                  setActiveTab('dashboard');
+                }}
                 className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
                   activeTab === 'dashboard' 
                     ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl' 
@@ -1944,7 +1948,11 @@ export const ProjectManagementApp = () => {
               <Button
                 variant={activeTab === 'projects' ? 'default' : 'ghost'}
                 size="lg"
-                onClick={() => setActiveTab('projects')}
+                onClick={() => {
+                  setShowMobileTasksSidebar(false);
+                  setShowMobileProjectsSidebar(false);
+                  setActiveTab('projects');
+                }}
                 className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
                   activeTab === 'projects' 
                     ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl' 
@@ -1959,8 +1967,16 @@ export const ProjectManagementApp = () => {
               <Button
                 variant="ghost"
                 size="lg"
-                onClick={() => setShowMobileTasksSidebar(true)}
-                className="flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target text-foreground hover:text-primary hover:bg-accent transition-all duration-200 rounded-xl font-medium"
+                onClick={() => {
+                  setShowMobileProjectsSidebar(false);
+                  setActiveTab('dashboard');
+                  setShowMobileTasksSidebar(true);
+                }}
+                className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
+                  showMobileTasksSidebar 
+                    ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl' 
+                    : 'text-foreground hover:text-primary hover:bg-accent'
+                }`}
               >
                 <CheckSquare className="h-5 w-5" />
                 <span className="text-[10px] font-semibold">משימות</span>
@@ -1970,8 +1986,16 @@ export const ProjectManagementApp = () => {
               <Button
                 variant="ghost"
                 size="lg"
-                onClick={() => setShowMobileProjectsSidebar(true)}
-                className="flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target text-foreground hover:text-primary hover:bg-accent transition-all duration-200 rounded-xl font-medium"
+                onClick={() => {
+                  setShowMobileTasksSidebar(false);
+                  setActiveTab('dashboard');
+                  setShowMobileProjectsSidebar(true);
+                }}
+                className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
+                  showMobileProjectsSidebar 
+                    ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl' 
+                    : 'text-foreground hover:text-primary hover:bg-accent'
+                }`}
               >
                 <FolderOpen className="h-5 w-5" />
                 <span className="text-[10px] font-semibold">קפיצה</span>
