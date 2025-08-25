@@ -333,17 +333,17 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 </div>
               </div>
               
-              {/* Interactive Status, Priority, and Payment (tablet row) */}
-              <div className="tablet-top-actions flex flex-col gap-2 md:flex-row md:items-center mb-3">
+              {/* Interactive Status, Priority, and Payment (tablet column like smartphone) */}
+              <div className="tablet-top-actions flex flex-col gap-2 md:flex-col md:items-stretch mb-3">
                 <StatusDropdown
                   value={project.status}
                   onChange={(status) => updateProjectStatus(project.id, status)}
-                  className="flex-1 md:w-[220px]"
+                  className="flex-1 md:w-full"
                 />
                 <PriorityDropdown
                   value={project.priority}
                   onChange={(priority) => updateProjectPriority(project.id, priority)}
-                  className="flex-1 md:w=[220px]"
+                  className="flex-1 md:w-full"
                 />
                 <Button
                   variant="outline"
@@ -352,7 +352,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                     e.stopPropagation();
                     togglePaid(project.id);
                   }}
-                  className={`hidden md:flex mobile-button md:w-[220px] justify-center ${project.paid ? 'border-green-300 text-green-700 bg-green-50' : 'border-orange-300 text-orange-700 bg-orange-50'}`}
+                  className={`hidden md:flex mobile-button md:w-full ${project.paid ? 'border-green-300 text-green-700 bg-green-50' : 'border-orange-300 text-orange-700 bg-orange-50'}`}
                   title={project.paid ? 'שולם' : 'לא שולם'}
                 >
                   <CreditCard className="mobile-icon-sm ml-1" />
@@ -499,7 +499,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
             </div>
 
             {/* Tablet actions row */}
-            <div className="hidden md:flex items-center justify-center gap-4 px-6 pb-4">
+            <div className="tablet-actions-row hidden md:flex items-center justify-center gap-4 px-6 pb-4">
               <Button variant="outline" className="mobile-button px-6" title="ערוך פרויקט">
                 <Edit className="mobile-icon-sm ml-2" /> ערוך פרויקט
               </Button>

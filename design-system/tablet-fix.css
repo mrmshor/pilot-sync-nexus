@@ -2,16 +2,17 @@
 @media (min-width: 769px) and (max-width: 1279px) {
   .mobile-card .tablet-top-actions {
     display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 16px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
     margin-bottom: 16px !important;
   }
 
   .mobile-card .tablet-top-actions > * {
     flex: 1 !important;
-    min-width: 200px !important;
+    width: 100% !important;
+    min-width: 0 !important;
   }
 
   /* Force dropdown styles */
@@ -21,5 +22,12 @@
     border-radius: 20px !important;
     font-size: 15px !important;
     font-weight: 600 !important;
+  }
+
+  /* Show bottom action buttons nicely */
+  .mobile-card .tablet-actions-row {
+    display: flex !important;
+    gap: 16px !important;
+    justify-content: center !important;
   }
 }
