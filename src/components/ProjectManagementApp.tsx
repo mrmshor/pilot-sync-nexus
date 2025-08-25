@@ -833,7 +833,7 @@ export const ProjectManagementApp = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full ios-safe-area" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
         {/* Desktop Tasks Sidebar - Right Side */}
         <div className="hidden xl:block fixed right-0 top-0 h-full w-80 z-10">
           <TasksSidebar />
@@ -845,7 +845,7 @@ export const ProjectManagementApp = () => {
           <div className={`xl:hidden sticky top-0 z-30 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm transition-transform duration-300 ${
             headerVisible ? 'translate-y-0' : '-translate-y-full'
           }`}>
-            <div className="container mx-auto px-4 py-3 ios-safe-top">
+            <div className="container mx-auto px-4 py-3">
               <div className="flex items-center justify-between">
                 <Button
                   variant="ghost"
@@ -1805,7 +1805,7 @@ export const ProjectManagementApp = () => {
               className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
               onClick={() => setShowMobileTasksSidebar(false)}
             ></div>
-            <div className="absolute right-0 top-0 h-full w-80 sm:w-96 md:w-[420px] max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-l border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-right">
+            <div className="absolute right-0 top-0 h-full w-80 sm:w-96 md:w-[420px] max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-l border-border/50 transform transition-transform duration-300 ease-out animate-slide-in-right">
               <div className="h-screen flex flex-col mobile-sidebar-scroll">
                 <TasksSidebar />
               </div>
@@ -1819,8 +1819,8 @@ export const ProjectManagementApp = () => {
               className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
               onClick={() => setShowMobileProjectsSidebar(false)}
             ></div>
-            <div className="absolute left-0 top-0 h-full w-48 max-w-[50vw] bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl border-r border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-left">
-              <div className="h-screen overflow-hidden flex flex-col ios-scroll-fix">
+            <div className="absolute left-0 top-0 h-full w-48 max-w-[50vw] bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl border-r border-border/50 transform transition-transform duration-300 ease-out animate-slide-in-left">
+              <div className="h-screen overflow-hidden flex flex-col">
                 <div className="flex-1 overflow-y-auto">
                   {/* Minimal Header */}
                   <div className="p-3 border-b bg-white/50 dark:bg-gray-800/50 sticky top-0">
@@ -2005,12 +2005,6 @@ export const ProjectManagementApp = () => {
         )}
  
         {/* Swipe Indicators - Show on first visit */}
-        {!showMobileTasksSidebar && !showMobileProjectsSidebar && (
-          <>
-            <div className="swipe-indicator-left xl:hidden"></div>
-            <div className="swipe-indicator-right xl:hidden"></div>
-          </>
-        )}
       </div>
     </SidebarProvider>
   );
