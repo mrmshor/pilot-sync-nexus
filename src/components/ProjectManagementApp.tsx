@@ -1057,7 +1057,7 @@ export const ProjectManagementApp = () => {
 
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto">
-            <div className="container mx-auto px-4 py-6 pb-16 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
+            <div className="container mx-auto px-4 py-6 pb-32 md:pb-6">{/* Increased mobile bottom padding significantly */}
               <main className="mobile-content-spacing">
                 {activeTab === 'dashboard' && (
                   <div className="space-y-8 animate-fade-in">

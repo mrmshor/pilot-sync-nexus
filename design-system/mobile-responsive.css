@@ -62,7 +62,7 @@
 
   /* ===== Mobile Content Spacing ===== */
   .mobile-content-spacing {
-    @apply pb-28 md:pb-6; /* Add bottom padding on mobile to prevent content hiding behind floating nav */
+    @apply pb-40 md:pb-6; /* Increased bottom padding significantly on mobile to prevent content hiding behind floating nav */
   }
 
   /* ===== Mobile Cards ===== */
@@ -267,7 +267,7 @@
 
   /* Safe area for bottom navigation */
   .pb-safe-bottom {
-    padding-bottom: calc(env(safe-area-inset-bottom) + 6rem);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 10rem); /* Increased padding significantly */
   }
 
   @media (min-width: 1280px) {
