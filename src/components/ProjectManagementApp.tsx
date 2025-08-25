@@ -1525,218 +1525,229 @@ export const ProjectManagementApp = () => {
                 {activeTab === 'projects' && (
                   <div className="space-y-6">
                     {/* Projects Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">{/* Smaller gaps on mobile */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">{/* Mobile-optimized spacing */}
                       {filteredAndSortedProjects.map((project) => {
                         const completedTasks = project.tasks.filter(t => t.completed).length;
                         const totalTasks = project.tasks.length;
                         const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
                         return (
-                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group">
-                            <CardHeader className="pb-3 md:pb-4">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1 min-w-0">
-                                  <CardTitle className="text-lg md:text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
-                                    {project.name}
-                                  </CardTitle>
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <User className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground" />
-                                    <span className="text-xs md:text-sm text-muted-foreground truncate">
-                                      {project.clientName}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="flex flex-col gap-1 md:gap-2 ml-2">
-                                  <StatusDropdown
-                                    value={project.status}
-                                    onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
-                                    className="w-24 md:w-32 text-xs"
-                                  />
-                                  <PriorityDropdown
-                                    value={project.priority}
-                                    onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
-                                    className="w-24 md:w-32 text-xs"
-                                  />
-                                </div>
-                              </div>
-
-                              {project.description && (
-                                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                                  {project.description}
-                                </p>
-                              )}
-
-                              <div className="flex items-center justify-between mb-3">
-                                <div className="text-sm font-semibold text-green-600">
-                                  {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
-                                </div>
-                                <Button
-                                  size="sm"
-                                  variant={project.paid ? "default" : "outline"}
-                                  onClick={() => toggleProjectPaid(project.id)}
-                                  className={`text-xs h-8 px-3 transition-all duration-200 ${
-                                    project.paid 
-                                      ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
-                                      : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
-                                  }`}
-                                >
-                                  <CreditCard className="w-3 h-3 ml-1" />
-                                  {project.paid ? 'שולם' : 'לא שולם'}
-                                </Button>
-                              </div>
-
-                              <div className="space-y-3">
-                                <div className="bg-gradient-to-br from-blue-50/30 to-indigo-50/30 dark:from-blue-950/20 dark:to-indigo-950/20 p-3 rounded-lg border border-blue-100/50 dark:border-blue-800/30">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400">משימות</h3>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      onClick={() => {
-                                        setSelectedProject(project);
-                                        setShowTasksModal(true);
-                                      }}
-                                      className="text-xs h-7 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all duration-200"
-                                    >
-                                      <ListTodo className="w-3 h-3 ml-1" />
-                                      {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : 'הוסף משימות'}
-                                    </Button>
+                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group md:card-macos mobile-card">
+                            <CardHeader className="pb-3 md:pb-4 p-4 md:p-6">
+                              {/* Mobile-first layout */}
+                              <div className="space-y-3 md:space-y-0">
+                                {/* Mobile: Stacked layout, Desktop: Side by side */}
+                                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-0">
+                                  <div className="flex-1 min-w-0">
+                                    <CardTitle className="text-lg md:text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
+                                      {project.name}
+                                    </CardTitle>
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <User className="w-4 h-4 text-muted-foreground" />
+                                      <span className="text-sm text-muted-foreground truncate">
+                                        {project.clientName}
+                                      </span>
+                                    </div>
                                   </div>
                                   
-                                  {totalTasks > 0 && (
-                                    <div className="space-y-3">
-                                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                                        <div 
-                                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all"
-                                          style={{ width: `${completionRate}%` }}
-                                        />
-                                      </div>
-                                      <div className="space-y-2">
-                                        {[...project.tasks]
-                                          .sort((a, b) => {
-                                            if (a.completed !== b.completed) {
-                                              return a.completed ? 1 : -1;
-                                            }
-                                            return 0;
-                                          })
-                                          .slice(0, 3)
-                                          .map((task) => (
-                                          <div key={task.id} className="flex items-center gap-2 text-xs group cursor-pointer hover:bg-white/50 dark:hover:bg-gray-800/50 p-1.5 rounded transition-all">
-                                            <div 
-                                              className={`w-3 h-3 rounded-full border-2 flex items-center justify-center transition-all hover:scale-110 ${
+                                  {/* Mobile: Full width dropdowns, Desktop: Small */}
+                                  <div className="flex flex-row md:flex-col gap-2 md:gap-1 md:ml-2 w-full md:w-auto">
+                                    <StatusDropdown
+                                      value={project.status}
+                                      onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
+                                      className="flex-1 md:w-32 text-sm md:text-xs touch-target"
+                                    />
+                                    <PriorityDropdown
+                                      value={project.priority}
+                                      onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
+                                      className="flex-1 md:w-32 text-sm md:text-xs touch-target"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Description */}
+                                {project.description && (
+                                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                                    {project.description}
+                                  </p>
+                                )}
+
+                                {/* Price and Payment - Mobile optimized */}
+                                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0 md:mb-3">
+                                  <div className="text-lg md:text-sm font-bold md:font-semibold text-green-600">
+                                    {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
+                                  </div>
+                                  <Button
+                                    size="default"
+                                    variant={project.paid ? "default" : "outline"}
+                                    onClick={() => toggleProjectPaid(project.id)}
+                                    className={`touch-target w-full md:w-auto text-sm md:text-xs h-12 md:h-8 px-4 md:px-3 transition-all duration-200 ${
+                                      project.paid 
+                                        ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
+                                        : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
+                                    }`}
+                                  >
+                                    <CreditCard className="w-4 h-4 md:w-3 md:h-3 ml-2 md:ml-1" />
+                                    {project.paid ? 'שולם' : 'לא שולם'}
+                                  </Button>
+                                </div>
+
+                                {/* Tasks Section - Mobile optimized */}
+                                <div className="space-y-3">
+                                  <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 md:p-3 rounded-xl md:rounded-lg border border-blue-100/50 dark:border-blue-800/30">
+                                    <div className="flex items-center justify-between mb-4 md:mb-3">
+                                      <h3 className="text-lg md:text-lg font-semibold text-blue-600 dark:text-blue-400">משימות</h3>
+                                      <Button
+                                        size="default"
+                                        variant="ghost"
+                                        onClick={() => {
+                                          setSelectedProject(project);
+                                          setShowTasksModal(true);
+                                        }}
+                                        className="touch-target text-sm md:text-xs h-10 md:h-7 px-4 md:px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl md:rounded-lg transition-all duration-200"
+                                      >
+                                        <ListTodo className="w-4 h-4 md:w-3 md:h-3 ml-2 md:ml-1" />
+                                        {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : 'הוסף משימות'}
+                                      </Button>
+                                    </div>
+                                    
+                                    {totalTasks > 0 && (
+                                      <div className="space-y-4 md:space-y-3">
+                                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 md:h-1.5">
+                                          <div 
+                                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 md:h-1.5 rounded-full transition-all"
+                                            style={{ width: `${completionRate}%` }}
+                                          />
+                                        </div>
+                                        <div className="space-y-3 md:space-y-2">
+                                          {[...project.tasks]
+                                            .sort((a, b) => {
+                                              if (a.completed !== b.completed) {
+                                                return a.completed ? 1 : -1;
+                                              }
+                                              return 0;
+                                            })
+                                            .slice(0, 3)
+                                            .map((task) => (
+                                            <div key={task.id} className="flex items-center gap-3 md:gap-2 text-sm md:text-xs group cursor-pointer hover:bg-white/50 dark:hover:bg-gray-800/50 p-2 md:p-1.5 rounded-lg md:rounded transition-all touch-target">
+                                              <div 
+                                                className={`w-5 h-5 md:w-3 md:h-3 rounded-full border-2 flex items-center justify-center transition-all hover:scale-110 ${
+                                                  task.completed 
+                                                    ? 'bg-green-500 border-green-500' 
+                                                    : 'border-gray-400 hover:border-blue-500'
+                                                }`}
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleToggleProjectTask(project.id, task.id);
+                                                }}
+                                              >
+                                                {task.completed && <CheckCircle2 className="w-3 h-3 md:w-2 md:h-2 text-white" />}
+                                              </div>
+                                              <span className={`flex-1 truncate transition-all ${
                                                 task.completed 
-                                                  ? 'bg-green-500 border-green-500' 
-                                                  : 'border-gray-400 hover:border-blue-500'
-                                              }`}
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleToggleProjectTask(project.id, task.id);
-                                              }}
-                                            >
-                                              {task.completed && <CheckCircle2 className="w-2 h-2 text-white" />}
+                                                  ? 'line-through text-gray-500 dark:text-gray-400' 
+                                                  : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100'
+                                              }`}>
+                                                {task.title}
+                                              </span>
                                             </div>
-                                            <span className={`flex-1 truncate transition-all ${
-                                              task.completed 
-                                                ? 'line-through text-gray-500 dark:text-gray-400' 
-                                                : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100'
-                                            }`}>
-                                              {task.title}
-                                            </span>
-                                          </div>
-                                        ))}
-                                        {totalTasks > 3 && (
-                                          <div className="text-xs text-gray-500 text-center pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
-                                            +{totalTasks - 3} משימות נוספות...
-                                          </div>
-                                        )}
+                                          ))}
+                                          {totalTasks > 3 && (
+                                            <div className="text-sm md:text-xs text-gray-500 text-center pt-2 md:pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
+                                              +{totalTasks - 3} משימות נוספות...
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-                                  )}
-                                  
-                                  {totalTasks === 0 && (
-                                    <div className="text-center py-4">
-                                      <CheckSquare className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        לחץ על הכפתור להוספת משימות
-                                      </p>
-                                    </div>
-                                  )}
+                                    )}
+                                    
+                                    {totalTasks === 0 && (
+                                      <div className="text-center py-6 md:py-4">
+                                        <CheckSquare className="w-10 h-10 md:w-8 md:h-8 text-gray-400 mx-auto mb-3 md:mb-2" />
+                                        <p className="text-sm md:text-xs text-gray-500 dark:text-gray-400">
+                                          לחץ על הכפתור להוספת משימות
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </CardHeader>
 
-                            <CardContent className="space-y-4">
-                              <div className="grid grid-cols-3 gap-2">
+                            <CardContent className="space-y-4 p-4 md:p-6 pt-0">
+                              {/* Contact Buttons - Mobile optimized */}
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-2">
                                 {project.phone1 && (
                                   <Button
-                                    size="sm"
+                                    size="default"
                                     variant="outline"
                                     onClick={() => handleContactClick('phone', project.phone1)}
-                                    className="flex items-center gap-1 h-8 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200"
+                                    className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200 touch-target"
                                   >
-                                    <PhoneCall className="w-3 h-3" />
-                                    <span className="hidden sm:inline">חייג</span>
+                                    <PhoneCall className="w-5 h-5 md:w-3 md:h-3" />
+                                    <span className="font-medium">התקשר</span>
                                   </Button>
                                 )}
                                 {project.whatsapp1 && (
                                   <Button
-                                    size="sm"
+                                    size="default"
                                     variant="outline"
                                     onClick={() => handleContactClick('whatsapp', project.whatsapp1)}
-                                    className="flex items-center gap-1 h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 transition-all duration-200"
+                                    className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 transition-all duration-200 touch-target"
                                   >
-                                    <MessageCircle className="w-3 h-3" />
-                                    <span className="hidden sm:inline">וואטסאפ</span>
+                                    <MessageCircle className="w-5 h-5 md:w-3 md:h-3" />
+                                    <span className="font-medium">וואטסאפ</span>
                                   </Button>
                                 )}
                                 {project.email && (
                                   <Button
-                                    size="sm"
+                                    size="default"
                                     variant="outline"
                                     onClick={() => handleContactClick('email', project.email)}
-                                    className="flex items-center gap-1 h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200"
+                                    className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200 touch-target"
                                   >
-                                    <Mail className="w-3 h-3" />
-                                    <span className="hidden sm:inline">מייל</span>
+                                    <Mail className="w-5 h-5 md:w-3 md:h-3" />
+                                    <span className="font-medium">מייל</span>
                                   </Button>
                                 )}
                               </div>
 
-                              <div className="flex gap-2">
+                              {/* Action Buttons - Mobile optimized */}
+                              <div className="flex flex-col md:flex-row gap-3 md:gap-2">
                                 {(project.folderPath || project.icloudLink) && (
                                   <Button
-                                    size="sm"
+                                    size="default"
                                     variant="outline"
                                     onClick={() => openFolder(project.folderPath, project.icloudLink)}
-                                    className="flex items-center gap-1 h-8 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 transition-all duration-200"
+                                    className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 transition-all duration-200 touch-target"
                                   >
-                                    <FolderOpen className="w-3 h-3" />
-                                    פתח תיקייה
+                                    <FolderOpen className="w-5 h-5 md:w-3 md:h-3" />
+                                    <span className="font-medium">פתח תיקייה</span>
                                   </Button>
                                 )}
                               </div>
 
-                              <div className="flex gap-2 pt-2 border-t">
+                              <div className="flex flex-col md:flex-row gap-3 md:gap-2 pt-4 md:pt-2 border-t">
                                 <Button
-                                  size="sm"
+                                  size="default"
                                   variant="outline"
                                   onClick={() => {
                                     setSelectedProject(project);
                                     setShowEditModal(true);
                                   }}
-                                  className="flex items-center gap-1 h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200"
+                                  className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200 touch-target"
                                 >
-                                  <Edit className="w-3 h-3" />
-                                  ערוך
+                                  <Edit className="w-5 h-5 md:w-3 md:h-3" />
+                                  <span className="font-medium">ערוך פרויקט</span>
                                 </Button>
                                 <Button
-                                  size="sm"
+                                  size="default"
                                   variant="outline"
                                   onClick={() => handleDeleteProject(project.id)}
-                                  className="flex items-center gap-1 h-8 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200"
+                                  className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200 touch-target"
                                 >
-                                  <Trash2 className="w-3 h-3" />
-                                  מחק
+                                  <Trash2 className="w-5 h-5 md:w-3 md:h-3" />
+                                  <span className="font-medium">מחק פרויקט</span>
                                 </Button>
                               </div>
                             </CardContent>

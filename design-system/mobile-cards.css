@@ -1,0 +1,182 @@
+/* ===================================
+   Mobile Card Optimizations
+   =================================== */
+
+@layer components {
+  /* ===== Mobile Card Specific Styles ===== */
+  @media (max-width: 768px) {
+    .mobile-card {
+      border-radius: 16px;
+      padding: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid hsl(var(--border) / 0.3);
+      background: hsl(var(--card));
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .mobile-card:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Mobile Card Header */
+    .mobile-card .card-header {
+      padding: 20px;
+      padding-bottom: 16px;
+    }
+
+    /* Mobile Card Content */
+    .mobile-card .card-content {
+      padding: 0 20px 20px 20px;
+    }
+
+    /* Mobile Touch Targets */
+    .mobile-card .touch-target {
+      min-height: 48px;
+      min-width: 48px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* Mobile Button Spacing */
+    .mobile-card .mobile-button-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    /* Mobile Task Items */
+    .mobile-card .mobile-task-item {
+      padding: 12px;
+      border-radius: 12px;
+      min-height: 52px;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mobile-card .mobile-task-checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      touch-action: manipulation;
+    }
+
+    /* Mobile Progress Bar */
+    .mobile-card .mobile-progress {
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      background: hsl(var(--muted));
+    }
+
+    .mobile-card .mobile-progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+      transition: width 0.3s ease;
+    }
+
+    /* Mobile Dropdown Adjustments */
+    .mobile-card .mobile-dropdown {
+      height: 48px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      touch-action: manipulation;
+    }
+
+    /* Mobile Price Display */
+    .mobile-card .mobile-price {
+      font-size: 18px;
+      font-weight: 700;
+      color: hsl(var(--success));
+    }
+
+    /* Mobile Section Spacing */
+    .mobile-card .mobile-section {
+      margin-bottom: 20px;
+    }
+
+    .mobile-card .mobile-section:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Mobile Typography Adjustments */
+    .mobile-card .mobile-title {
+      font-size: 20px;
+      line-height: 1.3;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .mobile-card .mobile-subtitle {
+      font-size: 14px;
+      color: hsl(var(--muted-foreground));
+      margin-bottom: 16px;
+    }
+
+    .mobile-card .mobile-section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: hsl(var(--primary));
+    }
+
+    /* Mobile Icon Sizes */
+    .mobile-card .mobile-icon-sm {
+      width: 16px;
+      height: 16px;
+    }
+
+    .mobile-card .mobile-icon-md {
+      width: 20px;
+      height: 20px;
+    }
+
+    .mobile-card .mobile-icon-lg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  /* ===== Tablet Optimizations ===== */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .mobile-card {
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .mobile-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .mobile-card .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* ===== Desktop - Keep Original Styles ===== */
+  @media (min-width: 1025px) {
+    .mobile-card {
+      /* Reset mobile styles, keep original desktop card styles */
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-elegant);
+    }
+
+    .mobile-card:hover {
+      box-shadow: var(--shadow-strong);
+      transform: translateY(-4px);
+    }
+  }
+}

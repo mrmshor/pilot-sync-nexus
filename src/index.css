@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import '../design-system/mobile-responsive.css';
+@import '../design-system/mobile-cards.css';
 
 @layer base {
   :root {
