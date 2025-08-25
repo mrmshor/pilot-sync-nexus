@@ -367,7 +367,7 @@ export function TasksSidebar() {
       </div>
 
       {/* Tasks List */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 ios-scroll-fix">
         <div className="p-4">
           {/* Pending Tasks */}
           {pendingTasks.length > 0 && (
