@@ -160,8 +160,51 @@
     outline: none;
   }
 
-  /* ===== Tablet Optimizations ===== */
+  /* ===== Tablet Optimizations - Same as Mobile ===== */
   @media (min-width: 768px) and (max-width: 1024px) {
+    /* Apply mobile card styling to tablet */
+    .mobile-card {
+      border-radius: 16px;
+      padding: 20px;
+      margin: 12px;
+      box-shadow: var(--shadow-soft);
+      transition: var(--transition-smooth);
+      touch-action: manipulation;
+    }
+
+    .mobile-card:active {
+      transform: scale(0.98);
+      box-shadow: var(--shadow-medium);
+    }
+
+    /* Apply mobile touch targets to tablet */
+    .touch-target {
+      min-height: 48px;
+      min-width: 48px;
+      padding: 12px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* Apply mobile button styling to tablet */
+    .mobile-input {
+      min-height: 48px;
+      padding: 12px 16px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 2px solid hsl(var(--border));
+      background: hsl(var(--background));
+      transition: var(--transition-smooth);
+      touch-action: manipulation;
+    }
+
+    .mobile-input:focus {
+      border-color: hsl(var(--primary));
+      box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+      outline: none;
+    }
+
     .tablet-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
