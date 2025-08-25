@@ -20,17 +20,17 @@ export const PriorityDropdown: React.FC<{
     <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full px-4 h-10 rounded-2xl text-sm font-medium transition-all duration-200 ${currentPriority.color} border-2 shadow-md hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex items-center justify-between`}
+        className={`w-full px-3 py-1.5 h-8 rounded-lg text-xs font-medium transition-all duration-200 ${currentPriority.color} border-2 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex items-center justify-between`}
       >
-        <span className="flex items-center gap-2">
-          <currentPriority.Icon className="h-4 w-4" />
+        <span className="flex items-center gap-1">
+          <currentPriority.Icon className="h-3 w-3" />
           {currentPriority.label}
         </span>
-        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-white border-2 border-gray-200 rounded-2xl shadow-2xl z-[200] min-w-full overflow-hidden">
+        <div className="absolute top-full left-0 mt-2 bg-white/95 backdrop-blur-md border-2 border-gray-200 rounded-xl shadow-2xl z-[100] min-w-full overflow-hidden">
           {priorityOptions.map((option) => (
             <button
               key={option.value}

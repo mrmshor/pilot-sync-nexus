@@ -111,10 +111,10 @@ export const ProjectManagementApp = () => {
         return;
       }
       
-      // Mobile optimized scroll behavior - hide on down, show on up
-      if (currentScrollY < lastScrollY || currentScrollY < 20) {
+      // Header appears faster when scrolling up or near top
+      if (currentScrollY < lastScrollY || currentScrollY < 30) {
         setHeaderVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 60) {
+      } else if (currentScrollY > lastScrollY && currentScrollY > 80) {
         setHeaderVisible(false);
       }
       
@@ -1057,8 +1057,9 @@ export const ProjectManagementApp = () => {
 
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto">
-            <div className="container mx-auto px-4 py-6 pb-32 md:pb-6">{/* Increased mobile bottom padding significantly */}
-              <main className="mobile-content-spacing">
+            <div className="container mx-auto px-4 py-6 pb-16 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
+              {/* Content */}
+              <main>
                 {activeTab === 'dashboard' && (
                   <div className="space-y-8 animate-fade-in">
                     {/* כותרת מעוצבת */}
@@ -1522,9 +1523,9 @@ export const ProjectManagementApp = () => {
                 )}
 
                 {activeTab === 'projects' && (
-                  <div className="space-y-6 mobile-content-spacing">
+                  <div className="space-y-6">
                     {/* Projects Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">{/* Mobile-optimized spacing */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">{/* Smaller gaps on mobile */}
                       {filteredAndSortedProjects.map((project) => {
                         const completedTasks = project.tasks.filter(t => t.completed).length;
                         const totalTasks = project.tasks.length;
@@ -1532,266 +1533,190 @@ export const ProjectManagementApp = () => {
 
                         return (
                           <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group">
-                            <CardHeader className="pb-3 xl:pb-4 p-4 xl:p-6">
-                              {/* Desktop-optimized layout */}
-                              <div className="space-y-3 xl:space-y-0">
-                                {/* Desktop: Side by side header */}
-                                <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-3 xl:gap-4">
-                                  <div className="flex-1 min-w-0">
-                                    <CardTitle className="text-lg xl:text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
-                                      {project.name}
-                                    </CardTitle>
-                                    <div className="flex items-center gap-2 mb-3">
-                                      <User className="w-4 h-4 text-muted-foreground" />
-                                      <span className="text-sm text-muted-foreground truncate">
-                                        {project.clientName}
-                                      </span>
-                                    </div>
+                            <CardHeader className="pb-3 md:pb-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <CardTitle className="text-lg md:text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
+                                    {project.name}
+                                  </CardTitle>
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <User className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground" />
+                                    <span className="text-xs md:text-sm text-muted-foreground truncate">
+                                      {project.clientName}
+                                    </span>
                                   </div>
-                                  
-                                  {/* Desktop: Compact controls on the right */}
-                                  <div className="hidden xl:flex flex-col gap-1 ml-2 shrink-0">
-                                    <StatusDropdown
-                                      value={project.status}
-                                      onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
-                                      className="w-28 h-6 text-xs border-0 bg-transparent px-2 py-0"
-                                    />
-                                    <PriorityDropdown
-                                      value={project.priority}
-                                      onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
-                                      className="w-28 h-6 text-xs border-0 bg-transparent px-2 py-0"
-                                    />
-                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1 md:gap-2 ml-2">
+                                  <StatusDropdown
+                                    value={project.status}
+                                    onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
+                                    className="w-24 md:w-32 text-xs"
+                                  />
+                                  <PriorityDropdown
+                                    value={project.priority}
+                                    onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
+                                    className="w-24 md:w-32 text-xs"
+                                  />
+                                </div>
+                              </div>
 
-                                  {/* Mobile/Tablet: Full width controls */}
-                                  <div className="flex flex-row justify-between items-stretch gap-6 w-full xl:hidden">
-                                    <div className="flex flex-row gap-2">
-                                      <StatusDropdown
-                                        value={project.status}
-                                        onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
-                                        className="flex-1 md:w-40"
-                                      />
-                                      <PriorityDropdown
-                                        value={project.priority}
-                                        onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
-                                        className="flex-1 md:w-40"
-                                      />
-                                    </div>
-                                    
-                                    {/* Payment pill (tablet only) */}
+                              {project.description && (
+                                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                                  {project.description}
+                                </p>
+                              )}
+
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="text-sm font-semibold text-green-600">
+                                  {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant={project.paid ? "default" : "outline"}
+                                  onClick={() => toggleProjectPaid(project.id)}
+                                  className={`text-xs h-8 px-3 transition-all duration-200 ${
+                                    project.paid 
+                                      ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
+                                      : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
+                                  }`}
+                                >
+                                  <CreditCard className="w-3 h-3 ml-1" />
+                                  {project.paid ? 'שולם' : 'לא שולם'}
+                                </Button>
+                              </div>
+
+                              <div className="space-y-3">
+                                <div className="bg-gradient-to-br from-blue-50/30 to-indigo-50/30 dark:from-blue-950/20 dark:to-indigo-950/20 p-3 rounded-lg border border-blue-100/50 dark:border-blue-800/30">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400">משימות</h3>
                                     <Button
-                                      size="default"
-                                      variant={project.paid ? "default" : "outline"}
-                                      onClick={() => toggleProjectPaid(project.id)}
-                                      className={`hidden md:flex xl:hidden touch-target h-10 px-4 rounded-2xl text-sm transition-all duration-200 ${
-                                        project.paid 
-                                          ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
-                                          : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
-                                      }`}
-                                      title={project.paid ? 'שולם' : 'לא שולם'}
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => {
+                                        setSelectedProject(project);
+                                        setShowTasksModal(true);
+                                      }}
+                                      className="text-xs h-7 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all duration-200"
                                     >
-                                      <CreditCard className="w-4 h-4 ml-2" />
-                                      {project.paid ? 'שולם' : 'לא שולם'}
+                                      <ListTodo className="w-3 h-3 ml-1" />
+                                      {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : 'הוסף משימות'}
                                     </Button>
                                   </div>
-                                </div>
-
-                                {/* Description */}
-                                {project.description && (
-                                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                                    {project.description}
-                                  </p>
-                                )}
-
-                                {/* Price and Payment - Desktop optimized */}
-                                <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3 xl:gap-4 xl:mb-3">
-                                  <div className="text-lg xl:text-sm font-bold xl:font-semibold text-green-600">
-                                    {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
-                                  </div>
                                   
-                                  {/* Desktop payment button */}
-                                  <Button
-                                    size="sm"
-                                    variant={project.paid ? "default" : "outline"}
-                                    onClick={() => toggleProjectPaid(project.id)}
-                                    className={`hidden xl:flex text-xs h-6 px-2 transition-all duration-200 shrink-0 ${
-                                      project.paid 
-                                        ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
-                                        : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
-                                    }`}
-                                  >
-                                    <CreditCard className="w-3 h-3 ml-1" />
-                                    {project.paid ? 'שולם' : 'לא שולם'}
-                                  </Button>
-
-                                  {/* Mobile payment button */}
-                                  <Button
-                                    size="default"
-                                    variant={project.paid ? "default" : "outline"}
-                                    onClick={() => toggleProjectPaid(project.id)}
-                                    className={`touch-target w-full xl:hidden text-sm h-12 px-4 transition-all duration-200 ${
-                                      project.paid 
-                                        ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
-                                        : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
-                                    }`}
-                                  >
-                                    <CreditCard className="w-4 h-4 ml-2" />
-                                    {project.paid ? 'שולם' : 'לא שולם'}
-                                  </Button>
-                                </div>
-
-                                {/* Tasks Section - Responsive */}
-                                <div className="space-y-3">
-                                  <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 xl:p-3 rounded-xl xl:rounded-lg border border-blue-100/50 dark:border-blue-800/30">
-                                    <div className="flex items-center justify-between mb-4 xl:mb-3">
-                                      <h3 className="text-lg xl:text-sm font-semibold text-blue-600 dark:text-blue-400">משימות</h3>
-                                      <Button
-                                        size="default"
-                                        variant="ghost"
-                                        onClick={() => {
-                                          setSelectedProject(project);
-                                          setShowTasksModal(true);
-                                        }}
-                                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 h-8 xl:h-6 px-3 xl:px-2 text-sm xl:text-xs touch-target"
-                                      >
-                                        <Plus className="w-4 h-4 xl:w-3 xl:h-3 ml-1" />
-                                        הוסף
-                                      </Button>
-                                    </div>
-                                    
-                                    <div className="flex items-center justify-between">
-                                      <Button
-                                        size="default"
-                                        variant="outline"
-                                        onClick={() => {
-                                          setSelectedProject(project);
-                                          setShowTasksModal(true);
-                                        }}
-                                        className="touch-target text-sm xl:text-xs h-10 xl:h-7 px-4 xl:px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl xl:rounded-lg transition-all duration-200"
-                                      >
-                                        <ListTodo className="w-4 h-4 xl:w-3 xl:h-3 ml-2 xl:ml-1" />
-                                        {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : 'הוסף משימות'}
-                                      </Button>
-                                    </div>
-                                    
-                                    {totalTasks > 0 && (
-                                      <div className="space-y-4 md:space-y-3">
-                                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 md:h-1.5">
-                                          <div 
-                                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 md:h-1.5 rounded-full transition-all"
-                                            style={{ width: `${completionRate}%` }}
-                                          />
-                                        </div>
-                                        <div className="space-y-3 md:space-y-2">
-                                          {[...project.tasks]
-                                            .sort((a, b) => {
-                                              if (a.completed !== b.completed) {
-                                                return a.completed ? 1 : -1;
-                                              }
-                                              return 0;
-                                            })
-                                            .slice(0, 3)
-                                            .map((task) => (
-                                            <div key={task.id} className="flex items-center gap-3 md:gap-2 text-sm md:text-xs group cursor-pointer hover:bg-white/50 dark:hover:bg-gray-800/50 p-2 md:p-1.5 rounded-lg md:rounded transition-all touch-target">
-                                              <div 
-                                                className={`w-5 h-5 md:w-3 md:h-3 rounded-full border-2 flex items-center justify-center transition-all hover:scale-110 ${
-                                                  task.completed 
-                                                    ? 'bg-green-500 border-green-500' 
-                                                    : 'border-gray-400 hover:border-blue-500'
-                                                }`}
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  handleToggleProjectTask(project.id, task.id);
-                                                }}
-                                              >
-                                                {task.completed && <CheckCircle2 className="w-3 h-3 md:w-2 md:h-2 text-white" />}
-                                              </div>
-                                              <span className={`flex-1 truncate transition-all ${
+                                  {totalTasks > 0 && (
+                                    <div className="space-y-3">
+                                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                                        <div 
+                                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all"
+                                          style={{ width: `${completionRate}%` }}
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        {[...project.tasks]
+                                          .sort((a, b) => {
+                                            if (a.completed !== b.completed) {
+                                              return a.completed ? 1 : -1;
+                                            }
+                                            return 0;
+                                          })
+                                          .slice(0, 3)
+                                          .map((task) => (
+                                          <div key={task.id} className="flex items-center gap-2 text-xs group cursor-pointer hover:bg-white/50 dark:hover:bg-gray-800/50 p-1.5 rounded transition-all">
+                                            <div 
+                                              className={`w-3 h-3 rounded-full border-2 flex items-center justify-center transition-all hover:scale-110 ${
                                                 task.completed 
-                                                  ? 'line-through text-gray-500 dark:text-gray-400' 
-                                                  : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100'
-                                              }`}>
-                                                {task.title}
-                                              </span>
+                                                  ? 'bg-green-500 border-green-500' 
+                                                  : 'border-gray-400 hover:border-blue-500'
+                                              }`}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleToggleProjectTask(project.id, task.id);
+                                              }}
+                                            >
+                                              {task.completed && <CheckCircle2 className="w-2 h-2 text-white" />}
                                             </div>
-                                          ))}
-                                          {totalTasks > 3 && (
-                                            <div className="text-sm md:text-xs text-gray-500 text-center pt-2 md:pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
-                                              +{totalTasks - 3} משימות נוספות...
-                                            </div>
-                                          )}
-                                        </div>
+                                            <span className={`flex-1 truncate transition-all ${
+                                              task.completed 
+                                                ? 'line-through text-gray-500 dark:text-gray-400' 
+                                                : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100'
+                                            }`}>
+                                              {task.title}
+                                            </span>
+                                          </div>
+                                        ))}
+                                        {totalTasks > 3 && (
+                                          <div className="text-xs text-gray-500 text-center pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
+                                            +{totalTasks - 3} משימות נוספות...
+                                          </div>
+                                        )}
                                       </div>
-                                    )}
-                                    
-                                    {totalTasks === 0 && (
-                                      <div className="text-center py-6 md:py-4">
-                                        <CheckSquare className="w-10 h-10 md:w-8 md:h-8 text-gray-400 mx-auto mb-3 md:mb-2" />
-                                        <p className="text-sm md:text-xs text-gray-500 dark:text-gray-400">
-                                          לחץ על הכפתור להוספת משימות
-                                        </p>
-                                      </div>
-                                    )}
-                                  </div>
+                                    </div>
+                                  )}
+                                  
+                                  {totalTasks === 0 && (
+                                    <div className="text-center py-4">
+                                      <CheckSquare className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        לחץ על הכפתור להוספת משימות
+                                      </p>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </CardHeader>
 
-                            <CardContent className="space-y-4 p-4 md:p-6 pt-0">
-                              {/* Contact Section - Responsive design */}
-                              <div className="flex flex-col xl:flex-row gap-3 xl:gap-2">
+                            <CardContent className="space-y-4">
+                              <div className="grid grid-cols-3 gap-2">
                                 {project.phone1 && (
                                   <Button
-                                    size="default"
+                                    size="sm"
                                     variant="outline"
                                     onClick={() => handleContactClick('phone', project.phone1)}
-                                    className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200 touch-target"
+                                    className="flex items-center gap-1 h-8 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200"
                                   >
-                                    <PhoneCall className="w-5 h-5 xl:w-3 xl:h-3" />
-                                    <span className="font-medium xl:text-xs">התקשר</span>
+                                    <PhoneCall className="w-3 h-3" />
+                                    <span className="hidden sm:inline">חייג</span>
                                   </Button>
                                 )}
                                 {project.whatsapp1 && (
                                   <Button
-                                    size="default"
+                                    size="sm"
                                     variant="outline"
                                     onClick={() => handleContactClick('whatsapp', project.whatsapp1)}
-                                    className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 transition-all duration-200 touch-target"
+                                    className="flex items-center gap-1 h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 transition-all duration-200"
                                   >
-                                    <MessageCircle className="w-5 h-5 xl:w-3 xl:h-3" />
-                                    <span className="font-medium xl:text-xs">וואטסאפ</span>
+                                    <MessageCircle className="w-3 h-3" />
+                                    <span className="hidden sm:inline">וואטסאפ</span>
                                   </Button>
                                 )}
                                 {project.email && (
                                   <Button
-                                    size="default"
+                                    size="sm"
                                     variant="outline"
                                     onClick={() => handleContactClick('email', project.email)}
-                                    className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200 touch-target"
+                                    className="flex items-center gap-1 h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200"
                                   >
-                                    <Mail className="w-5 h-5 xl:w-3 xl:h-3" />
-                                    <span className="font-medium xl:text-xs">מייל</span>
+                                    <Mail className="w-3 h-3" />
+                                    <span className="hidden sm:inline">מייל</span>
                                   </Button>
                                 )}
                               </div>
 
-                              {/* Action Buttons - Responsive design */}
-                              <div className="flex flex-col xl:flex-row gap-3 xl:gap-2">
+                              <div className="flex gap-2">
                                 {(project.folderPath || project.icloudLink) && (
                                   <Button
-                                    size="default"
+                                    size="sm"
                                     variant="outline"
                                     onClick={() => openFolder(project.folderPath, project.icloudLink)}
-                                    className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 transition-all duration-200 touch-target"
+                                    className="flex items-center gap-1 h-8 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 transition-all duration-200"
                                   >
-                                    <FolderOpen className="w-5 h-5 xl:w-3 xl:h-3" />
-                                    <span className="font-medium xl:text-xs">פתח תיקייה</span>
+                                    <FolderOpen className="w-3 h-3" />
+                                    פתח תיקייה
                                   </Button>
                                 )}
                               </div>
 
-                              {/* Edit/Delete Buttons - Desktop left-aligned small, Mobile/Tablet centered */}
-                              <div className="flex flex-col xl:flex-row gap-3 xl:gap-2 pt-4 xl:pt-2 border-t justify-center xl:justify-start">
+                              <div className="flex gap-2 pt-2 border-t">
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -1799,21 +1724,19 @@ export const ProjectManagementApp = () => {
                                     setSelectedProject(project);
                                     setShowEditModal(true);
                                   }}
-                                  className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-6 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200 touch-target xl:px-2"
+                                  className="flex items-center gap-1 h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200"
                                 >
-                                  <Edit className="w-5 h-5 xl:w-3 xl:h-3" />
-                                  <span className="font-medium xl:text-xs xl:hidden">ערוך פרויקט</span>
-                                  <span className="hidden xl:inline text-xs">ערוך</span>
+                                  <Edit className="w-3 h-3" />
+                                  ערוך
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleDeleteProject(project.id)}
-                                  className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-6 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200 touch-target xl:px-2"
+                                  className="flex items-center gap-1 h-8 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200"
                                 >
-                                  <Trash2 className="w-5 h-5 xl:w-3 xl:h-3" />
-                                  <span className="font-medium xl:text-xs xl:hidden">מחק פרויקט</span>
-                                  <span className="hidden xl:inline text-xs">מחק</span>
+                                  <Trash2 className="w-3 h-3" />
+                                  מחק
                                 </Button>
                               </div>
                             </CardContent>
@@ -1882,7 +1805,7 @@ export const ProjectManagementApp = () => {
               className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
               onClick={() => setShowMobileTasksSidebar(false)}
             ></div>
-            <div className="absolute right-0 top-0 h-full w-full sm:w-96 md:w-[420px] lg:max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-l border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-right">
+            <div className="absolute right-0 top-0 h-full w-80 sm:w-96 md:w-[420px] max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-l border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-right">
               <div className="h-screen flex flex-col mobile-sidebar-scroll">
                 <TasksSidebar />
               </div>
@@ -1984,104 +1907,82 @@ export const ProjectManagementApp = () => {
 
         {/* Mobile Floating Navigation - 5 Buttons */}
         <div 
-          className={`xl:hidden fixed bottom-4 left-3 right-3 z-50 floating-nav-bottom transform transition-all duration-300 ${mobileBarHidden ? 'translate-y-[140%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}
+          className={`xl:hidden fixed bottom-6 left-4 right-4 z-50 floating-nav-bottom transform transition-all duration-300 ${mobileBarHidden ? 'translate-y-[140%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}
           onTouchStart={(e) => { if (e.touches && e.touches[0]) mobileBarTouchStartY.current = e.touches[0].clientY; }}
           onTouchEnd={(e) => { const endY = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : 0; if (endY - mobileBarTouchStartY.current > 40) setMobileBarHidden(true); }}
         >
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-3 safe-area-bottom">
-            {/* Main Navigation - Single Row */}
-            <div className="grid grid-cols-5 gap-2">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-2">
+            {/* First Row - Main Navigation */}
+            <div className="grid grid-cols-4 gap-2 mb-2">
               {/* Dashboard Button */}
               <Button
                 variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
-                size="lg"
-                onClick={() => {
-                  setShowMobileTasksSidebar(false);
-                  setShowMobileProjectsSidebar(false);
-                  setActiveTab('dashboard');
-                }}
-                className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
+                size="sm"
+                onClick={() => setActiveTab('dashboard')}
+                className={`flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] transition-all duration-200 ${
                   activeTab === 'dashboard' 
-                    ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl' 
-                    : 'text-foreground hover:text-primary hover:bg-accent'
+                    ? 'bg-gradient-primary text-white shadow-lg' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
                 <BarChart3 className="h-5 w-5" />
-                <span className="text-[10px] font-semibold">דשבורד</span>
+                <span className="text-xs font-medium">לוח בקרה</span>
               </Button>
 
               {/* Projects Tab Button */}
               <Button
                 variant={activeTab === 'projects' ? 'default' : 'ghost'}
-                size="lg"
-                onClick={() => {
-                  setShowMobileTasksSidebar(false);
-                  setShowMobileProjectsSidebar(false);
-                  setActiveTab('projects');
-                }}
-                className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
+                size="sm"
+                onClick={() => setActiveTab('projects')}
+                className={`flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] transition-all duration-200 ${
                   activeTab === 'projects' 
-                    ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl' 
-                    : 'text-foreground hover:text-primary hover:bg-accent'
+                    ? 'bg-gradient-primary text-white shadow-lg' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
                 <Users className="h-5 w-5" />
-                <span className="text-[10px] font-semibold">פרויקטים</span>
+                <span className="text-xs font-medium">פרויקטים</span>
               </Button>
 
               {/* Tasks Sidebar Button */}
               <Button
                 variant="ghost"
-                size="lg"
-                onClick={() => {
-                  setShowMobileProjectsSidebar(false);
-                  setActiveTab('dashboard');
-                  setShowMobileTasksSidebar(true);
-                }}
-                className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
-                  showMobileTasksSidebar 
-                    ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl' 
-                    : 'text-foreground hover:text-primary hover:bg-accent'
-                }`}
+                size="sm"
+                onClick={() => setShowMobileTasksSidebar(true)}
+                className="flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <CheckSquare className="h-5 w-5" />
-                <span className="text-[10px] font-semibold">משימות</span>
+                <span className="text-xs font-medium">משימות</span>
               </Button>
 
               {/* Projects Sidebar Button */}
               <Button
                 variant="ghost"
-                size="lg"
-                onClick={() => {
-                  setShowMobileTasksSidebar(false);
-                  setActiveTab('dashboard');
-                  setShowMobileProjectsSidebar(true);
-                }}
-                className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
-                  showMobileProjectsSidebar 
-                    ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl' 
-                    : 'text-foreground hover:text-primary hover:bg-accent'
-                }`}
+                size="sm"
+                onClick={() => setShowMobileProjectsSidebar(true)}
+                className="flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <FolderOpen className="h-5 w-5" />
-                <span className="text-[10px] font-semibold">קפיצה</span>
+                <span className="text-xs font-medium">קפיצה</span>
               </Button>
-
-              {/* Refresh Button */}
+            </div>
+            
+            {/* Second Row - Refresh Button */}
+            <div className="flex justify-center">
               <Button
                 variant="ghost"
-                size="lg"
+                size="sm"
                 onClick={handleRefreshData}
                 disabled={isRefreshing}
-                className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
+                className={`flex items-center gap-2 px-6 py-2 h-auto min-h-[40px] transition-all duration-200 ${
                   isRefreshing 
-                    ? 'text-muted-foreground cursor-not-allowed opacity-50' 
-                    : 'text-foreground hover:text-primary hover:bg-accent'
+                    ? 'text-muted-foreground cursor-not-allowed' 
+                    : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
                 }`}
               >
-                <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <span className="text-[10px] font-semibold">
-                  {isRefreshing ? 'רענון' : 'עדכון'}
+                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="text-xs font-medium">
+                  {isRefreshing ? 'מרענן...' : 'רענון נתונים'}
                 </span>
               </Button>
             </div>

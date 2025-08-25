@@ -234,9 +234,9 @@ export function TasksSidebar() {
   }
 
   return (
-    <div className="h-full bg-card border-l shadow-lg flex flex-col">
+    <div className="h-full bg-white border-l shadow-lg flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-border/30 flex-shrink-0 bg-gradient-to-b from-muted/20 to-transparent safe-area-top">
+      <div className="p-4 border-b border-gray-200/30 dark:border-gray-700/30 flex-shrink-0 bg-gradient-to-b from-gray-50/50 to-transparent dark:from-gray-800/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative p-2 bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-xl shadow-sm">
@@ -343,9 +343,8 @@ export function TasksSidebar() {
         <Button 
           onClick={handleAddTask} 
           disabled={!newTask.trim()}
-          className="w-full py-4 text-base touch-target font-semibold"
-          size="lg"
-          variant="default"
+          className="w-full py-3 text-base"
+          size="sm"
         >
           <Plus className="w-5 h-5 mr-2" />
           הוסף משימה
@@ -368,8 +367,8 @@ export function TasksSidebar() {
       </div>
 
       {/* Tasks List */}
-      <ScrollArea className="flex-1 ios-scroll-fix mobile-scroll-enhanced">
-        <div className="p-4 mobile-scroll-content">
+      <ScrollArea className="flex-1 ios-scroll-fix">
+        <div className="p-4">
           {/* Pending Tasks */}
           {pendingTasks.length > 0 && (
             <div className="mb-6">
@@ -382,19 +381,19 @@ export function TasksSidebar() {
                   variant="outline"
                   size="sm"
                   onClick={handleCopyPendingTasks}
-                  className="h-9 px-3 text-sm touch-target hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-200 active:scale-95 font-medium"
+                  className="h-7 px-2 text-xs hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-all duration-200 active:scale-95"
                 >
-                  <Copy className="w-4 h-4 ml-1" />
+                  <Copy className="w-3 h-3 ml-1" />
                   העתק
                 </Button>
               </div>
               
                <div className="space-y-3">
                  {pendingTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center gap-3 p-4 rounded-xl border-2 bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md group mobile-task-item"
-                >
+                   <div
+                     key={task.id}
+                     className="flex items-center gap-3 p-4 rounded-xl border-2 bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md group"
+                   >
                      <Checkbox
                        checked={task.completed}
                        onCheckedChange={() => handleToggleTask(task.id)}
@@ -431,22 +430,22 @@ export function TasksSidebar() {
                        </div>
                      </div>
                     
-                     <DropdownMenu>
-                       <DropdownMenuTrigger asChild>
-                         <Button variant="ghost" size="sm" className="h-10 w-10 p-0 touch-target">
-                           <MoreVertical className="h-5 w-5" />
-                         </Button>
-                       </DropdownMenuTrigger>
-                       <DropdownMenuContent align="end" className="bg-card border-border z-50">
-                         <DropdownMenuItem
-                           onClick={() => handleDeleteTask(task.id)}
-                           className="gap-2 text-destructive hover:text-destructive/90 py-3 touch-target"
-                         >
-                           <Trash2 className="w-4 h-4" />
-                           מחק משימה
-                         </DropdownMenuItem>
-                       </DropdownMenuContent>
-                     </DropdownMenu>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 z-50">
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteTask(task.id)}
+                          className="gap-2 text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          מחק משימה
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 ))}
               </div>
@@ -467,7 +466,7 @@ export function TasksSidebar() {
                 {completedTasks.slice(0, 5).map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center gap-3 p-4 rounded-xl border bg-gradient-to-r from-green-50 to-emerald-50 border-green-200/50 shadow-sm mobile-task-item"
+                    className="flex items-center gap-3 p-4 rounded-xl border bg-gradient-to-r from-green-50 to-emerald-50 border-green-200/50 shadow-sm"
                   >
                     <Checkbox
                       checked={task.completed}

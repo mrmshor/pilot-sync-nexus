@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import '../design-system/mobile-responsive.css';
-@import '../design-system/mobile-cards.css';
-@import '../design-system/tablet-fix.css';
-
 @layer base {
   :root {
     --background: 0 0% 100%;

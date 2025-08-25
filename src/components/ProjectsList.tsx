@@ -283,11 +283,11 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
       </Card>
 
       {/* Projects Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredAndSortedProjects.map(project => (
           <Card 
             key={project.id} 
-            className={`mobile-card border-r-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer ${getPriorityColor(project.priority)} ${
+            className={`border-r-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer ${getPriorityColor(project.priority)} ${
               selectedProjectId === project.id ? 'ring-2 ring-blue-500/50 shadow-2xl scale-[1.02]' : ''
             }`}
             elevated
@@ -307,14 +307,13 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                     </span>
                   </div>
                 </div>
-                <div className="tablet-header-actions hidden xl:flex">
+                <div className="flex items-center gap-2">
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="touch-target mobile-icon-button hover:bg-blue-100 text-blue-600"
-                    title="עריכה"
+                    className="h-8 w-8 p-0 hover:bg-blue-100 text-blue-600"
                   >
-                    <Edit className="mobile-icon-md" />
+                    <Edit className="h-4 w-4" />
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -325,39 +324,25 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         onDeleteProject(project.id);
                       }
                     }}
-                    className="touch-target mobile-icon-button hover:bg-red-100 text-red-500"
-                    title="מחיקה"
+                    className="h-8 w-8 p-0 hover:bg-red-100 text-red-500"
                   >
-                    <Trash2 className="mobile-icon-md" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
               
-              {/* Interactive Status, Priority, and Payment (tablet column like smartphone) */}
-              <div className="tablet-top-actions flex flex-col gap-2 md:flex-col md:items-stretch mb-3">
+              {/* Interactive Status and Priority */}
+              <div className="flex gap-2 mb-3">
                 <StatusDropdown
                   value={project.status}
                   onChange={(status) => updateProjectStatus(project.id, status)}
-                  className="flex-1 md:w-full"
+                  className="flex-1"
                 />
                 <PriorityDropdown
                   value={project.priority}
                   onChange={(priority) => updateProjectPriority(project.id, priority)}
-                  className="flex-1 md:w-full"
+                  className="flex-1"
                 />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    togglePaid(project.id);
-                  }}
-                  className={`hidden md:flex mobile-button md:w-full ${project.paid ? 'border-green-300 text-green-700 bg-green-50' : 'border-orange-300 text-orange-700 bg-orange-50'}`}
-                  title={project.paid ? 'שולם' : 'לא שולם'}
-                >
-                  <CreditCard className="mobile-icon-sm ml-1" />
-                  {project.paid ? 'שולם' : 'לא שולם'}
-                </Button>
               </div>
             </div>
 
@@ -371,43 +356,45 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               )}
 
               {/* Price Section */}
-              <div className="tablet-section bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50">
-                <div className="flex items-center justify-between mb-3">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200/50">
+                <div className="flex items-center justify-between">
                   <div className="text-sm font-semibold text-green-600">
                     {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
                   </div>
-                  {project.completed && (
-                    <Badge variant="success" className="text-xs">
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                      הושלם
-                    </Badge>
-                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      variant={project.paid ? "success" : "destructive"}
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        togglePaid(project.id);
+                      }}
+                      className="text-xs"
+                    >
+                      <CreditCard className="h-3 w-3 mr-1" />
+                      {project.paid ? 'שולם' : 'לא שולם'}
+                    </Button>
+                    {project.completed && (
+                      <Badge variant="success" className="text-xs">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        הושלם
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-                <Button
-                  variant={project.paid ? "success" : "destructive"}
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    togglePaid(project.id);
-                  }}
-                  className="mobile-button md:hidden"
-                >
-                  <CreditCard className="mobile-icon-sm ml-1" />
-                  {project.paid ? 'שולם ✓' : 'לא שולם'}
-                </Button>
               </div>
 
               {/* Contact Actions */}
-              <div className="tablet-section bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200/50">
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
                 <div 
-                  className="space-y-3" 
+                  className="flex flex-wrap gap-2" 
                   onClick={(e) => e.stopPropagation()}
                 >
                   <ContactButtons
                     phone={project.phone1}
                     whatsapp={project.whatsapp1}
                     email={project.email}
-                    className="flex flex-col gap-3"
+                    className="flex-wrap"
                   />
                   {(project.folderPath || project.icloudLink) && (
                     <Button 
@@ -417,21 +404,21 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         e.stopPropagation();
                         await openFolder(project.folderPath || '', project.icloudLink);
                       }}
-                      className="mobile-button hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
+                      className="text-xs hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
                       title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}
                     >
-                      <FolderOpen className="mobile-icon-sm ml-1" />
-                      {project.folderPath ? 'קבצים' : 'ענן'}
+                      <FolderOpen className="h-3 w-3 mr-1" />
+                      {project.folderPath ? 'תיקיה' : 'ענן'}
                     </Button>
                   )}
                 </div>
               </div>
 
               {/* Tasks Section */}
-              <div className="tablet-section bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200/50">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="mobile-section-title flex items-center gap-2">
-                    <CheckCircle2 className="mobile-icon-md text-indigo-600" />
+              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-lg border border-indigo-200/50">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-indigo-600" />
                     משימות ({project.tasks.filter(t => t.completed).length}/{project.tasks.length})
                   </h4>
                   <Button 
@@ -441,10 +428,9 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                       e.stopPropagation();
                       addTaskToProject(project.id);
                     }}
-                    className="mobile-icon-button hover:bg-indigo-100 text-indigo-600"
-                    title="הוסף משימה"
+                    className="h-6 w-6 p-0 hover:bg-indigo-100 text-indigo-600"
                   >
-                    <Plus className="mobile-icon-md" />
+                    <Plus className="h-3 w-3" />
                   </Button>
                 </div>
                 
@@ -475,10 +461,9 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                             e.stopPropagation();
                             deleteTask(project.id, task.id);
                           }}
-                          className="touch-target h-6 w-6 p-0 hover:bg-red-100 text-red-500 flex-shrink-0 mobile-icon-button"
-                          title="מחק משימה"
+                          className="h-4 w-4 p-0 hover:bg-red-100 text-red-500 flex-shrink-0"
                         >
-                          <X className="mobile-icon-sm" />
+                          <X className="h-2 w-2" />
                         </Button>
                       </div>
                     ))}
@@ -496,16 +481,6 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Tablet actions row */}
-            <div className="tablet-actions-row hidden md:flex items-center justify-center gap-4 px-6 pb-4">
-              <Button variant="outline" className="mobile-button px-6" title="ערוך פרויקט">
-                <Edit className="mobile-icon-sm ml-2" /> ערוך פרויקט
-              </Button>
-              <Button variant="destructive" className="mobile-button px-6" onClick={(e) => { e.stopPropagation(); if (confirm('האם אתה בטוח שברצונך למחוק את הפרויקט?')) { onDeleteProject(project.id); } }} title="מחק פרויקט">
-                <Trash2 className="mobile-icon-sm ml-2" /> מחק פרויקט
-              </Button>
             </div>
 
             {/* Footer */}
