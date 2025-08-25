@@ -29,14 +29,18 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Hebrew Design System */
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(262 83% 58%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 35%));
+    --gradient-warning: linear-gradient(135deg, hsl(38 92% 50%), hsl(25 95% 53%));
+    --gradient-danger: linear-gradient(135deg, hsl(0 84% 60%), hsl(0 84% 50%));
+    --gradient-background: linear-gradient(135deg, hsl(210 40% 98%), hsl(220 14% 96%));
+    
+    --shadow-soft: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-medium: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-strong: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-macos: 0 32px 64px -12px rgb(0 0 0 / 0.25);
   }
 
   .dark {
@@ -64,6 +68,272 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-hebrew;
+    direction: rtl;
+    background: var(--gradient-background);
+    font-feature-settings: 'kern' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Scrollbar styling for macOS feel */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  /* Hebrew text improvements */
+  .font-hebrew {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  /* Utility classes */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-success {
+    background: var(--gradient-success);
+  }
+  
+  .gradient-warning {
+    background: var(--gradient-warning);
+  }
+  
+  .gradient-danger {
+    background: var(--gradient-danger);
+  }
+
+  .shadow-macos {
+    box-shadow: var(--shadow-macos);
+  }
+
+  .glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: hsl(var(--background) / 0.8);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .card-macos {
+    background: hsl(var(--card) / 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    border-radius: 12px;
+    box-shadow: var(--shadow-medium);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-macos:hover {
+    box-shadow: var(--shadow-strong);
+    transform: translateY(-2px);
+  }
+
+  /* Status indicators */
+  .status-not-started {
+    @apply bg-gray-100 text-gray-800 border-gray-300/50;
+  }
+  
+  .status-in-progress {
+    @apply bg-blue-100 text-blue-800 border-blue-300/50;
+  }
+  
+  .status-in-review {
+    @apply bg-yellow-100 text-yellow-800 border-yellow-300/50;
+  }
+  
+  .status-completed {
+    @apply bg-green-100 text-green-800 border-green-300/50;
+  }
+  
+  .status-on-hold {
+    @apply bg-orange-100 text-orange-800 border-orange-300/50;
+  }
+  
+  
+
+  /* Priority indicators */
+  .priority-low {
+    @apply bg-green-100 text-green-800 border-green-300/50;
+  }
+  
+  .priority-medium {
+    @apply bg-yellow-100 text-yellow-800 border-yellow-300/50;
+  }
+  
+  .priority-high {
+    @apply bg-red-100 text-red-800 border-red-300/50;
+  }
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Modern gradient backgrounds */
+    --background: 210 20% 98%;
+    --foreground: 215 25% 15%;
+
+    /* Card and surface colors */
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    /* Primary brand colors - Modern blue to purple gradient */
+    --primary: 220 70% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 225 70% 70%;
+
+    /* Secondary colors */
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 215 25% 15%;
+
+    /* Muted colors */
+    --muted: 210 40% 95%;
+    --muted-foreground: 215 16% 47%;
+
+    /* Accent colors */
+    --accent: 210 40% 95%;
+    --accent-foreground: 215 25% 15%;
+
+    /* Status colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* UI elements */
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 220 70% 55%;
+
+    /* Border radius */
+    --radius: 0.75rem;
+
+    /* Beautiful gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 70% 55%), hsl(270 70% 60%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%), hsl(160 84% 39%));
+    --gradient-warning: linear-gradient(135deg, hsl(38 92% 50%), hsl(25 95% 53%));
+    --gradient-danger: linear-gradient(135deg, hsl(0 84% 60%), hsl(15 85% 58%));
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    
+    /* Dashboard gradient cards */
+    --gradient-blue: linear-gradient(135deg, hsl(220 70% 55%), hsl(225 70% 50%));
+    --gradient-green: linear-gradient(135deg, hsl(142 71% 45%), hsl(160 84% 39%));
+    --gradient-emerald: linear-gradient(135deg, hsl(160 84% 39%), hsl(160 84% 32%));
+    --gradient-purple: linear-gradient(135deg, hsl(270 70% 60%), hsl(280 70% 55%));
+    --gradient-orange: linear-gradient(135deg, hsl(25 95% 53%), hsl(15 85% 48%));
+    
+    /* Shadows */
+    --shadow-elegant: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-glow: 0 0 40px hsl(220 70% 55% / 0.3);
+    
+    /* Animation properties */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark mode gradient backgrounds */
+    --background: 222 25% 6%;
+    --foreground: 210 40% 98%;
+
+    /* Dark card and surface colors */
+    --card: 222 25% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 25% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Dark primary colors */
+    --primary: 220 70% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 225 70% 75%;
+
+    /* Dark secondary colors */
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Dark muted colors */
+    --muted: 217 32% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    /* Dark accent colors */
+    --accent: 217 32% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    /* Dark status colors */
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 210 40% 98%;
+    --success: 142 71% 50%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Dark UI elements */
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 220 70% 60%;
+
+    /* Dark gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 70% 60%), hsl(270 70% 65%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 50%), hsl(160 84% 44%));
+    --gradient-warning: linear-gradient(135deg, hsl(38 92% 55%), hsl(25 95% 58%));
+    --gradient-danger: linear-gradient(135deg, hsl(0 63% 45%), hsl(15 85% 50%));
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    
+    /* Dark shadows */
+    --shadow-elegant: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    --shadow-glow: 0 0 40px hsl(220 70% 60% / 0.4);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -79,9 +349,223 @@
   * {
     @apply border-border;
   }
-  
+
   body {
     @apply bg-background text-foreground;
-    direction: rtl;
+  }
+
+  /* macOS specific improvements */
+  .titlebar-drag {
+    -webkit-app-region: drag;
+  }
+
+  .titlebar-no-drag {
+    -webkit-app-region: no-drag;
+  }
+
+  /* macOS style focus outlines */
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Improve text rendering on macOS */
+  .macos-text {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* iOS Safe Area Support */
+  .ios-safe-area {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .ios-safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* iPhone specific optimizations */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS Safari specific styles */
+    .ios-scroll-fix {
+      -webkit-overflow-scrolling: touch;
+      overflow-scrolling: touch;
+    }
+    
+    /* Fix for iOS Safari bounce effect */
+    body {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    #root {
+      height: 100vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* Tablet & Mobile Optimizations */
+  @media (min-width: 768px) and (max-width: 1279px) {
+    /* Tablet-specific styles */
+    .tablet-spacing {
+      padding: 1.5rem;
+    }
+    
+    .tablet-touch-target {
+      min-height: 48px;
+      min-width: 48px;
+    }
+    
+    .tablet-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+    
+    .tablet-card-spacing {
+      gap: 1.5rem;
+    }
+  }
+
+  /* Mobile floating navigation */
+  @media (max-width: 767px) {
+    .mobile-touch-target {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 12px;
+    }
+    
+    /* iPhone X and newer safe areas */
+    .mobile-safe-bottom {
+      padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+    }
+    
+    /* Prevent zoom on input focus (iOS) */
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+    
+    /* Floating navigation bar */
+    .floating-nav-bottom {
+      bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
+    }
+    
+    /* Mobile navigation styles */
+    .mobile-nav-button {
+      @apply flex flex-col items-center justify-center gap-1 p-2 rounded-xl transition-all duration-200;
+      min-height: 60px;
+      min-width: 60px;
+    }
+    
+    .mobile-nav-button.active {
+      @apply bg-primary text-primary-foreground shadow-lg;
+    }
+    
+    .mobile-nav-button:not(.active) {
+      @apply text-muted-foreground hover:text-foreground hover:bg-muted;
+    }
+  }
+
+  /* iOS scrolling improvements */
+  .ios-scroll-fix {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+  
+  /* Fix for iOS Safari scroll areas */
+  .scroll-area-viewport {
+    height: 100% !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Improved mobile scroll container */
+  @media (max-width: 1023px) {
+    .mobile-sidebar-scroll {
+      height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
+  }
+
+  /* Prevent body scroll when sidebar open on mobile */
+  .sidebar-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+
+  /* Swipe indicators */
+  .swipe-indicator-left {
+    transform: translateY(-50%);
+    width: 20px;
+    height: 60px;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.3), transparent);
+    border-radius: 0 10px 10px 0;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    animation: swipe-hint 2s ease-in-out infinite;
+  }
+
+  .swipe-indicator-right {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 60px;
+    background: linear-gradient(270deg, rgba(59, 130, 246, 0.3), transparent);
+    border-radius: 10px 0 0 10px;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    animation: swipe-hint 2s ease-in-out infinite 1s;
+  }
+
+  @keyframes swipe-hint {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes slide-in-left {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+
+  @keyframes slide-in-right {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+
+  /* Dashboard gradient cards */
+  .gradient-card {
+    background: var(--gradient-blue);
+  }
+
+  /* Utility classes for gradients */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-success {
+    background: var(--gradient-success);
+  }
+  
+  .gradient-warning {
+    background: var(--gradient-warning);
+  }
+  
+  .gradient-danger {
+    background: var(--gradient-danger);
   }
 }

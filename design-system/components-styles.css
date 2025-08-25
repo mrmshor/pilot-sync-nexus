@@ -1,0 +1,181 @@
+/* ===================================
+   Component Specific Styles
+   =================================== */
+
+@layer components {
+  /* ===== Button Variants ===== */
+  .btn-gradient {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    transition: var(--transition-smooth);
+  }
+
+  .btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .btn-glass {
+    background: hsl(var(--background) / 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    transition: var(--transition-smooth);
+  }
+
+  .btn-glass:hover {
+    background: hsl(var(--background) / 0.9);
+    box-shadow: var(--shadow-elegant);
+  }
+
+  /* ===== Card Variants ===== */
+  .card-elevated {
+    background: hsl(var(--card) / 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-elegant);
+    transition: var(--transition-smooth);
+  }
+
+  .card-elevated:hover {
+    box-shadow: var(--shadow-strong);
+    transform: translateY(-4px);
+  }
+
+  .card-glass {
+    background: hsl(var(--card) / 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--border) / 0.3);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* ===== Badge Variants ===== */
+  .badge-gradient {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+  }
+
+  .badge-outline-glow {
+    border: 1px solid hsl(var(--primary));
+    color: hsl(var(--primary));
+    background: transparent;
+    transition: var(--transition-smooth);
+  }
+
+  .badge-outline-glow:hover {
+    background: hsl(var(--primary) / 0.1);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+
+  /* ===== Input Variants ===== */
+  .input-glass {
+    background: hsl(var(--background) / 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    transition: var(--transition-smooth);
+  }
+
+  .input-glass:focus {
+    background: hsl(var(--background) / 0.9);
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+  }
+
+  /* ===== Navigation Styles ===== */
+  .nav-item {
+    transition: var(--transition-smooth);
+    border-radius: var(--radius);
+  }
+
+  .nav-item:hover {
+    background: hsl(var(--accent));
+    transform: translateX(-2px);
+  }
+
+  .nav-item.active {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* ===== Sidebar Styles ===== */
+  .sidebar-item {
+    transition: var(--transition-smooth);
+    border-radius: calc(var(--radius) - 2px);
+  }
+
+  .sidebar-item:hover {
+    background: hsl(var(--sidebar-accent));
+    transform: translateX(2px);
+  }
+
+  .sidebar-item.active {
+    background: hsl(var(--sidebar-primary));
+    color: hsl(var(--sidebar-primary-foreground));
+  }
+
+  /* ===== Modal & Dialog Styles ===== */
+  .modal-backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .modal-content {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border) / 0.5);
+    border-radius: calc(var(--radius) * 2);
+    box-shadow: var(--shadow-macos);
+  }
+
+  /* ===== Loading States ===== */
+  .loading-skeleton {
+    background: linear-gradient(90deg, 
+      hsl(var(--muted)) 25%, 
+      hsl(var(--muted-foreground) / 0.1) 50%, 
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: loading-shimmer 2s infinite;
+  }
+
+  @keyframes loading-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* ===== Status & Priority Styling ===== */
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid;
+    transition: var(--transition-smooth);
+  }
+
+  .priority-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid;
+    transition: var(--transition-smooth);
+  }
+
+  .priority-indicator:hover,
+  .status-indicator:hover {
+    transform: scale(1.05);
+  }
+}
