@@ -176,7 +176,7 @@
   }
 
   /* ===== Tablet Optimizations - Enhanced Mobile Style ===== */
-  @media (min-width: 769px) and (max-width: 1024px) {
+  @media (min-width: 769px) and (max-width: 1279px) {
     .mobile-card {
       border-radius: 20px;
       padding: 0;
@@ -393,7 +393,7 @@
   }
 
   /* ===== Desktop - Keep Original Styles ===== */
-  @media (min-width: 1025px) {
+  @media (min-width: 1280px) {
     .mobile-card {
       /* Reset mobile styles, keep original desktop card styles */
       border-radius: var(--radius);

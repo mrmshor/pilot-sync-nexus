@@ -334,7 +334,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               </div>
               
               {/* Interactive Status and Priority */}
-              <div className="flex gap-2 mb-3">
+              <div className="mobile-button-grid mb-3">
                 <StatusDropdown
                   value={project.status}
                   onChange={(status) => updateProjectStatus(project.id, status)}
