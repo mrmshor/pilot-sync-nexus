@@ -68,6 +68,14 @@
   /* ===== Mobile Enhanced Scrolling ===== */
   .mobile-scroll-enhanced {
     @media (max-width: 1023px) {
+      /* Improved scrolling properties for mobile */
+      -webkit-overflow-scrolling: touch;
+      overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+      
+      /* Custom scrollbar styling */
       scrollbar-width: thin;
       scrollbar-color: hsl(var(--primary) / 0.3) transparent;
     }
@@ -75,42 +83,45 @@
 
   .mobile-scroll-enhanced::-webkit-scrollbar {
     @media (max-width: 1023px) {
-      width: 6px;
+      width: 4px;
     }
   }
 
   .mobile-scroll-enhanced::-webkit-scrollbar-track {
     @media (max-width: 1023px) {
-      background: hsl(var(--muted) / 0.3);
-      border-radius: 3px;
-      margin: 8px;
+      background: transparent;
+      border-radius: 2px;
     }
   }
 
   .mobile-scroll-enhanced::-webkit-scrollbar-thumb {
     @media (max-width: 1023px) {
-      background: linear-gradient(180deg, hsl(var(--primary) / 0.4), hsl(var(--primary) / 0.6));
-      border-radius: 3px;
-      transition: background 0.2s ease;
-    }
-  }
-
-  .mobile-scroll-enhanced::-webkit-scrollbar-thumb:hover {
-    @media (max-width: 1023px) {
-      background: linear-gradient(180deg, hsl(var(--primary) / 0.6), hsl(var(--primary) / 0.8));
+      background: hsl(var(--primary) / 0.4);
+      border-radius: 2px;
+      transition: all 0.2s ease;
     }
   }
 
   .mobile-scroll-enhanced::-webkit-scrollbar-thumb:active {
     @media (max-width: 1023px) {
-      background: linear-gradient(180deg, hsl(var(--primary) / 0.8), hsl(var(--primary)));
+      background: hsl(var(--primary) / 0.7);
     }
   }
 
   .mobile-scroll-content {
     @media (max-width: 1023px) {
-      padding-right: 8px;
+      /* Ensure smooth scrolling and proper touch handling */
+      padding-right: 6px;
       scroll-behavior: smooth;
+      will-change: scroll-position;
+    }
+  }
+
+  /* Mobile task items - prevent scroll interference */
+  .mobile-task-item {
+    @media (max-width: 1023px) {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
   }
 

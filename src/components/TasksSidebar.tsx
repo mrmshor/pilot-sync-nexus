@@ -391,10 +391,10 @@ export function TasksSidebar() {
               
                <div className="space-y-3">
                  {pendingTasks.map((task) => (
-                   <div
-                     key={task.id}
-                     className="flex items-center gap-3 p-4 rounded-xl border-2 bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md group"
-                   >
+                <div
+                  key={task.id}
+                  className="flex items-center gap-3 p-4 rounded-xl border-2 bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md group mobile-task-item"
+                >
                      <Checkbox
                        checked={task.completed}
                        onCheckedChange={() => handleToggleTask(task.id)}
@@ -467,7 +467,7 @@ export function TasksSidebar() {
                 {completedTasks.slice(0, 5).map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center gap-3 p-4 rounded-xl border bg-gradient-to-r from-green-50 to-emerald-50 border-green-200/50 shadow-sm"
+                    className="flex items-center gap-3 p-4 rounded-xl border bg-gradient-to-r from-green-50 to-emerald-50 border-green-200/50 shadow-sm mobile-task-item"
                   >
                     <Checkbox
                       checked={task.completed}
