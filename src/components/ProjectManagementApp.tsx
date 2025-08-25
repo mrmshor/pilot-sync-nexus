@@ -1549,17 +1549,33 @@ export const ProjectManagementApp = () => {
                                     </div>
                                   </div>
                                   
-                                  {/* Mobile: Full width dropdowns, Desktop: Small */}
-                                  <div className="flex flex-row md:flex-col gap-2 md:gap-1 md:ml-2 w-full md:w-auto">
+                                  {/* Controls row: on tablet show in a row like smartphone, with payment pill first */}
+                                  <div className="flex flex-row gap-2 md:gap-2 md:ml-2 w-full md:w-auto items-stretch">
+                                    {/* Payment pill (tablet/desktop only) */}
+                                    <Button
+                                      size="default"
+                                      variant={project.paid ? "default" : "outline"}
+                                      onClick={() => toggleProjectPaid(project.id)}
+                                      className={`hidden md:flex touch-target h-10 px-4 rounded-2xl text-sm transition-all duration-200 ${
+                                        project.paid 
+                                          ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
+                                          : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
+                                      }`}
+                                      title={project.paid ? 'שולם' : 'לא שולם'}
+                                    >
+                                      <CreditCard className="w-4 h-4 ml-2" />
+                                      {project.paid ? 'שולם' : 'לא שולם'}
+                                    </Button>
+
                                     <StatusDropdown
                                       value={project.status}
                                       onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
-                                      className="flex-1 md:w-32 text-sm md:text-xs touch-target"
+                                      className="flex-1 md:w-40"
                                     />
                                     <PriorityDropdown
                                       value={project.priority}
                                       onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
-                                      className="flex-1 md:w-32 text-sm md:text-xs touch-target"
+                                      className="flex-1 md:w-40"
                                     />
                                   </div>
                                 </div>
@@ -1580,13 +1596,13 @@ export const ProjectManagementApp = () => {
                                     size="default"
                                     variant={project.paid ? "default" : "outline"}
                                     onClick={() => toggleProjectPaid(project.id)}
-                                    className={`touch-target w-full md:w-auto text-sm md:text-xs h-12 md:h-8 px-4 md:px-3 transition-all duration-200 ${
+                                    className={`touch-target w-full md:hidden text-sm h-12 px-4 transition-all duration-200 ${
                                       project.paid 
                                         ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
                                         : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
                                     }`}
                                   >
-                                    <CreditCard className="w-4 h-4 md:w-3 md:h-3 ml-2 md:ml-1" />
+                                    <CreditCard className="w-4 h-4 ml-2" />
                                     {project.paid ? 'שולם' : 'לא שולם'}
                                   </Button>
                                 </div>
