@@ -334,7 +334,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               </div>
               
               {/* Interactive Status, Priority, and Payment (tablet row) */}
-              <div className="flex flex-col gap-2 md:flex-row-reverse md:items-center md:justify-between md:gap-4 mb-3">
+              <div className="tablet-top-actions flex flex-col gap-2 md:flex-row md:items-center mb-3">
                 <StatusDropdown
                   value={project.status}
                   onChange={(status) => updateProjectStatus(project.id, status)}
@@ -343,7 +343,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 <PriorityDropdown
                   value={project.priority}
                   onChange={(priority) => updateProjectPriority(project.id, priority)}
-                  className="flex-1 md:w-[220px]"
+                  className="flex-1 md:w=[220px]"
                 />
                 <Button
                   variant="outline"
