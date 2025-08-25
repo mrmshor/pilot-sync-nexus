@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search, Edit, Trash2, User, FolderOpen,
-  CheckCircle2, CreditCard, Plus, X, Calendar, Clock, Filter, SortAsc, SortDesc
+  CheckCircle2, CheckSquare2, CreditCard, Plus, X, Calendar, Clock, Filter, SortAsc, SortDesc
 } from 'lucide-react';
 import { Project, ProjectTask } from '../types';
 import { FolderService } from '../services';
@@ -33,6 +33,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('updatedAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [compactView, setCompactView] = useState(true);
 
   // Debug projects prop
   useEffect(() => {
@@ -278,6 +279,18 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 נקה פילטרים
               </Button>
             </div>
+
+            <div className="flex items-center justify-end">
+              <Button
+                variant={compactView ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCompactView(v => !v)}
+                className="text-xs"
+                title="החלף בין תצוגה קומפקטית למורחבת"
+              >
+                {compactView ? 'תצוגה קומפקטית: פעיל' : 'תצוגה קומפקטית: כבוי'}
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
@@ -343,11 +356,25 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                   onChange={(priority) => updateProjectPriority(project.id, priority)}
                   className="flex-1"
                 />
+                {compactView && (
+                  <Button
+                    variant={project.paid ? 'secondary' : 'outline'}
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      togglePaid(project.id);
+                    }}
+                    className="text-xs"
+                  >
+                    <CreditCard className="h-3 w-3 ml-1" />
+                    {project.paid ? 'שולם' : 'לא שולם'}
+                  </Button>
+                )}
               </div>
             </div>
 
             <div className="px-6 space-y-4">
-              {project.description && (
+              {!compactView && project.description && (
                 <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-3 rounded-lg border border-gray-200/50">
                   <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed italic">
                     "{project.description}"
@@ -355,132 +382,180 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 </div>
               )}
 
-              {/* Price Section */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200/50">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold text-green-600">
-                    {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
+              {!compactView && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200/50">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold text-green-600">
+                      {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={project.paid ? 'success' : 'destructive'}
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePaid(project.id);
+                        }}
+                        className="text-xs"
+                      >
+                        <CreditCard className="h-3 w-3 mr-1" />
+                        {project.paid ? 'שולם' : 'לא שולם'}
+                      </Button>
+                      {project.completed && (
+                        <Badge variant="success" className="text-xs">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          הושלם
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={project.paid ? "success" : "destructive"}
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        togglePaid(project.id);
-                      }}
-                      className="text-xs"
-                    >
-                      <CreditCard className="h-3 w-3 mr-1" />
-                      {project.paid ? 'שולם' : 'לא שולם'}
-                    </Button>
-                    {project.completed && (
-                      <Badge variant="success" className="text-xs">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        הושלם
-                      </Badge>
+                </div>
+              )}
+
+              {!compactView && (
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
+                  <div 
+                    className="flex flex-wrap gap-2" 
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ContactButtons
+                      phone={project.phone1}
+                      whatsapp={project.whatsapp1}
+                      email={project.email}
+                      className="flex-wrap"
+                    />
+                    {(project.folderPath || project.icloudLink) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await openFolder(project.folderPath || '', project.icloudLink);
+                        }}
+                        className="text-xs hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
+                        title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}
+                      >
+                        <FolderOpen className="h-3 w-3 mr-1" />
+                        {project.folderPath ? 'תיקיה' : 'ענן'}
+                      </Button>
                     )}
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Contact Actions */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
-                <div 
-                  className="flex flex-wrap gap-2" 
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ContactButtons
-                    phone={project.phone1}
-                    whatsapp={project.whatsapp1}
-                    email={project.email}
-                    className="flex-wrap"
-                  />
-                  {(project.folderPath || project.icloudLink) && (
+              {/* Tasks Section */}
+              {compactView ? (
+                <div className="p-4 rounded-xl border bg-white/70">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-bold text-blue-700">משימות</h4>
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={async (e) => {
+                      onClick={(e) => {
                         e.stopPropagation();
-                        await openFolder(project.folderPath || '', project.icloudLink);
+                        addTaskToProject(project.id);
                       }}
-                      className="text-xs hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
-                      title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}
+                      className="text-xs"
                     >
-                      <FolderOpen className="h-3 w-3 mr-1" />
-                      {project.folderPath ? 'תיקיה' : 'ענן'}
+                      הוסף משימות
                     </Button>
+                  </div>
+                  {project.tasks.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-6">
+                      <CheckSquare2 className="w-8 h-8 mx-auto opacity-50" />
+                      <p className="text-xs mt-2">לחץ על הכפתור להוספת משימות</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {project.tasks.map(task => (
+                        <div key={task.id} className="flex items-center gap-2 text-sm bg-white/80 p-2 rounded border">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleTask(project.id, task.id);
+                            }}
+                            className={`w-3 h-3 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                              task.completed 
+                                ? 'bg-green-500 border-green-500 text-white' 
+                                : 'border-gray-300 hover:border-gray-400'
+                            }`}
+                          >
+                            {task.completed && <CheckCircle2 className="w-2 h-2" />}
+                          </button>
+                          <span className={`flex-1 ${task.completed ? 'line-through text-gray-500' : 'text-gray-700'}`}>
+                            {task.title}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-              </div>
-
-              {/* Tasks Section */}
-              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-lg border border-indigo-200/50">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-indigo-600" />
-                    משימות ({project.tasks.filter(t => t.completed).length}/{project.tasks.length})
-                  </h4>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addTaskToProject(project.id);
-                    }}
-                    className="h-6 w-6 p-0 hover:bg-indigo-100 text-indigo-600"
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </div>
-                
-                {project.tasks.length > 0 && (
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {project.tasks.map(task => (
-                      <div key={task.id} className="flex items-center gap-2 text-sm bg-white/80 backdrop-blur p-2 rounded border border-white/50">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleTask(project.id, task.id);
-                          }}
-                          className={`w-3 h-3 rounded border-2 flex items-center justify-center transition-all duration-200 ${
-                            task.completed 
-                              ? 'bg-green-500 border-green-500 text-white' 
-                              : 'border-gray-300 hover:border-gray-400'
-                          }`}
-                        >
-                          {task.completed && <CheckCircle2 className="w-2 h-2" />}
-                        </button>
-                        <span className={`flex-1 ${task.completed ? 'line-through text-gray-500' : 'text-gray-700'}`}>
-                          {task.title}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteTask(project.id, task.id);
-                          }}
-                          className="h-4 w-4 p-0 hover:bg-red-100 text-red-500 flex-shrink-0"
-                        >
-                          <X className="h-2 w-2" />
-                        </Button>
-                      </div>
-                    ))}
+              ) : (
+                <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-lg border border-indigo-200/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-indigo-600" />
+                      משימות ({project.tasks.filter(t => t.completed).length}/{project.tasks.length})
+                    </h4>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addTaskToProject(project.id);
+                      }}
+                      className="h-6 w-6 p-0 hover:bg-indigo-100 text-indigo-600"
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
                   </div>
-                )}
-                
-                {project.tasks.length > 0 && (
-                  <div className="mt-3">
-                    <div className="w-full bg-gray-200 rounded-full overflow-hidden h-2">
-                      <div 
-                        className="bg-gradient-to-r from-indigo-500 to-blue-600 h-full transition-all duration-500 ease-out" 
-                        style={{ width: `${(project.tasks.filter(t => t.completed).length / project.tasks.length) * 100}%` }}
-                      />
+                  {project.tasks.length > 0 && (
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {project.tasks.map(task => (
+                        <div key={task.id} className="flex items-center gap-2 text-sm bg-white/80 backdrop-blur p-2 rounded border border-white/50">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleTask(project.id, task.id);
+                            }}
+                            className={`w-3 h-3 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                              task.completed 
+                                ? 'bg-green-500 border-green-500 text-white' 
+                                : 'border-gray-300 hover:border-gray-400'
+                            }`}
+                          >
+                            {task.completed && <CheckCircle2 className="w-2 h-2" />}
+                          </button>
+                          <span className={`flex-1 ${task.completed ? 'line-through text-gray-500' : 'text-gray-700'}`}>
+                            {task.title}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteTask(project.id, task.id);
+                            }}
+                            className="h-4 w-4 p-0 hover:bg-red-100 text-red-500 flex-shrink-0"
+                          >
+                            <X className="h-2 w-2" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                  {project.tasks.length > 0 && (
+                    <div className="mt-3">
+                      <div className="w-full bg-gray-200 rounded-full overflow-hidden h-2">
+                        <div 
+                          className="bg-gradient-to-r from-indigo-500 to-blue-600 h-full transition-all duration-500 ease-out" 
+                          style={{ width: `${(project.tasks.filter(t => t.completed).length / project.tasks.length) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Footer */}
