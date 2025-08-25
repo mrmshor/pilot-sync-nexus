@@ -500,10 +500,72 @@ All colors MUST be HSL.
   /* Prevent body scroll when sidebar open on mobile */
   .sidebar-open {
     overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+
+  /* Swipe indicators */
+  .swipe-indicator-left {
+    transform: translateY(-50%);
+    width: 20px;
+    height: 60px;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.3), transparent);
+    border-radius: 0 10px 10px 0;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    animation: swipe-hint 2s ease-in-out infinite;
+  }
+
+  .swipe-indicator-right {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 60px;
+    background: linear-gradient(270deg, rgba(59, 130, 246, 0.3), transparent);
+    border-radius: 10px 0 0 10px;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    animation: swipe-hint 2s ease-in-out infinite 1s;
+  }
+
+  @keyframes swipe-hint {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes slide-in-left {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+
+  @keyframes slide-in-right {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+
+  /* Dashboard gradient cards */
+  .gradient-card {
+    background: var(--gradient-blue);
+  }
+
+  /* Utility classes for gradients */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-success {
+    background: var(--gradient-success);
+  }
+  
+  .gradient-warning {
+    background: var(--gradient-warning);
+  }
+  
+  .gradient-danger {
+    background: var(--gradient-danger);
   }
 }
-
-/* Import mobile and tablet specific styles */
-@import './design-system/tablet-fix.css';
-@import './design-system/mobile-cards.css';
-@import './design-system/mobile-responsive.css';
