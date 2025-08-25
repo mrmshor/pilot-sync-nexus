@@ -23,7 +23,6 @@ export type Database = {
           priority: string
           title: string
           updated_at: string
-          user_id: string
           workspace_id: string
         }
         Insert: {
@@ -34,7 +33,6 @@ export type Database = {
           priority?: string
           title: string
           updated_at?: string
-          user_id: string
           workspace_id?: string
         }
         Update: {
@@ -45,7 +43,6 @@ export type Database = {
           priority?: string
           title?: string
           updated_at?: string
-          user_id?: string
           workspace_id?: string
         }
         Relationships: []
