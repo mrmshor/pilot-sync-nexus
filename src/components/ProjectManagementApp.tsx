@@ -1531,14 +1531,14 @@ export const ProjectManagementApp = () => {
                         const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
                         return (
-                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group md:card-macos mobile-card">
-                            <CardHeader className="pb-3 md:pb-4 p-4 md:p-6">
-                              {/* Mobile-first layout */}
-                              <div className="space-y-3 md:space-y-0">
-                                {/* Mobile: Stacked layout, Desktop: Side by side */}
-                                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-0">
+                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group xl:card-macos">
+                            <CardHeader className="pb-3 xl:pb-4 p-4 xl:p-6">
+                              {/* Desktop-optimized layout */}
+                              <div className="space-y-3 xl:space-y-0">
+                                {/* Desktop: Side by side header */}
+                                <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-3 xl:gap-4">
                                   <div className="flex-1 min-w-0">
-                                    <CardTitle className="text-lg md:text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
+                                    <CardTitle className="text-lg xl:text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
                                       {project.name}
                                     </CardTitle>
                                     <div className="flex items-center gap-2 mb-3">
@@ -1549,8 +1549,22 @@ export const ProjectManagementApp = () => {
                                     </div>
                                   </div>
                                   
-                                  {/* Controls row: payment pill on right, status/priority on left with spacing */}
-                                  <div className="flex flex-row justify-between items-stretch gap-6 md:ml-2 w-full md:w-auto">
+                                  {/* Desktop: Compact controls on the right */}
+                                  <div className="hidden xl:flex flex-col gap-1 ml-2">
+                                    <StatusDropdown
+                                      value={project.status}
+                                      onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
+                                      className="w-32 text-xs"
+                                    />
+                                    <PriorityDropdown
+                                      value={project.priority}
+                                      onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
+                                      className="w-32 text-xs"
+                                    />
+                                  </div>
+
+                                  {/* Mobile/Tablet: Full width controls */}
+                                  <div className="flex flex-row justify-between items-stretch gap-6 w-full xl:hidden">
                                     <div className="flex flex-row gap-2">
                                       <StatusDropdown
                                         value={project.status}
@@ -1564,12 +1578,12 @@ export const ProjectManagementApp = () => {
                                       />
                                     </div>
                                     
-                                    {/* Payment pill (tablet/desktop only) */}
+                                    {/* Payment pill (tablet only) */}
                                     <Button
                                       size="default"
                                       variant={project.paid ? "default" : "outline"}
                                       onClick={() => toggleProjectPaid(project.id)}
-                                      className={`hidden md:flex touch-target h-10 px-4 rounded-2xl text-sm transition-all duration-200 ${
+                                      className={`hidden md:flex xl:hidden touch-target h-10 px-4 rounded-2xl text-sm transition-all duration-200 ${
                                         project.paid 
                                           ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
                                           : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
@@ -1589,16 +1603,33 @@ export const ProjectManagementApp = () => {
                                   </p>
                                 )}
 
-                                {/* Price and Payment - Mobile optimized */}
-                                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0 md:mb-3">
-                                  <div className="text-lg md:text-sm font-bold md:font-semibold text-green-600">
+                                {/* Price and Payment - Desktop optimized */}
+                                <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3 xl:gap-4 xl:mb-3">
+                                  <div className="text-lg xl:text-sm font-bold xl:font-semibold text-green-600">
                                     {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
                                   </div>
+                                  
+                                  {/* Desktop payment button */}
                                   <Button
                                     size="default"
                                     variant={project.paid ? "default" : "outline"}
                                     onClick={() => toggleProjectPaid(project.id)}
-                                    className={`touch-target w-full md:hidden text-sm h-12 px-4 transition-all duration-200 ${
+                                    className={`hidden xl:flex text-xs h-8 px-3 transition-all duration-200 ${
+                                      project.paid 
+                                        ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
+                                        : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
+                                    }`}
+                                  >
+                                    <CreditCard className="w-3 h-3 ml-1" />
+                                    {project.paid ? 'שולם' : 'לא שולם'}
+                                  </Button>
+
+                                  {/* Mobile payment button */}
+                                  <Button
+                                    size="default"
+                                    variant={project.paid ? "default" : "outline"}
+                                    onClick={() => toggleProjectPaid(project.id)}
+                                    className={`touch-target w-full xl:hidden text-sm h-12 px-4 transition-all duration-200 ${
                                       project.paid 
                                         ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
                                         : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
@@ -1609,11 +1640,11 @@ export const ProjectManagementApp = () => {
                                   </Button>
                                 </div>
 
-                                {/* Tasks Section - Mobile optimized */}
+                                {/* Tasks Section - Responsive */}
                                 <div className="space-y-3">
-                                  <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 md:p-3 rounded-xl md:rounded-lg border border-blue-100/50 dark:border-blue-800/30">
-                                    <div className="flex items-center justify-between mb-4 md:mb-3">
-                                      <h3 className="text-lg md:text-lg font-semibold text-blue-600 dark:text-blue-400">משימות</h3>
+                                  <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 xl:p-3 rounded-xl xl:rounded-lg border border-blue-100/50 dark:border-blue-800/30">
+                                    <div className="flex items-center justify-between mb-4 xl:mb-3">
+                                      <h3 className="text-lg xl:text-sm font-semibold text-blue-600 dark:text-blue-400">משימות</h3>
                                       <Button
                                         size="default"
                                         variant="ghost"
@@ -1621,9 +1652,24 @@ export const ProjectManagementApp = () => {
                                           setSelectedProject(project);
                                           setShowTasksModal(true);
                                         }}
-                                        className="touch-target text-sm md:text-xs h-10 md:h-7 px-4 md:px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl md:rounded-lg transition-all duration-200"
+                                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 h-8 xl:h-6 px-3 xl:px-2 text-sm xl:text-xs touch-target"
                                       >
-                                        <ListTodo className="w-4 h-4 md:w-3 md:h-3 ml-2 md:ml-1" />
+                                        <Plus className="w-4 h-4 xl:w-3 xl:h-3 ml-1" />
+                                        הוסף
+                                      </Button>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between">
+                                      <Button
+                                        size="default"
+                                        variant="outline"
+                                        onClick={() => {
+                                          setSelectedProject(project);
+                                          setShowTasksModal(true);
+                                        }}
+                                        className="touch-target text-sm xl:text-xs h-10 xl:h-7 px-4 xl:px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl xl:rounded-lg transition-all duration-200"
+                                      >
+                                        <ListTodo className="w-4 h-4 xl:w-3 xl:h-3 ml-2 xl:ml-1" />
                                         {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : 'הוסף משימות'}
                                       </Button>
                                     </div>
