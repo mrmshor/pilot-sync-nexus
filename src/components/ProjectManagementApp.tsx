@@ -125,8 +125,65 @@ export const ProjectManagementApp = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  // Removed mobile swipe gestures to restore pre-mobile behavior
+  // Mobile sidebar event listeners and swipe gestures
+  useEffect(() => {
+    let startX = 0;
+    let startY = 0;
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+    
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!e.changedTouches.length) return;
+      
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      const diffX = endX - startX;
+      const diffY = endY - startY;
+      
+      // Only on mobile/tablet
+      if (window.innerWidth >= 1280) return;
+      
+      // Ensure horizontal swipe (not vertical scroll)
+      if (Math.abs(diffY) > Math.abs(diffX)) return;
+      if (Math.abs(diffX) < 50) return;
+      
+      // Swipe from right edge (tasks sidebar)
+      if (startX > window.innerWidth - 50 && diffX < -50) {
+        setShowMobileTasksSidebar(true);
+      }
+      
+      // Swipe from left edge (projects sidebar)  
+      if (startX < 50 && diffX > 50) {
+        setShowMobileProjectsSidebar(true);
+      }
+    };
+    
+    const handleCloseMobileTasksSidebar = () => {
+      setShowMobileTasksSidebar(false);
+    };
+    
+    const handleCloseMobileProjectsSidebar = () => {
+      setShowMobileProjectsSidebar(false);
+    };
 
+    // Touch events for swipe gestures
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    
+    // Custom events for closing sidebars
+    window.addEventListener('closeMobileTasksSidebar', handleCloseMobileTasksSidebar);
+    window.addEventListener('closeMobileProjectsSidebar', handleCloseMobileProjectsSidebar);
+    
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('closeMobileTasksSidebar', handleCloseMobileTasksSidebar);
+      window.removeEventListener('closeMobileProjectsSidebar', handleCloseMobileProjectsSidebar);
+    };
+  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -776,17 +833,56 @@ export const ProjectManagementApp = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex w-full ios-safe-area" dir="rtl">
         {/* Desktop Tasks Sidebar - Right Side */}
         <div className="hidden xl:block fixed right-0 top-0 h-full w-80 z-10">
           <TasksSidebar />
         </div>
 
         {/* Main Content - Center */}
-        <div className="flex-1 min-h-screen xl:mx-80 flex flex-col">
+        <div className="flex-1 min-h-screen xl:mx-80 flex flex-col px-0">{/* Removed any default padding */}
+          {/* Mobile Header - Collapsible */}
+          <div className={`xl:hidden sticky top-0 z-30 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm transition-transform duration-300 w-full m-0 ${
+            headerVisible ? 'translate-y-0' : '-translate-y-full'
+          }`}>{/* Force full width */}
+            <div className="w-full px-0 py-3 ios-safe-top">{/* Zero padding for full width */}
+              <div className="flex items-center justify-between px-4">{/* Add padding only to inner content */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMobileProjectsSidebar(true)}
+                  className="p-3 hover:bg-white/20 rounded-lg min-h-[44px] min-w-[44px] mobile-touch-target"
+                >
+                  <FolderOpen className="h-6 w-6" />
+                  <span className="sr-only">פרויקטים</span>
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+                    {customLogo ? (
+                      <img src={customLogo} alt="לוגו" className="w-full h-full object-cover rounded-lg" />
+                    ) : (
+                      <span className="text-sm text-white">🚀</span>
+                    )}
+                  </div>
+                  <span className="text-sm font-semibold text-primary">ניהול פרויקטים</span>
+                </div>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMobileTasksSidebar(true)}
+                  className="p-3 hover:bg-white/20 rounded-lg min-h-[44px] min-w-[44px] mobile-touch-target"
+                >
+                  <CheckSquare className="h-6 w-6" />
+                  <span className="sr-only">משימות</span>
+                </Button>
+              </div>
+            </div>
+          </div>
 
           {/* Desktop Header and Navigation */}
-          <div className="hidden xl:block sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm">
+          <div className="hidden xl:block sticky top-0 z-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-b border-white/20 shadow-sm xl:w-screen xl:relative xl:left-1/2 xl:right-1/2 xl:-ml-[50vw] xl:-mr-[50vw]">
             <div className="container mx-auto px-4 py-6 md:py-8 lg:py-8">
               {/* Header */}
               <header className="text-center mb-6 md:mb-8 relative">
@@ -961,7 +1057,7 @@ export const ProjectManagementApp = () => {
 
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto">
-            <div className="container mx-auto px-4 py-6 pb-16 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
+            <div className="w-full px-2 md:px-4 py-6 pb-16 md:pb-6 max-w-full">{/* Full width container with minimal padding */}{/* Reduced padding on mobile, more bottom space */}
               {/* Content */}
               <main>
                 {activeTab === 'dashboard' && (
@@ -1429,7 +1525,7 @@ export const ProjectManagementApp = () => {
                 {activeTab === 'projects' && (
                   <div className="space-y-6">
                     {/* Projects Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">{/* Smaller gaps on mobile */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                       {filteredAndSortedProjects.map((project) => {
                         const completedTasks = project.tasks.filter(t => t.completed).length;
                         const totalTasks = project.tasks.length;
@@ -1702,7 +1798,112 @@ export const ProjectManagementApp = () => {
           <ProjectsSidebar />
         </div>
         
+        {/* Mobile Floating Sidebars */}
+        {showMobileTasksSidebar && (
+          <div className="fixed inset-0 z-50 xl:hidden">
+            <div 
+              className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
+              onClick={() => setShowMobileTasksSidebar(false)}
+            ></div>
+            <div className="absolute right-0 top-0 h-full w-80 sm:w-96 md:w-[420px] max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-l border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-right">
+              <div className="h-screen flex flex-col mobile-sidebar-scroll">
+                <TasksSidebar />
+              </div>
+            </div>
+          </div>
+        )}
         
+        {showMobileProjectsSidebar && (
+          <div className="fixed inset-0 z-50 xl:hidden">
+            <div 
+              className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
+              onClick={() => setShowMobileProjectsSidebar(false)}
+            ></div>
+            <div className="absolute left-0 top-0 h-full w-48 max-w-[50vw] bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl border-r border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-left">
+              <div className="h-screen overflow-hidden flex flex-col ios-scroll-fix">
+                <div className="flex-1 overflow-y-auto">
+                  {/* Minimal Header */}
+                  <div className="p-3 border-b bg-white/50 dark:bg-gray-800/50 sticky top-0">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">קפיצה מהירה</h3>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setShowMobileProjectsSidebar(false)}
+                        className="p-1 h-6 w-6"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Ultra Minimal Projects List */}
+                  <div className="p-2 space-y-1">
+                    {projects.map((project, index) => (
+                      <button 
+                        key={project.id}
+                        className="w-full text-right p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-xs group border-b border-gray-100/50 dark:border-gray-700/50 last:border-b-0"
+                        onClick={() => {
+                          // Scroll to project in main view
+                          setSelectedProject(project);
+                          setActiveTab('projects');
+                          setShowMobileProjectsSidebar(false);
+                          
+                          // Scroll to specific project after tab switch
+                          setTimeout(() => {
+                            const projectElement = document.getElementById(`project-${project.id}`);
+                            if (projectElement) {
+                              projectElement.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                              });
+                              // Add highlight effect
+                              projectElement.classList.add('ring-2', 'ring-blue-400/50');
+                              setTimeout(() => {
+                                projectElement.classList.remove('ring-2', 'ring-blue-400/50');
+                              }, 2000);
+                            }
+                          }, 100);
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 text-right">
+                            <div className="font-medium text-gray-800 dark:text-gray-200 truncate text-xs leading-tight">
+                              {project.name.length > 20 ? `${project.name.substring(0, 20)}...` : project.name}
+                            </div>
+                            {project.clientName && (
+                              <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                                {project.clientName.length > 15 ? `${project.clientName.substring(0, 15)}...` : project.clientName}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Minimal Status Dot */}
+                          <div className={`w-2 h-2 rounded-full ml-2 flex-shrink-0 ${
+                            project.status === 'in-progress' ? 'bg-blue-500' :
+                            project.status === 'completed' ? 'bg-green-500' :
+                            'bg-gray-400'
+                          }`}></div>
+                        </div>
+                        
+                        {/* Project Number */}
+                        <div className="text-[8px] text-gray-400 mt-1 text-right font-mono">
+                          #{index + 1}
+                        </div>
+                      </button>
+                    ))}
+                    
+                    {projects.length === 0 && (
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <div className="text-xs">אין פרויקטים</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Mobile Floating Navigation - 5 Buttons */}
         <div 
@@ -1803,6 +2004,13 @@ export const ProjectManagementApp = () => {
           </div>
         )}
  
+        {/* Swipe Indicators - Show on first visit */}
+        {!showMobileTasksSidebar && !showMobileProjectsSidebar && (
+          <>
+            <div className="swipe-indicator-left xl:hidden"></div>
+            <div className="swipe-indicator-right xl:hidden"></div>
+          </>
+        )}
       </div>
     </SidebarProvider>
   );

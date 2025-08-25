@@ -288,6 +288,21 @@ export function TasksSidebar() {
               <X className="w-4 h-4" />
             </Button>
             
+            {/* Mobile Close Button */}
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                // Close mobile sidebar when X is clicked
+                if (window.innerWidth < 1024) {
+                  const event = new CustomEvent('closeMobileTasksSidebar');
+                  window.dispatchEvent(event);
+                }
+              }}
+              className="lg:hidden"
+            >
+              <X className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </div>
@@ -352,7 +367,7 @@ export function TasksSidebar() {
       </div>
 
       {/* Tasks List */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 ios-scroll-fix">
         <div className="p-4">
           {/* Pending Tasks */}
           {pendingTasks.length > 0 && (
