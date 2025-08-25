@@ -307,7 +307,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                     </span>
                   </div>
                 </div>
-                <div className="tablet-header-actions">
+                <div className="tablet-header-actions hidden xl:flex">
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -333,18 +333,31 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 </div>
               </div>
               
-              {/* Interactive Status and Priority */}
-              <div className="mobile-button-grid mb-3">
+              {/* Interactive Status, Priority, and Payment (tablet row) */}
+              <div className="flex flex-col gap-2 md:flex-row-reverse md:items-center md:justify-between md:gap-4 mb-3">
                 <StatusDropdown
                   value={project.status}
                   onChange={(status) => updateProjectStatus(project.id, status)}
-                  className="flex-1"
+                  className="flex-1 md:max-w-[220px]"
                 />
                 <PriorityDropdown
                   value={project.priority}
                   onChange={(priority) => updateProjectPriority(project.id, priority)}
-                  className="flex-1"
+                  className="flex-1 md:max-w-[220px]"
                 />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePaid(project.id);
+                  }}
+                  className={`hidden md:flex mobile-button ${project.paid ? 'border-green-300 text-green-700 bg-green-50' : 'border-orange-300 text-orange-700 bg-orange-50'}`}
+                  title={project.paid ? 'שולם' : 'לא שולם'}
+                >
+                  <CreditCard className="mobile-icon-sm ml-1" />
+                  {project.paid ? 'שולם' : 'לא שולם'}
+                </Button>
               </div>
             </div>
 
@@ -377,7 +390,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                     e.stopPropagation();
                     togglePaid(project.id);
                   }}
-                  className="mobile-button"
+                  className="mobile-button md:hidden"
                 >
                   <CreditCard className="mobile-icon-sm ml-1" />
                   {project.paid ? 'שולם ✓' : 'לא שולם'}
@@ -483,6 +496,16 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Tablet actions row */}
+            <div className="hidden md:flex items-center justify-center gap-4 px-6 pb-4">
+              <Button variant="outline" className="mobile-button px-6" title="ערוך פרויקט">
+                <Edit className="mobile-icon-sm ml-2" /> ערוך פרויקט
+              </Button>
+              <Button variant="destructive" className="mobile-button px-6" onClick={(e) => { e.stopPropagation(); if (confirm('האם אתה בטוח שברצונך למחוק את הפרויקט?')) { onDeleteProject(project.id); } }} title="מחק פרויקט">
+                <Trash2 className="mobile-icon-sm ml-2" /> מחק פרויקט
+              </Button>
             </div>
 
             {/* Footer */}
