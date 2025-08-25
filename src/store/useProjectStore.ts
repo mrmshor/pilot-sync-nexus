@@ -239,11 +239,20 @@ export const useProjectStore = create<ProjectStore>()(
             return;
           }
 
-          // Fetch projects
-          const { data: projectsData, error: projectsError } = await supabase
-            .from('projects')
-            .select('*')
-            .order('created_at', { ascending: false });
+          // Fetch projects and tasks in parallel
+          const [projectsRes, tasksRes] = await Promise.all([
+            supabase
+              .from('projects')
+              .select('*')
+              .order('created_at', { ascending: false }),
+            supabase
+              .from('project_tasks')
+              .select('*')
+              .order('created_at', { ascending: false })
+          ]);
+
+          const { data: projectsData, error: projectsError } = projectsRes;
+          const { data: tasksData, error: tasksError } = tasksRes;
 
           if (projectsError) {
             console.error('Projects fetch error:', projectsError);
@@ -252,10 +261,43 @@ export const useProjectStore = create<ProjectStore>()(
             return;
           }
 
-          const projects = projectsData?.map(convertFromSupabase) || [];
-          
+          if (tasksError) {
+            console.warn('Tasks fetch warning (will keep local tasks):', tasksError);
+          }
+
+          // Merge server projects with existing local tasks; if server has tasks use them, otherwise keep local
+          const existingProjects = currentState.projects;
+          const projects = (projectsData || []).map((projectData) => {
+            const base = convertFromSupabase(projectData);
+            const existing = existingProjects.find(p => p.id === base.id);
+
+            // Start with existing local tasks to avoid wiping
+            let mergedTasks = existing?.tasks ?? [];
+
+            // If we successfully fetched tasks, prefer server tasks for this project when available
+            if (tasksData) {
+              const serverTasks = tasksData
+                .filter((t: any) => t.project_id === base.id)
+                .map((task: any) => ({
+                  id: task.id,
+                  title: task.title,
+                  completed: task.completed ?? false,
+                  createdAt: new Date(task.created_at),
+                  completedAt: task.completed_at ? new Date(task.completed_at) : undefined,
+                }));
+              if (serverTasks.length > 0) {
+                mergedTasks = serverTasks;
+              }
+            }
+
+            return { ...base, tasks: mergedTasks };
+          });
+
           set({ projects, isSyncing: false, lastSyncError: null });
           console.log('Successfully synced projects:', projects.length);
+          if (tasksData) {
+            console.log('✅ Synced tasks from Supabase:', tasksData.length);
+          }
           
         } catch (error) {
           console.error('Unexpected sync error:', error);
