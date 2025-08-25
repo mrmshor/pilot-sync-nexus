@@ -287,7 +287,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
         {filteredAndSortedProjects.map(project => (
           <Card 
             key={project.id} 
-            className={`border-r-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer ${getPriorityColor(project.priority)} ${
+            className={`mobile-card border-r-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer ${getPriorityColor(project.priority)} ${
               selectedProjectId === project.id ? 'ring-2 ring-blue-500/50 shadow-2xl scale-[1.02]' : ''
             }`}
             elevated
