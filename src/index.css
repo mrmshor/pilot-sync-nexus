@@ -378,16 +378,6 @@ All colors MUST be HSL.
     text-rendering: optimizeLegibility;
   }
 
-  /* iOS Safe Area Support */
-  .ios-safe-area {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-
-  .ios-safe-top {
-    padding-top: env(safe-area-inset-top);
-  }
 
   /* iPhone specific optimizations */
   /* Disabled iOS-specific body/root lock to restore scrolling on mobile */
@@ -398,61 +388,11 @@ All colors MUST be HSL.
   /* Mobile floating navigation */
   /* Mobile-specific styles disabled to restore baseline layout */
 
-  /* iOS scrolling improvements */
-  .ios-scroll-fix {
-    -webkit-overflow-scrolling: touch;
-    overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-  }
   
-  /* Fix for iOS Safari scroll areas */
-  .scroll-area-viewport {
-    height: 100% !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-  }
   
   /* Improved mobile scroll container disabled */
 
-  /* Prevent body scroll when sidebar open on mobile */
-  .sidebar-open {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-  }
 
-  /* Swipe indicators */
-  .swipe-indicator-left {
-    transform: translateY(-50%);
-    width: 20px;
-    height: 60px;
-    background: linear-gradient(90deg, rgba(59, 130, 246, 0.3), transparent);
-    border-radius: 0 10px 10px 0;
-    z-index: 10;
-    pointer-events: none;
-    opacity: 0;
-    animation: swipe-hint 2s ease-in-out infinite;
-  }
-
-  .swipe-indicator-right {
-    position: fixed;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 60px;
-    background: linear-gradient(270deg, rgba(59, 130, 246, 0.3), transparent);
-    border-radius: 10px 0 0 10px;
-    z-index: 10;
-    pointer-events: none;
-    opacity: 0;
-    animation: swipe-hint 2s ease-in-out infinite 1s;
-  }
-
-  @keyframes swipe-hint {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
-  }
 
   @keyframes slide-in-left {
     from { transform: translateX(-100%); }

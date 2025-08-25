@@ -156,19 +156,6 @@ export function ProjectsSidebar() {
             )}
           </button>
           
-          {/* Mobile Close Button */}
-          <button
-            onClick={() => {
-              // Close mobile sidebar when X is clicked
-              if (window.innerWidth < 1024) {
-                const event = new CustomEvent('closeMobileProjectsSidebar');
-                window.dispatchEvent(event);
-              }
-            }}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group lg:hidden"
-          >
-            <X size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" />
-          </button>
         </div>
       </div>
 
