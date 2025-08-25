@@ -280,17 +280,6 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               </Button>
             </div>
 
-            <div className="flex items-center justify-end">
-              <Button
-                variant={compactView ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setCompactView(v => !v)}
-                className="text-xs"
-                title="החלף בין תצוגה קומפקטית למורחבת"
-              >
-                {compactView ? 'תצוגה קומפקטית: פעיל' : 'תצוגה קומפקטית: כבוי'}
-              </Button>
-            </div>
           </div>
         </div>
       </Card>
