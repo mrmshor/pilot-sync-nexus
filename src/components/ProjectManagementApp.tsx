@@ -1805,7 +1805,7 @@ export const ProjectManagementApp = () => {
               className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
               onClick={() => setShowMobileTasksSidebar(false)}
             ></div>
-            <div className="absolute right-0 top-0 h-full w-80 sm:w-96 md:w-[420px] max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-l border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-right">
+            <div className="absolute right-0 top-0 h-full w-full sm:w-96 md:w-[420px] lg:max-w-[85vw] bg-white/95 backdrop-blur-md shadow-2xl border-l border-border/50 transform transition-transform duration-300 ease-out ios-safe-area animate-slide-in-right">
               <div className="h-screen flex flex-col mobile-sidebar-scroll">
                 <TasksSidebar />
               </div>
@@ -1907,82 +1907,80 @@ export const ProjectManagementApp = () => {
 
         {/* Mobile Floating Navigation - 5 Buttons */}
         <div 
-          className={`xl:hidden fixed bottom-6 left-4 right-4 z-50 floating-nav-bottom transform transition-all duration-300 ${mobileBarHidden ? 'translate-y-[140%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}
+          className={`xl:hidden fixed bottom-4 left-3 right-3 z-50 floating-nav-bottom transform transition-all duration-300 ${mobileBarHidden ? 'translate-y-[140%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}
           onTouchStart={(e) => { if (e.touches && e.touches[0]) mobileBarTouchStartY.current = e.touches[0].clientY; }}
           onTouchEnd={(e) => { const endY = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : 0; if (endY - mobileBarTouchStartY.current > 40) setMobileBarHidden(true); }}
         >
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-2">
-            {/* First Row - Main Navigation */}
-            <div className="grid grid-cols-4 gap-2 mb-2">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-3 safe-area-bottom">
+            {/* Main Navigation - Single Row */}
+            <div className="grid grid-cols-5 gap-2">
               {/* Dashboard Button */}
               <Button
                 variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
-                size="sm"
+                size="lg"
                 onClick={() => setActiveTab('dashboard')}
-                className={`flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] transition-all duration-200 ${
+                className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
                   activeTab === 'dashboard' 
-                    ? 'bg-gradient-primary text-white shadow-lg' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl' 
+                    : 'text-foreground hover:text-primary hover:bg-accent'
                 }`}
               >
                 <BarChart3 className="h-5 w-5" />
-                <span className="text-xs font-medium">לוח בקרה</span>
+                <span className="text-[10px] font-semibold">דשבורד</span>
               </Button>
 
               {/* Projects Tab Button */}
               <Button
                 variant={activeTab === 'projects' ? 'default' : 'ghost'}
-                size="sm"
+                size="lg"
                 onClick={() => setActiveTab('projects')}
-                className={`flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] transition-all duration-200 ${
+                className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
                   activeTab === 'projects' 
-                    ? 'bg-gradient-primary text-white shadow-lg' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl' 
+                    : 'text-foreground hover:text-primary hover:bg-accent'
                 }`}
               >
                 <Users className="h-5 w-5" />
-                <span className="text-xs font-medium">פרויקטים</span>
+                <span className="text-[10px] font-semibold">פרויקטים</span>
               </Button>
 
               {/* Tasks Sidebar Button */}
               <Button
                 variant="ghost"
-                size="sm"
+                size="lg"
                 onClick={() => setShowMobileTasksSidebar(true)}
-                className="flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
+                className="flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target text-foreground hover:text-primary hover:bg-accent transition-all duration-200 rounded-xl font-medium"
               >
                 <CheckSquare className="h-5 w-5" />
-                <span className="text-xs font-medium">משימות</span>
+                <span className="text-[10px] font-semibold">משימות</span>
               </Button>
 
               {/* Projects Sidebar Button */}
               <Button
                 variant="ghost"
-                size="sm"
+                size="lg"
                 onClick={() => setShowMobileProjectsSidebar(true)}
-                className="flex flex-col items-center gap-1 p-3 h-auto min-h-[60px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
+                className="flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target text-foreground hover:text-primary hover:bg-accent transition-all duration-200 rounded-xl font-medium"
               >
                 <FolderOpen className="h-5 w-5" />
-                <span className="text-xs font-medium">קפיצה</span>
+                <span className="text-[10px] font-semibold">קפיצה</span>
               </Button>
-            </div>
-            
-            {/* Second Row - Refresh Button */}
-            <div className="flex justify-center">
+
+              {/* Refresh Button */}
               <Button
                 variant="ghost"
-                size="sm"
+                size="lg"
                 onClick={handleRefreshData}
                 disabled={isRefreshing}
-                className={`flex items-center gap-2 px-6 py-2 h-auto min-h-[40px] transition-all duration-200 ${
+                className={`flex flex-col items-center gap-1.5 p-3 h-auto min-h-[56px] touch-target transition-all duration-200 rounded-xl font-medium ${
                   isRefreshing 
-                    ? 'text-muted-foreground cursor-not-allowed' 
-                    : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+                    ? 'text-muted-foreground cursor-not-allowed opacity-50' 
+                    : 'text-foreground hover:text-primary hover:bg-accent'
                 }`}
               >
-                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <span className="text-xs font-medium">
-                  {isRefreshing ? 'מרענן...' : 'רענון נתונים'}
+                <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="text-[10px] font-semibold">
+                  {isRefreshing ? 'רענון' : 'עדכון'}
                 </span>
               </Button>
             </div>

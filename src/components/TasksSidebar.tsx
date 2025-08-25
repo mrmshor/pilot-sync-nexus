@@ -234,9 +234,9 @@ export function TasksSidebar() {
   }
 
   return (
-    <div className="h-full bg-white border-l shadow-lg flex flex-col">
+    <div className="h-full bg-card border-l shadow-lg flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200/30 dark:border-gray-700/30 flex-shrink-0 bg-gradient-to-b from-gray-50/50 to-transparent dark:from-gray-800/50">
+      <div className="p-4 border-b border-border/30 flex-shrink-0 bg-gradient-to-b from-muted/20 to-transparent safe-area-top">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative p-2 bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-xl shadow-sm">
@@ -343,8 +343,9 @@ export function TasksSidebar() {
         <Button 
           onClick={handleAddTask} 
           disabled={!newTask.trim()}
-          className="w-full py-3 text-base"
-          size="sm"
+          className="w-full py-4 text-base touch-target font-semibold"
+          size="lg"
+          variant="default"
         >
           <Plus className="w-5 h-5 mr-2" />
           הוסף משימה
@@ -381,9 +382,9 @@ export function TasksSidebar() {
                   variant="outline"
                   size="sm"
                   onClick={handleCopyPendingTasks}
-                  className="h-7 px-2 text-xs hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-all duration-200 active:scale-95"
+                  className="h-9 px-3 text-sm touch-target hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-200 active:scale-95 font-medium"
                 >
-                  <Copy className="w-3 h-3 ml-1" />
+                  <Copy className="w-4 h-4 ml-1" />
                   העתק
                 </Button>
               </div>
@@ -430,22 +431,22 @@ export function TasksSidebar() {
                        </div>
                      </div>
                     
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 z-50">
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteTask(task.id)}
-                          className="gap-2 text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          מחק משימה
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                     <DropdownMenu>
+                       <DropdownMenuTrigger asChild>
+                         <Button variant="ghost" size="sm" className="h-10 w-10 p-0 touch-target">
+                           <MoreVertical className="h-5 w-5" />
+                         </Button>
+                       </DropdownMenuTrigger>
+                       <DropdownMenuContent align="end" className="bg-card border-border z-50">
+                         <DropdownMenuItem
+                           onClick={() => handleDeleteTask(task.id)}
+                           className="gap-2 text-destructive hover:text-destructive/90 py-3 touch-target"
+                         >
+                           <Trash2 className="w-4 h-4" />
+                           מחק משימה
+                         </DropdownMenuItem>
+                       </DropdownMenuContent>
+                     </DropdownMenu>
                   </div>
                 ))}
               </div>
