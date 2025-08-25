@@ -338,12 +338,12 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 <StatusDropdown
                   value={project.status}
                   onChange={(status) => updateProjectStatus(project.id, status)}
-                  className="flex-1 md:max-w-[220px]"
+                  className="flex-1 md:w-[220px]"
                 />
                 <PriorityDropdown
                   value={project.priority}
                   onChange={(priority) => updateProjectPriority(project.id, priority)}
-                  className="flex-1 md:max-w-[220px]"
+                  className="flex-1 md:w-[220px]"
                 />
                 <Button
                   variant="outline"
@@ -352,7 +352,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                     e.stopPropagation();
                     togglePaid(project.id);
                   }}
-                  className={`hidden md:flex mobile-button ${project.paid ? 'border-green-300 text-green-700 bg-green-50' : 'border-orange-300 text-orange-700 bg-orange-50'}`}
+                  className={`hidden md:flex mobile-button md:w-[220px] justify-center ${project.paid ? 'border-green-300 text-green-700 bg-green-50' : 'border-orange-300 text-orange-700 bg-orange-50'}`}
                   title={project.paid ? 'שולם' : 'לא שולם'}
                 >
                   <CreditCard className="mobile-icon-sm ml-1" />
