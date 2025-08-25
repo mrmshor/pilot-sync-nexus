@@ -358,7 +358,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                 />
                 {compactView && (
                   <Button
-                    variant={project.paid ? 'secondary' : 'outline'}
+                    variant={project.paid ? 'success' : 'outline'}
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
