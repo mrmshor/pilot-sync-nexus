@@ -1549,8 +1549,21 @@ export const ProjectManagementApp = () => {
                                     </div>
                                   </div>
                                   
-                                  {/* Controls row: on tablet show in a row like smartphone, with payment pill first */}
-                                  <div className="flex flex-row gap-2 md:gap-2 md:ml-2 w-full md:w-auto items-stretch">
+                                  {/* Controls row: payment pill on right, status/priority on left with spacing */}
+                                  <div className="flex flex-row justify-between items-stretch gap-6 md:ml-2 w-full md:w-auto">
+                                    <div className="flex flex-row gap-2">
+                                      <StatusDropdown
+                                        value={project.status}
+                                        onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
+                                        className="flex-1 md:w-40"
+                                      />
+                                      <PriorityDropdown
+                                        value={project.priority}
+                                        onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
+                                        className="flex-1 md:w-40"
+                                      />
+                                    </div>
+                                    
                                     {/* Payment pill (tablet/desktop only) */}
                                     <Button
                                       size="default"
@@ -1566,17 +1579,6 @@ export const ProjectManagementApp = () => {
                                       <CreditCard className="w-4 h-4 ml-2" />
                                       {project.paid ? 'שולם' : 'לא שולם'}
                                     </Button>
-
-                                    <StatusDropdown
-                                      value={project.status}
-                                      onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
-                                      className="flex-1 md:w-40"
-                                    />
-                                    <PriorityDropdown
-                                      value={project.priority}
-                                      onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
-                                      className="flex-1 md:w-40"
-                                    />
                                   </div>
                                 </div>
 
@@ -1742,7 +1744,7 @@ export const ProjectManagementApp = () => {
                                 )}
                               </div>
 
-                              <div className="flex flex-col md:flex-row gap-3 md:gap-2 pt-4 md:pt-2 border-t">
+                              <div className="flex flex-col md:flex-row gap-3 md:gap-2 pt-4 md:pt-2 border-t justify-center">
                                 <Button
                                   size="default"
                                   variant="outline"
