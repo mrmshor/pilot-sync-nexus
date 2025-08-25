@@ -1,0 +1,262 @@
+/* ===================================
+   Mobile & Tablet Responsive Styles
+   =================================== */
+
+@layer components {
+  /* ===== Mobile-First Touch Targets ===== */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .touch-target-large {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* ===== Mobile Navigation ===== */
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: hsl(var(--background) / 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid hsl(var(--border));
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    min-width: 48px;
+    padding: 8px;
+    border-radius: 12px;
+    transition: var(--transition-smooth);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.95);
+    background: hsl(var(--accent));
+  }
+
+  .mobile-nav-item.active {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  /* ===== Mobile Cards ===== */
+  .mobile-card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 16px;
+    padding: 20px;
+    margin: 12px;
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition-smooth);
+    touch-action: manipulation;
+  }
+
+  .mobile-card:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-medium);
+  }
+
+  /* ===== Mobile Inputs ===== */
+  .mobile-input {
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    border-radius: 12px;
+    border: 2px solid hsl(var(--border));
+    background: hsl(var(--background));
+    transition: var(--transition-smooth);
+    touch-action: manipulation;
+  }
+
+  .mobile-input:focus {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+    outline: none;
+  }
+
+  /* ===== Tablet Optimizations ===== */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .tablet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .tablet-sidebar {
+      width: 280px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 40;
+      background: hsl(var(--card));
+      border-right: 1px solid hsl(var(--border));
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .tablet-sidebar.open {
+      transform: translateX(0);
+    }
+
+    .tablet-content {
+      margin-left: 0;
+      transition: margin-left 0.3s ease;
+    }
+
+    .tablet-content.sidebar-open {
+      margin-left: 280px;
+    }
+  }
+
+  /* ===== Mobile Specific Styles ===== */
+  @media (max-width: 767px) {
+    .mobile-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: hsl(var(--background) / 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid hsl(var(--border));
+      padding: 12px 16px;
+      padding-top: calc(12px + env(safe-area-inset-top));
+    }
+
+    .mobile-content {
+      padding: 16px;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .mobile-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: hsl(var(--background));
+      padding: 16px;
+      padding-top: calc(16px + env(safe-area-inset-top));
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .mobile-drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 90vh;
+      z-index: 50;
+      background: hsl(var(--card));
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 20px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+
+    .mobile-drawer.open {
+      transform: translateY(0);
+    }
+
+    .mobile-drawer::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 4px;
+      background: hsl(var(--muted-foreground));
+      border-radius: 2px;
+    }
+  }
+
+  /* ===== Responsive Typography ===== */
+  @media (max-width: 767px) {
+    .mobile-title {
+      font-size: 24px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .mobile-subtitle {
+      font-size: 18px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .mobile-body {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .mobile-small {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+  }
+
+  /* ===== Touch Feedback ===== */
+  .touch-feedback {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .touch-feedback::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+  }
+
+  .touch-feedback:active::after {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+/* ===== Safe Area Support ===== */
+@supports (padding: max(0px)) {
+  .safe-area-top {
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+
+  .safe-area-bottom {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .safe-area-left {
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
+
+  .safe-area-right {
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+}

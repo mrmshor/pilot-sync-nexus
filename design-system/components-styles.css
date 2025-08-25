@@ -9,6 +9,8 @@
     color: white;
     border: none;
     transition: var(--transition-smooth);
+    touch-action: manipulation;
+    user-select: none;
   }
 
   .btn-gradient:hover {
@@ -16,16 +18,59 @@
     box-shadow: var(--shadow-glow);
   }
 
+  .btn-gradient:active {
+    transform: translateY(0) scale(0.98);
+  }
+
   .btn-glass {
     background: hsl(var(--background) / 0.8);
     backdrop-filter: blur(12px);
     border: 1px solid hsl(var(--border) / 0.5);
     transition: var(--transition-smooth);
+    touch-action: manipulation;
+    user-select: none;
   }
 
   .btn-glass:hover {
     background: hsl(var(--background) / 0.9);
     box-shadow: var(--shadow-elegant);
+  }
+
+  .btn-glass:active {
+    transform: scale(0.98);
+  }
+
+  /* ===== Mobile Button Styles ===== */
+  @media (max-width: 768px) {
+    .btn-mobile {
+      min-height: 48px;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 12px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-mobile:active {
+      transform: scale(0.96);
+      transition: transform 0.1s ease;
+    }
+  }
+
+  /* ===== Tablet Button Styles ===== */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .btn-tablet {
+      min-height: 44px;
+      padding: 10px 18px;
+      font-size: 15px;
+      border-radius: 10px;
+      touch-action: manipulation;
+    }
+
+    .btn-tablet:active {
+      transform: scale(0.97);
+      transition: transform 0.1s ease;
+    }
   }
 
   /* ===== Card Variants ===== */

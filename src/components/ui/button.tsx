@@ -14,26 +14,26 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   mac = true,
   ...props 
 }, ref) => {
-  const baseClass = `inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none ${
-    mac ? 'focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 active:scale-95' : 'focus:ring-2 focus:ring-blue-500'
-  } disabled:opacity-50 disabled:cursor-not-allowed`;
+  const baseClass = `inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus:outline-none ${
+    mac ? 'focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 active:scale-95' : 'focus:ring-2 focus:ring-primary'
+  } disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation select-none`;
   
   const variants = {
-    default: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl',
-    outline: 'border border-gray-300 bg-white/80 backdrop-blur text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-sm hover:shadow-md',
-    ghost: 'text-gray-700 hover:bg-gray-100/80 backdrop-blur',
-    destructive: 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-lg',
-    success: 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg',
-    warning: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg',
-    gradient: 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl',
-    glass: 'bg-white/20 backdrop-blur-sm border border-gray-200/50 text-gray-700 hover:bg-white/30'
+    default: 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl hover:-translate-y-0.5',
+    outline: 'border-2 border-border bg-card/80 backdrop-blur text-foreground hover:bg-accent hover:text-accent-foreground shadow-sm hover:shadow-md hover:-translate-y-0.5',
+    ghost: 'text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-sm',
+    destructive: 'bg-gradient-to-r from-destructive to-destructive/90 text-destructive-foreground hover:from-destructive/90 hover:to-destructive shadow-lg hover:shadow-destructive/25',
+    success: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:from-emerald-600 hover:to-emerald-700 shadow-lg hover:shadow-emerald-500/25',
+    warning: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg hover:shadow-amber-500/25',
+    gradient: 'bg-gradient-to-r from-primary via-purple-500 to-primary text-primary-foreground hover:from-primary/90 hover:via-purple-600 hover:to-primary/90 shadow-xl hover:shadow-2xl',
+    glass: 'bg-card/60 backdrop-blur-md border border-border/50 text-foreground hover:bg-card/80 hover:shadow-lg'
   };
   
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    default: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
-    icon: 'h-10 w-10 p-0'
+    sm: 'px-4 py-2 text-sm min-h-[36px]',
+    default: 'px-6 py-3 text-sm min-h-[44px]',
+    lg: 'px-8 py-4 text-base min-h-[52px]',
+    icon: 'h-11 w-11 p-0 min-h-[44px]'
   };
   
   return (

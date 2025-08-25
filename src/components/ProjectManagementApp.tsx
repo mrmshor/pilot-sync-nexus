@@ -111,10 +111,10 @@ export const ProjectManagementApp = () => {
         return;
       }
       
-      // Header appears faster when scrolling up or near top
-      if (currentScrollY < lastScrollY || currentScrollY < 30) {
+      // Mobile optimized scroll behavior - hide on down, show on up
+      if (currentScrollY < lastScrollY || currentScrollY < 20) {
         setHeaderVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 80) {
+      } else if (currentScrollY > lastScrollY && currentScrollY > 60) {
         setHeaderVisible(false);
       }
       
