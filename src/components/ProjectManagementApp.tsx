@@ -1531,7 +1531,7 @@ export const ProjectManagementApp = () => {
                         const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
                         return (
-                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group xl:card-macos">
+                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group">
                             <CardHeader className="pb-3 xl:pb-4 p-4 xl:p-6">
                               {/* Desktop-optimized layout */}
                               <div className="space-y-3 xl:space-y-0">
@@ -1738,17 +1738,17 @@ export const ProjectManagementApp = () => {
                             </CardHeader>
 
                             <CardContent className="space-y-4 p-4 md:p-6 pt-0">
-                              {/* Contact Buttons - Mobile optimized */}
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-2">
+                              {/* Contact Section - Responsive design */}
+                              <div className="flex flex-col xl:flex-row gap-3 xl:gap-2">
                                 {project.phone1 && (
                                   <Button
                                     size="default"
                                     variant="outline"
                                     onClick={() => handleContactClick('phone', project.phone1)}
-                                    className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200 touch-target"
+                                    className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200 touch-target"
                                   >
-                                    <PhoneCall className="w-5 h-5 md:w-3 md:h-3" />
-                                    <span className="font-medium">התקשר</span>
+                                    <PhoneCall className="w-5 h-5 xl:w-3 xl:h-3" />
+                                    <span className="font-medium xl:text-xs">התקשר</span>
                                   </Button>
                                 )}
                                 {project.whatsapp1 && (
@@ -1756,10 +1756,10 @@ export const ProjectManagementApp = () => {
                                     size="default"
                                     variant="outline"
                                     onClick={() => handleContactClick('whatsapp', project.whatsapp1)}
-                                    className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 transition-all duration-200 touch-target"
+                                    className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 transition-all duration-200 touch-target"
                                   >
-                                    <MessageCircle className="w-5 h-5 md:w-3 md:h-3" />
-                                    <span className="font-medium">וואטסאפ</span>
+                                    <MessageCircle className="w-5 h-5 xl:w-3 xl:h-3" />
+                                    <span className="font-medium xl:text-xs">וואטסאפ</span>
                                   </Button>
                                 )}
                                 {project.email && (
@@ -1767,30 +1767,31 @@ export const ProjectManagementApp = () => {
                                     size="default"
                                     variant="outline"
                                     onClick={() => handleContactClick('email', project.email)}
-                                    className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200 touch-target"
+                                    className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200 touch-target"
                                   >
-                                    <Mail className="w-5 h-5 md:w-3 md:h-3" />
-                                    <span className="font-medium">מייל</span>
+                                    <Mail className="w-5 h-5 xl:w-3 xl:h-3" />
+                                    <span className="font-medium xl:text-xs">מייל</span>
                                   </Button>
                                 )}
                               </div>
 
-                              {/* Action Buttons - Mobile optimized */}
-                              <div className="flex flex-col md:flex-row gap-3 md:gap-2">
+                              {/* Action Buttons - Responsive design */}
+                              <div className="flex flex-col xl:flex-row gap-3 xl:gap-2">
                                 {(project.folderPath || project.icloudLink) && (
                                   <Button
                                     size="default"
                                     variant="outline"
                                     onClick={() => openFolder(project.folderPath, project.icloudLink)}
-                                    className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 transition-all duration-200 touch-target"
+                                    className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 transition-all duration-200 touch-target"
                                   >
-                                    <FolderOpen className="w-5 h-5 md:w-3 md:h-3" />
-                                    <span className="font-medium">פתח תיקייה</span>
+                                    <FolderOpen className="w-5 h-5 xl:w-3 xl:h-3" />
+                                    <span className="font-medium xl:text-xs">פתח תיקייה</span>
                                   </Button>
                                 )}
                               </div>
 
-                              <div className="flex flex-col md:flex-row gap-3 md:gap-2 pt-4 md:pt-2 border-t justify-center">
+                              {/* Edit/Delete Buttons - Desktop left-aligned, Mobile/Tablet centered */}
+                              <div className="flex flex-col xl:flex-row gap-3 xl:gap-2 pt-4 xl:pt-2 border-t justify-center xl:justify-start">
                                 <Button
                                   size="default"
                                   variant="outline"
@@ -1798,19 +1799,19 @@ export const ProjectManagementApp = () => {
                                     setSelectedProject(project);
                                     setShowEditModal(true);
                                   }}
-                                  className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200 touch-target"
+                                  className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200 touch-target"
                                 >
-                                  <Edit className="w-5 h-5 md:w-3 md:h-3" />
-                                  <span className="font-medium">ערוך פרויקט</span>
+                                  <Edit className="w-5 h-5 xl:w-3 xl:h-3" />
+                                  <span className="font-medium xl:text-xs">ערוך פרויקט</span>
                                 </Button>
                                 <Button
                                   size="default"
                                   variant="outline"
                                   onClick={() => handleDeleteProject(project.id)}
-                                  className="flex items-center justify-center gap-2 md:gap-1 h-12 md:h-8 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200 touch-target"
+                                  className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200 touch-target"
                                 >
-                                  <Trash2 className="w-5 h-5 md:w-3 md:h-3" />
-                                  <span className="font-medium">מחק פרויקט</span>
+                                  <Trash2 className="w-5 h-5 xl:w-3 xl:h-3" />
+                                  <span className="font-medium xl:text-xs">מחק פרויקט</span>
                                 </Button>
                               </div>
                             </CardContent>
