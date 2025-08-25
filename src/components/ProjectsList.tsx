@@ -359,44 +359,42 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
 
               {/* Price Section */}
               <div className="tablet-section bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50">
-                <div className="flex items-center justify-between">
-                  <div className="text-lg font-bold text-green-600">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm font-semibold text-green-600">
                     {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
                   </div>
-                  <div className="flex gap-3">
-                    <Button
-                      variant={project.paid ? "success" : "destructive"}
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        togglePaid(project.id);
-                      }}
-                      className="mobile-button"
-                    >
-                      <CreditCard className="mobile-icon-sm ml-1" />
-                      {project.paid ? 'שולם ✓' : 'חיוב'}
-                    </Button>
-                    {project.completed && (
-                      <Badge variant="success" className="text-sm px-3 py-1">
-                        <CheckCircle2 className="mobile-icon-sm ml-1" />
-                        הושלם
-                      </Badge>
-                    )}
-                  </div>
+                  {project.completed && (
+                    <Badge variant="success" className="text-xs">
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      הושלם
+                    </Badge>
+                  )}
                 </div>
+                <Button
+                  variant={project.paid ? "success" : "destructive"}
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePaid(project.id);
+                  }}
+                  className="mobile-button"
+                >
+                  <CreditCard className="mobile-icon-sm ml-1" />
+                  {project.paid ? 'שולם ✓' : 'לא שולם'}
+                </Button>
               </div>
 
               {/* Contact Actions */}
               <div className="tablet-section bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200/50">
                 <div 
-                  className="contact-buttons-container" 
+                  className="space-y-3" 
                   onClick={(e) => e.stopPropagation()}
                 >
                   <ContactButtons
                     phone={project.phone1}
                     whatsapp={project.whatsapp1}
                     email={project.email}
-                    className="contact-buttons-container"
+                    className="flex flex-col gap-3"
                   />
                   {(project.folderPath || project.icloudLink) && (
                     <Button 
