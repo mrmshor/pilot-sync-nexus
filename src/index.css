@@ -390,13 +390,13 @@ All colors MUST be HSL.
   }
 
   /* iPhone specific optimizations */
-  /* Removed iOS @supports block to restore normal scrolling and layout */
+  /* Disabled iOS-specific body/root lock to restore scrolling on mobile */
 
   /* Tablet & Mobile Optimizations */
-  /* Removed tablet-specific overrides to match desktop behavior */
+  /* Tablet-specific styles disabled to restore baseline layout */
 
   /* Mobile floating navigation */
-  /* Removed mobile-specific overrides to prevent layout/scroll regressions */
+  /* Mobile-specific styles disabled to restore baseline layout */
 
   /* iOS scrolling improvements */
   .ios-scroll-fix {
@@ -412,8 +412,7 @@ All colors MUST be HSL.
     -webkit-overflow-scrolling: touch;
   }
   
-  /* Improved mobile scroll container */
-  /* Removed mobile scroll container overrides */
+  /* Improved mobile scroll container disabled */
 
   /* Prevent body scroll when sidebar open on mobile */
   .sidebar-open {
