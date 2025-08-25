@@ -307,11 +307,11 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="tablet-header-actions">
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="touch-target h-10 w-10 p-0 hover:bg-blue-100 text-blue-600 mobile-icon-button"
+                    className="touch-target mobile-icon-button hover:bg-blue-100 text-blue-600"
                     title="עריכה"
                   >
                     <Edit className="mobile-icon-md" />
@@ -325,7 +325,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         onDeleteProject(project.id);
                       }
                     }}
-                    className="touch-target h-10 w-10 p-0 hover:bg-red-100 text-red-500 mobile-icon-button"
+                    className="touch-target mobile-icon-button hover:bg-red-100 text-red-500"
                     title="מחיקה"
                   >
                     <Trash2 className="mobile-icon-md" />
@@ -358,12 +358,12 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               )}
 
               {/* Price Section */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200/50">
+              <div className="tablet-section bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold text-green-600">
+                  <div className="text-lg font-bold text-green-600">
                     {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <Button
                       variant={project.paid ? "success" : "destructive"}
                       size="sm"
@@ -371,14 +371,14 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         e.stopPropagation();
                         togglePaid(project.id);
                       }}
-                      className="touch-target mobile-button text-sm px-3 py-2 min-h-[44px]"
+                      className="mobile-button"
                     >
                       <CreditCard className="mobile-icon-sm ml-1" />
                       {project.paid ? 'שולם ✓' : 'חיוב'}
                     </Button>
                     {project.completed && (
-                      <Badge variant="success" className="text-xs">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                      <Badge variant="success" className="text-sm px-3 py-1">
+                        <CheckCircle2 className="mobile-icon-sm ml-1" />
                         הושלם
                       </Badge>
                     )}
@@ -387,16 +387,16 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               </div>
 
               {/* Contact Actions */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200/50">
+              <div className="tablet-section bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200/50">
                 <div 
-                  className="flex flex-wrap gap-2" 
+                  className="contact-buttons-container" 
                   onClick={(e) => e.stopPropagation()}
                 >
                   <ContactButtons
                     phone={project.phone1}
                     whatsapp={project.whatsapp1}
                     email={project.email}
-                    className="flex-wrap"
+                    className="contact-buttons-container"
                   />
                   {(project.folderPath || project.icloudLink) && (
                     <Button 
@@ -406,7 +406,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         e.stopPropagation();
                         await openFolder(project.folderPath || '', project.icloudLink);
                       }}
-                      className="touch-target mobile-button text-sm px-3 py-2 min-h-[44px] hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
+                      className="mobile-button hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
                       title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}
                     >
                       <FolderOpen className="mobile-icon-sm ml-1" />
@@ -417,10 +417,10 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
               </div>
 
               {/* Tasks Section */}
-              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-lg border border-indigo-200/50">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-indigo-600" />
+              <div className="tablet-section bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200/50">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="mobile-section-title flex items-center gap-2">
+                    <CheckCircle2 className="mobile-icon-md text-indigo-600" />
                     משימות ({project.tasks.filter(t => t.completed).length}/{project.tasks.length})
                   </h4>
                   <Button 
@@ -430,7 +430,7 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                       e.stopPropagation();
                       addTaskToProject(project.id);
                     }}
-                    className="touch-target h-8 w-8 p-0 hover:bg-indigo-100 text-indigo-600 mobile-icon-button"
+                    className="mobile-icon-button hover:bg-indigo-100 text-indigo-600"
                     title="הוסף משימה"
                   >
                     <Plus className="mobile-icon-md" />
