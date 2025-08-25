@@ -311,9 +311,10 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-8 w-8 p-0 hover:bg-blue-100 text-blue-600"
+                    className="touch-target h-10 w-10 p-0 hover:bg-blue-100 text-blue-600 mobile-icon-button"
+                    title="עריכה"
                   >
-                    <Edit className="h-4 w-4" />
+                    <Edit className="mobile-icon-md" />
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -324,9 +325,10 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         onDeleteProject(project.id);
                       }
                     }}
-                    className="h-8 w-8 p-0 hover:bg-red-100 text-red-500"
+                    className="touch-target h-10 w-10 p-0 hover:bg-red-100 text-red-500 mobile-icon-button"
+                    title="מחיקה"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="mobile-icon-md" />
                   </Button>
                 </div>
               </div>
@@ -369,10 +371,10 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         e.stopPropagation();
                         togglePaid(project.id);
                       }}
-                      className="text-xs"
+                      className="touch-target mobile-button text-sm px-3 py-2 min-h-[44px]"
                     >
-                      <CreditCard className="h-3 w-3 mr-1" />
-                      {project.paid ? 'שולם' : 'לא שולם'}
+                      <CreditCard className="mobile-icon-sm ml-1" />
+                      {project.paid ? 'שולם ✓' : 'חיוב'}
                     </Button>
                     {project.completed && (
                       <Badge variant="success" className="text-xs">
@@ -404,11 +406,11 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                         e.stopPropagation();
                         await openFolder(project.folderPath || '', project.icloudLink);
                       }}
-                      className="text-xs hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
+                      className="touch-target mobile-button text-sm px-3 py-2 min-h-[44px] hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all duration-200"
                       title={project.folderPath ? `פתח תיקיה: ${project.folderPath}` : 'פתח קישור ענן'}
                     >
-                      <FolderOpen className="h-3 w-3 mr-1" />
-                      {project.folderPath ? 'תיקיה' : 'ענן'}
+                      <FolderOpen className="mobile-icon-sm ml-1" />
+                      {project.folderPath ? 'קבצים' : 'ענן'}
                     </Button>
                   )}
                 </div>
@@ -428,9 +430,10 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                       e.stopPropagation();
                       addTaskToProject(project.id);
                     }}
-                    className="h-6 w-6 p-0 hover:bg-indigo-100 text-indigo-600"
+                    className="touch-target h-8 w-8 p-0 hover:bg-indigo-100 text-indigo-600 mobile-icon-button"
+                    title="הוסף משימה"
                   >
-                    <Plus className="h-3 w-3" />
+                    <Plus className="mobile-icon-md" />
                   </Button>
                 </div>
                 
@@ -461,9 +464,10 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
                             e.stopPropagation();
                             deleteTask(project.id, task.id);
                           }}
-                          className="h-4 w-4 p-0 hover:bg-red-100 text-red-500 flex-shrink-0"
+                          className="touch-target h-6 w-6 p-0 hover:bg-red-100 text-red-500 flex-shrink-0 mobile-icon-button"
+                          title="מחק משימה"
                         >
-                          <X className="h-2 w-2" />
+                          <X className="mobile-icon-sm" />
                         </Button>
                       </div>
                     ))}

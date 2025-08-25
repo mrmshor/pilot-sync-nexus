@@ -146,6 +146,33 @@
       width: 24px;
       height: 24px;
     }
+
+    /* Mobile Button Styles */
+    .mobile-card .mobile-button {
+      border-radius: 12px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-card .mobile-icon-button {
+      border-radius: 50%;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mobile-card .mobile-icon-button:active {
+      transform: scale(0.95);
+    }
+
+    .mobile-card .mobile-button:active {
+      transform: scale(0.98);
+    }
   }
 
   /* ===== Tablet Optimizations - Same as Mobile Style ===== */
@@ -290,6 +317,33 @@
     .mobile-card .mobile-icon-lg {
       width: 24px;
       height: 24px;
+    }
+
+    /* Tablet Button Styles */
+    .mobile-card .mobile-button {
+      border-radius: 12px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-card .mobile-icon-button {
+      border-radius: 50%;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mobile-card .mobile-icon-button:active {
+      transform: scale(0.95);
+    }
+
+    .mobile-card .mobile-button:active {
+      transform: scale(0.98);
     }
   }
 
