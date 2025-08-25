@@ -1058,8 +1058,7 @@ export const ProjectManagementApp = () => {
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto">
             <div className="container mx-auto px-4 py-6 pb-16 md:pb-6">{/* Reduced padding on mobile, more bottom space */}
-              {/* Content */}
-              <main>
+              <main className="mobile-content-spacing">
                 {activeTab === 'dashboard' && (
                   <div className="space-y-8 animate-fade-in">
                     {/* כותרת מעוצבת */}
@@ -1523,7 +1522,7 @@ export const ProjectManagementApp = () => {
                 )}
 
                 {activeTab === 'projects' && (
-                  <div className="space-y-6">
+                  <div className="space-y-6 mobile-content-spacing">
                     {/* Projects Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">{/* Mobile-optimized spacing */}
                       {filteredAndSortedProjects.map((project) => {

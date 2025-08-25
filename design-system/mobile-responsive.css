@@ -60,6 +60,11 @@
     color: hsl(var(--primary-foreground));
   }
 
+  /* ===== Mobile Content Spacing ===== */
+  .mobile-content-spacing {
+    @apply pb-28 md:pb-6; /* Add bottom padding on mobile to prevent content hiding behind floating nav */
+  }
+
   /* ===== Mobile Cards ===== */
   .mobile-card {
     background: hsl(var(--card));
@@ -258,5 +263,20 @@
 
   .safe-area-right {
     padding-right: max(16px, env(safe-area-inset-right));
+  }
+
+  /* Safe area for bottom navigation */
+  .pb-safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 6rem);
+  }
+
+  @media (min-width: 1280px) {
+    .pb-safe-bottom {
+      padding-bottom: 1.5rem;
+    }
+    
+    .mobile-content-spacing {
+      padding-bottom: 1.5rem;
+    }
   }
 }

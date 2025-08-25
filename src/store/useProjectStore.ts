@@ -257,7 +257,7 @@ export const useProjectStore = create<ProjectStore>()(
             let mergedTasks = existing?.tasks ?? [];
 
             // If we successfully fetched tasks, prefer server tasks for this project when available
-            if (tasksData) {
+            if (tasksData && Array.isArray(tasksData) && tasksData.length > 0) {
               const serverTasks = tasksData
                 .filter((t: any) => t.project_id === base.id)
                 .map((task: any) => ({
@@ -267,6 +267,7 @@ export const useProjectStore = create<ProjectStore>()(
                   createdAt: new Date(task.created_at),
                   completedAt: task.completed_at ? new Date(task.completed_at) : undefined,
                 }));
+              // Only replace local tasks if we actually have server tasks for this project
               if (serverTasks.length > 0) {
                 mergedTasks = serverTasks;
               }
