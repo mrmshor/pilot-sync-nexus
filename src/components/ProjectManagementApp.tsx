@@ -1550,16 +1550,16 @@ export const ProjectManagementApp = () => {
                                   </div>
                                   
                                   {/* Desktop: Compact controls on the right */}
-                                  <div className="hidden xl:flex flex-col gap-1 ml-2">
+                                  <div className="hidden xl:flex flex-col gap-1 ml-2 shrink-0">
                                     <StatusDropdown
                                       value={project.status}
                                       onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
-                                      className="w-32 text-xs"
+                                      className="w-28 h-6 text-xs border-0 bg-transparent px-2 py-0"
                                     />
                                     <PriorityDropdown
                                       value={project.priority}
                                       onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
-                                      className="w-32 text-xs"
+                                      className="w-28 h-6 text-xs border-0 bg-transparent px-2 py-0"
                                     />
                                   </div>
 
@@ -1611,10 +1611,10 @@ export const ProjectManagementApp = () => {
                                   
                                   {/* Desktop payment button */}
                                   <Button
-                                    size="default"
+                                    size="sm"
                                     variant={project.paid ? "default" : "outline"}
                                     onClick={() => toggleProjectPaid(project.id)}
-                                    className={`hidden xl:flex text-xs h-8 px-3 transition-all duration-200 ${
+                                    className={`hidden xl:flex text-xs h-6 px-2 transition-all duration-200 shrink-0 ${
                                       project.paid 
                                         ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
                                         : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
@@ -1790,28 +1790,30 @@ export const ProjectManagementApp = () => {
                                 )}
                               </div>
 
-                              {/* Edit/Delete Buttons - Desktop left-aligned, Mobile/Tablet centered */}
+                              {/* Edit/Delete Buttons - Desktop left-aligned small, Mobile/Tablet centered */}
                               <div className="flex flex-col xl:flex-row gap-3 xl:gap-2 pt-4 xl:pt-2 border-t justify-center xl:justify-start">
                                 <Button
-                                  size="default"
+                                  size="sm"
                                   variant="outline"
                                   onClick={() => {
                                     setSelectedProject(project);
                                     setShowEditModal(true);
                                   }}
-                                  className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200 touch-target"
+                                  className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-6 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200 touch-target xl:px-2"
                                 >
                                   <Edit className="w-5 h-5 xl:w-3 xl:h-3" />
-                                  <span className="font-medium xl:text-xs">ערוך פרויקט</span>
+                                  <span className="font-medium xl:text-xs xl:hidden">ערוך פרויקט</span>
+                                  <span className="hidden xl:inline text-xs">ערוך</span>
                                 </Button>
                                 <Button
-                                  size="default"
+                                  size="sm"
                                   variant="outline"
                                   onClick={() => handleDeleteProject(project.id)}
-                                  className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-8 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200 touch-target"
+                                  className="flex items-center justify-center gap-2 xl:gap-1 h-12 xl:h-6 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200 touch-target xl:px-2"
                                 >
                                   <Trash2 className="w-5 h-5 xl:w-3 xl:h-3" />
-                                  <span className="font-medium xl:text-xs">מחק פרויקט</span>
+                                  <span className="font-medium xl:text-xs xl:hidden">מחק פרויקט</span>
+                                  <span className="hidden xl:inline text-xs">מחק</span>
                                 </Button>
                               </div>
                             </CardContent>
