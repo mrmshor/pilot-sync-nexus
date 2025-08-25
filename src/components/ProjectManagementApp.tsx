@@ -1525,65 +1525,65 @@ export const ProjectManagementApp = () => {
                 {activeTab === 'projects' && (
                   <div className="space-y-6">
                     {/* Projects Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">{/* Smaller gaps on mobile */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:grid-cols-1 md:gap-4 tablet-grid">{/* Mobile: single column, Tablet: auto-fit grid, Desktop: multiple columns */}
                       {filteredAndSortedProjects.map((project) => {
                         const completedTasks = project.tasks.filter(t => t.completed).length;
                         const totalTasks = project.tasks.length;
                         const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
                         return (
-                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group">
-                            <CardHeader className="pb-3 md:pb-4">
+                          <Card key={project.id} id={`project-${project.id}`} className="card-macos relative group md:mobile-project-card tablet-card-spacing">
+                            <CardHeader className="pb-3 md:pb-4 md:mobile-card-header tablet-spacing">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1 min-w-0">
-                                  <CardTitle className="text-lg md:text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300">
+                                  <CardTitle className="text-lg md:text-xl font-bold line-clamp-2 mb-2 bg-gradient-to-r from-slate-700 via-blue-600 to-slate-700 bg-clip-text text-transparent hover:from-slate-600 hover:via-blue-500 hover:to-slate-600 transition-colors duration-300 md:mobile-card-title">
                                     {project.name}
                                   </CardTitle>
                                   <div className="flex items-center gap-2 mb-3">
                                     <User className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground" />
-                                    <span className="text-xs md:text-sm text-muted-foreground truncate">
-                                      {project.clientName}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="flex flex-col gap-1 md:gap-2 ml-2">
-                                  <StatusDropdown
-                                    value={project.status}
-                                    onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
-                                    className="w-24 md:w-32 text-xs"
-                                  />
-                                  <PriorityDropdown
-                                    value={project.priority}
-                                    onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
-                                    className="w-24 md:w-32 text-xs"
-                                  />
+                                    <span className="text-xs md:text-sm text-muted-foreground truncate md:mobile-card-subtitle">
+                                    {project.clientName}
+                                  </span>
                                 </div>
                               </div>
-
-                              {project.description && (
-                                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                                  {project.description}
-                                </p>
-                              )}
-
-                              <div className="flex items-center justify-between mb-3">
-                                <div className="text-sm font-semibold text-green-600">
-                                  {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
-                                </div>
-                                <Button
-                                  size="sm"
-                                  variant={project.paid ? "default" : "outline"}
-                                  onClick={() => toggleProjectPaid(project.id)}
-                                  className={`text-xs h-8 px-3 transition-all duration-200 ${
-                                    project.paid 
-                                      ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
-                                      : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
-                                  }`}
-                                >
-                                  <CreditCard className="w-3 h-3 ml-1" />
-                                  {project.paid ? 'שולם' : 'לא שולם'}
-                                </Button>
+                              <div className="flex flex-col gap-1 md:gap-2 ml-2 md:mobile-spacing-sm tablet-touch-target">
+                                <StatusDropdown
+                                  value={project.status}
+                                  onChange={(newStatus) => updateProjectStatus(project.id, newStatus as any)}
+                                  className="w-24 md:w-32 text-xs md:mobile-dropdown tablet-dropdown"
+                                />
+                                <PriorityDropdown
+                                  value={project.priority}
+                                  onChange={(newPriority) => updateProjectPriority(project.id, newPriority as any)}
+                                  className="w-24 md:w-32 text-xs md:mobile-dropdown tablet-dropdown"
+                                />
                               </div>
+                            </div>
+
+                            {project.description && (
+                              <p className="text-sm text-muted-foreground line-clamp-2 mb-3 md:mobile-card-subtitle">
+                                {project.description}
+                              </p>
+                            )}
+
+                            <div className="flex items-center justify-between mb-3 md:mobile-card-footer tablet-touch-target">
+                              <div className="text-sm font-semibold text-green-600">
+                                {getCurrencySymbol(project.currency)}{project.price.toLocaleString()}
+                              </div>
+                              <Button
+                                size="sm"
+                                variant={project.paid ? "default" : "outline"}
+                                onClick={() => toggleProjectPaid(project.id)}
+                                className={`text-xs h-8 px-3 transition-all duration-200 md:mobile-compact-button tablet-button ${
+                                  project.paid 
+                                    ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300' 
+                                    : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
+                                }`}
+                              >
+                                <CreditCard className="w-3 h-3 ml-1" />
+                                {project.paid ? 'שולם' : 'לא שולם'}
+                              </Button>
+                            </div>
 
                               <div className="space-y-3">
                                 <div className="bg-gradient-to-br from-blue-50/30 to-indigo-50/30 dark:from-blue-950/20 dark:to-indigo-950/20 p-3 rounded-lg border border-blue-100/50 dark:border-blue-800/30">
@@ -1665,14 +1665,14 @@ export const ProjectManagementApp = () => {
                               </div>
                             </CardHeader>
 
-                            <CardContent className="space-y-4">
-                              <div className="grid grid-cols-3 gap-2">
+                            <CardContent className="space-y-4 md:mobile-card-content tablet-spacing">
+                              <div className="grid grid-cols-3 gap-2 md:mobile-spacing-sm tablet-touch-target">
                                 {project.phone1 && (
                                   <Button
                                     size="sm"
                                     variant="outline"
                                     onClick={() => handleContactClick('phone', project.phone1)}
-                                    className="flex items-center gap-1 h-8 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200"
+                                    className="flex items-center gap-1 h-8 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200 md:mobile-compact-button tablet-button"
                                   >
                                     <PhoneCall className="w-3 h-3" />
                                     <span className="hidden sm:inline">חייג</span>
@@ -1683,7 +1683,7 @@ export const ProjectManagementApp = () => {
                                     size="sm"
                                     variant="outline"
                                     onClick={() => handleContactClick('whatsapp', project.whatsapp1)}
-                                    className="flex items-center gap-1 h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 transition-all duration-200"
+                                    className="flex items-center gap-1 h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 transition-all duration-200 md:mobile-compact-button tablet-button"
                                   >
                                     <MessageCircle className="w-3 h-3" />
                                     <span className="hidden sm:inline">וואטסאפ</span>
@@ -1694,7 +1694,7 @@ export const ProjectManagementApp = () => {
                                     size="sm"
                                     variant="outline"
                                     onClick={() => handleContactClick('email', project.email)}
-                                    className="flex items-center gap-1 h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200"
+                                    className="flex items-center gap-1 h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200 md:mobile-compact-button tablet-button"
                                   >
                                     <Mail className="w-3 h-3" />
                                     <span className="hidden sm:inline">מייל</span>
@@ -1702,13 +1702,13 @@ export const ProjectManagementApp = () => {
                                 )}
                               </div>
 
-                              <div className="flex gap-2">
+                              <div className="flex gap-2 md:mobile-spacing-sm tablet-touch-target">
                                 {(project.folderPath || project.icloudLink) && (
                                   <Button
                                     size="sm"
                                     variant="outline"
                                     onClick={() => openFolder(project.folderPath, project.icloudLink)}
-                                    className="flex items-center gap-1 h-8 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 transition-all duration-200"
+                                    className="flex items-center gap-1 h-8 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 transition-all duration-200 md:mobile-compact-button tablet-button"
                                   >
                                     <FolderOpen className="w-3 h-3" />
                                     פתח תיקייה
@@ -1716,7 +1716,7 @@ export const ProjectManagementApp = () => {
                                 )}
                               </div>
 
-                              <div className="flex gap-2 pt-2 border-t">
+                              <div className="flex gap-2 pt-2 border-t md:mobile-card-footer tablet-touch-target">
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -1724,7 +1724,7 @@ export const ProjectManagementApp = () => {
                                     setSelectedProject(project);
                                     setShowEditModal(true);
                                   }}
-                                  className="flex items-center gap-1 h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200"
+                                  className="flex items-center gap-1 h-8 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 transition-all duration-200 md:mobile-compact-button tablet-button"
                                 >
                                   <Edit className="w-3 h-3" />
                                   ערוך
@@ -1733,7 +1733,7 @@ export const ProjectManagementApp = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleDeleteProject(project.id)}
-                                  className="flex items-center gap-1 h-8 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200"
+                                  className="flex items-center gap-1 h-8 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 transition-all duration-200 md:mobile-compact-button tablet-button"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                   מחק
